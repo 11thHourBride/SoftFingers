@@ -217,3 +217,35 @@
   padding: 16px;
   text-align: center;
 }
+.hymn-line {
+  margin-bottom: 8px;
+  line-height: 1.8;
+  min-height: 1.8em;
+}
+
+.hymns-verse-text {
+  font-size: 1.25rem;
+  line-height: 1.9;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-style: italic;
+}
+
+.hymns-verse-text .char {
+  transition: color 0.1s ease;
+}
+
+.hymns-verse-text .correct {
+  color: #51cf66;
+}
+
+.hymns-verse-text .incorrect {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+  border-radius: 2px;
+}
+
+.hymns-verse-text .current {
+  background: rgba(159, 124, 255, 0.3);
+  border-radius: 2px;
+  padding: 0 2px;
+}
