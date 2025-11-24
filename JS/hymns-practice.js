@@ -10,9 +10,9 @@ const HYMNS_DATA = [
     year: 1779,
     category: "Salvation",
     verses: [
-      "Amazing grace how sweet the sound that saved a wretch like me I once was lost but now am found was blind but now I see",
-      "Twas grace that taught my heart to fear and grace my fears relieved How precious did that grace appear the hour I first believed",
-      "Through many dangers toils and snares I have already come Tis grace hath brought me safe thus far and grace will lead me home"
+      "Amazing grace how sweet the sound\nThat saved a wretch like me\nI once was lost but now am found\nWas blind but now I see",
+      "Twas grace that taught my heart to fear\nAnd grace my fears relieved\nHow precious did that grace appear\nThe hour I first believed",
+      "Through many dangers toils and snares\nI have already come\nTis grace hath brought me safe thus far\nAnd grace will lead me home"
     ]
   },
   {
@@ -22,8 +22,8 @@ const HYMNS_DATA = [
     year: 1885,
     category: "Praise",
     verses: [
-      "O Lord my God when I in awesome wonder consider all the worlds Thy hands have made I see the stars I hear the rolling thunder Thy power throughout the universe displayed",
-      "Then sings my soul my Saviour God to Thee how great Thou art how great Thou art Then sings my soul my Saviour God to Thee how great Thou art how great Thou art"
+      "O Lord my God when I in awesome wonder\nConsider all the worlds Thy hands have made\nI see the stars I hear the rolling thunder\nThy power throughout the universe displayed",
+      "Then sings my soul my Saviour God to Thee\nHow great Thou art how great Thou art\nThen sings my soul my Saviour God to Thee\nHow great Thou art how great Thou art"
     ]
   },
   {
@@ -33,8 +33,8 @@ const HYMNS_DATA = [
     year: 1873,
     category: "Peace",
     verses: [
-      "When peace like a river attendeth my way when sorrows like sea billows roll Whatever my lot Thou hast taught me to say It is well it is well with my soul",
-      "My sin oh the bliss of this glorious thought my sin not in part but the whole Is nailed to the cross and I bear it no more praise the Lord praise the Lord O my soul"
+      "When peace like a river attendeth my way\nWhen sorrows like sea billows roll\nWhatever my lot Thou hast taught me to say\nIt is well it is well with my soul",
+      "My sin oh the bliss of this glorious thought\nMy sin not in part but the whole\nIs nailed to the cross and I bear it no more\nPraise the Lord praise the Lord O my soul"
     ]
   },
   {
@@ -44,8 +44,8 @@ const HYMNS_DATA = [
     year: 1826,
     category: "Worship",
     verses: [
-      "Holy holy holy Lord God Almighty Early in the morning our song shall rise to Thee Holy holy holy merciful and mighty God in three Persons blessed Trinity",
-      "Holy holy holy all the saints adore Thee casting down their golden crowns around the glassy sea Cherubim and seraphim falling down before Thee which wert and art and evermore shalt be"
+      "Holy holy holy Lord God Almighty\nEarly in the morning our song shall rise to Thee\nHoly holy holy merciful and mighty\nGod in three Persons blessed Trinity",
+      "Holy holy holy all the saints adore Thee\nCasting down their golden crowns around the glassy sea\nCherubim and seraphim falling down before Thee\nWhich wert and art and evermore shalt be"
     ]
   },
   {
@@ -55,8 +55,8 @@ const HYMNS_DATA = [
     year: 700,
     category: "Devotion",
     verses: [
-      "Be Thou my vision O Lord of my heart naught be all else to me save that Thou art Thou my best thought by day or by night waking or sleeping Thy presence my light",
-      "Be Thou my wisdom and Thou my true word I ever with Thee and Thou with me Lord Thou my great Father and I Thy true son Thou in me dwelling and I with Thee one"
+      "Be Thou my vision O Lord of my heart\nNaught be all else to me save that Thou art\nThou my best thought by day or by night\nWaking or sleeping Thy presence my light",
+      "Be Thou my wisdom and Thou my true word\nI ever with Thee and Thou with me Lord\nThou my great Father and I Thy true son\nThou in me dwelling and I with Thee one"
     ]
   }
 ];
@@ -253,26 +253,42 @@ function renderHymnVerse() {
   }
   
   const display = document.getElementById('hymns-verse-text');
-  let html = '';
   
-  for (let i = 0; i < currentVerseText.length; i++) {
-    const char = currentVerseText[i];
-    const typedChar = hymnsTyped[i];
+  // Split text by newlines to handle line-by-line display
+  const lines = currentVerseText.split('\n');
+  let html = '';
+  let charIndex = 0;
+  
+  lines.forEach((line, lineIdx) => {
+    let lineHtml = '';
     
-    let charClass = 'char';
-    
-    if (i === hymnsTyped.length) {
-      charClass += ' current';
-    } else if (typedChar !== undefined) {
-      if (typedChar === char) {
-        charClass += ' correct';
-      } else {
-        charClass += ' incorrect';
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      const typedChar = hymnsTyped[charIndex];
+      
+      let charClass = 'char';
+      
+      if (charIndex === hymnsTyped.length) {
+        charClass += ' current';
+      } else if (typedChar !== undefined) {
+        if (typedChar === char) {
+          charClass += ' correct';
+        } else {
+          charClass += ' incorrect';
+        }
       }
+      
+      lineHtml += `<span class="${charClass}">${char === ' ' ? '&nbsp;' : escapeHtml(char)}</span>`;
+      charIndex++;
     }
     
-    html += `<span class="${charClass}">${char === ' ' ? '&nbsp;' : escapeHtml(char)}</span>`;
-  }
+    html += `<div class="hymn-line">${lineHtml}</div>`;
+    
+    // Account for newline character in typed text
+    if (lineIdx < lines.length - 1) {
+      charIndex++; // Skip the \n character
+    }
+  });
   
   display.innerHTML = html;
 }
