@@ -83,6 +83,35 @@ document.addEventListener('keydown', (e) => {
     }
   }
 });
+// ==== COPY TO CLIPBOARD HELPER ====
+function copyToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      // Show success toast
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 24px;
+        background: linear-gradient(135deg, #51cf66, #37b24d);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        z-index: 10002;
+        font-weight: 600;
+        animation: slideIn 0.3s ease;
+      `;
+      toast.textContent = '✅ Copied to clipboard!';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2000);
+    }).catch(err => {
+      console.error('Copy failed:', err);
+      fallbackCopy(text);
+    });
+  } else {
+    fallbackCopy(text);
+  }
+}
 // ==== COMPETITION MODALS ====
   const createCompModal = document.getElementById('create-competition-modal');
   const joinCompModal = document.getElementById('join-competition-modal');
@@ -777,169 +806,198 @@ document.addEventListener('keydown', (e) => {
   }
 
  // Quick join competition from card
-  window.quickJoinCompetition = async function(compId) {
-    if (!currentUser) {
-      alert('Please sign in to join competitions');
-      return;
-    }
-    
-    if (!confirm('Do you want to join this competition?')) {
-      return;
-    }
-    
-    try {
-      const compDoc = await db.collection('competitions').doc(compId).get();
-      
-      if (!compDoc.exists) {
-        alert('Competition not found');
-        return;
-      }
-      
-      const competition = compDoc.data();
-      
-      // Ensure participantIds exists
-      if (!competition.participantIds) {
-        const participantIds = competition.participants ? competition.participants.map(p => p.uid) : [competition.creatorId];
-        await compDoc.ref.update({ participantIds: participantIds });
-        competition.participantIds = participantIds;
-      }
-      
-      // Check if competition is still active
-      if (competition.status !== 'active') {
-        alert('This competition has ended.');
-        return;
-      }
-      
-      // Check if user already joined
-      const alreadyJoined = competition.participantIds.includes(currentUser.uid);
-      if (alreadyJoined) {
-        alert('You have already joined this competition!');
-        await loadCompetitions();
-        return;
-      }
-      
-      // Check if competition is full
-      const participants = competition.participants || [];
-      const maxParticipants = competition.maxParticipants || 10;
-      if (participants.length >= maxParticipants) {
-        alert('This competition is full.');
-        await loadCompetitions();
-        return;
-      }
-      
-      // Add user to participants
-      await compDoc.ref.update({
-        participantIds: firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
-        participants: firebase.firestore.FieldValue.arrayUnion({
-          uid: currentUser.uid,
-          email: currentUser.email,
-          joinedAt: firebase.firestore.Timestamp.now()
-        })
-      });
-      
-      alert('Successfully joined the competition! 🎉');
-      
-      // Reload competitions
-      await loadCompetitions();
-      
-    } catch (error) {
-      console.error('Error joining competition:', error);
-      alert('Failed to join competition. Please try again.');
-    }
-  };
-
-// Global competition functions
-  window.startCompetitionTest = function(compId, difficulty, duration, mode) {
-    // Store competition info - this will persist across multiple tests
-    localStorage.setItem('activeCompetition', compId);
-    localStorage.setItem('competitionMode', 'active'); // Flag that we're in competition mode
-    
-    // Switch to dashboard
-    document.querySelector('[data-feature="dashboard"]').click();
-    
-    // Set test parameters
-    currentDifficulty = difficulty;
-    document.querySelector(`[data-diff="${difficulty}"]`)?.click();
-    
-    durationSelect.value = duration;
-    modeSelect.value = mode;
-    
-    // Trigger mode change
-    const event = new Event('change');
-    durationSelect.dispatchEvent(event);
-    modeSelect.dispatchEvent(event);
-    
-    // Load new test
-    if (mode === 'quote') loadNewQuote();
-    else if (mode === 'story') loadNewStory();
-    else loadNewPassage();
-    
-    // Focus input
-    focusTypingInput();
-    
-    // Show competition indicator
-    showCompetitionIndicator(compId);
-    
-    alert('Competition mode activated! All tests will count until you leave the dashboard.');
-  };
-  
-  // Show competition indicator
-  function showCompetitionIndicator(compId) {
-    // Remove existing indicator if any
-    const existing = document.getElementById('competition-indicator');
-    if (existing) existing.remove();
-    
-    // Create indicator
-    const indicator = document.createElement('div');
-    indicator.id = 'competition-indicator';
-    indicator.style.cssText = `
-      position: fixed;
-      top: 80px;
-      right: 24px;
-      background: linear-gradient(135deg, #51cf66, #37b24d);
-      color: white;
-      padding: 12px 20px;
-      border-radius: 12px;
-      z-index: 9999;
-      box-shadow: 0 4px 16px rgba(81, 207, 102, 0.4);
-      font-weight: 600;
-      font-size: 0.875rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      animation: slideIn 0.3s ease;
-    `;
-    indicator.innerHTML = `
-      <span>🏆</span>
-      <span>Competition Mode Active</span>
-      <button onclick="exitCompetitionMode()" style="
-        background: rgba(255,255,255,0.2);
-        border: none;
-        color: white;
-        padding: 4px 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.75rem;
-        font-weight: 600;
-        margin-left: 8px;
-      ">Exit</button>
-    `;
-    
-    document.body.appendChild(indicator);
+window.quickJoinCompetition = async function(compId) {
+  if (!currentUser) {
+    alert('Please sign in to join competitions');
+    return;
   }
   
-  // Exit competition mode
-  window.exitCompetitionMode = function() {
-    if (confirm('Are you sure you want to exit competition mode? Future tests won\'t count towards the competition.')) {
-      localStorage.removeItem('activeCompetition');
-      localStorage.removeItem('competitionMode');
-      
-      const indicator = document.getElementById('competition-indicator');
-      if (indicator) indicator.remove();
-      
-      alert('Competition mode deactivated.');
+  if (!confirm('Do you want to join this competition?')) {
+    return;
+  }
+  
+  try {
+    const compDoc = await db.collection('competitions').doc(compId).get();
+    
+    if (!compDoc.exists) {
+      alert('Competition not found');
+      return;
     }
-  };
+    
+    const competition = compDoc.data();
+    
+    // IMPORTANT: Check end date FIRST before checking status
+    const now = new Date();
+    const endDate = competition.endsAt.toDate();
+    const isStillActive = endDate > now;
+    
+    if (!isStillActive) {
+      alert('This competition has ended.');
+      // Update status in database
+      await compDoc.ref.update({ status: 'completed' });
+      await loadCompetitions(); // Refresh
+      return;
+    }
+    
+    // Ensure participantIds exists
+    if (!competition.participantIds) {
+      const participantIds = competition.participants ? competition.participants.map(p => p.uid) : [competition.creatorId];
+      await compDoc.ref.update({ participantIds: participantIds });
+      competition.participantIds = participantIds;
+    }
+    
+    // Check if user already joined
+    const alreadyJoined = competition.participantIds.includes(currentUser.uid);
+    if (alreadyJoined) {
+      alert('You have already joined this competition!');
+      await loadCompetitions();
+      return;
+    }
+    
+    // Check if competition is full
+    const participants = competition.participants || [];
+    const maxParticipants = competition.maxParticipants || 10;
+    if (participants.length >= maxParticipants) {
+      alert('This competition is full.');
+      await loadCompetitions();
+      return;
+    }
+    
+    // Add user to participants
+    await compDoc.ref.update({
+      participantIds: firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
+      participants: firebase.firestore.FieldValue.arrayUnion({
+        uid: currentUser.uid,
+        email: currentUser.email,
+        joinedAt: firebase.firestore.Timestamp.now()
+      })
+    });
+    
+    alert('Successfully joined the competition! 🎉');
+    
+    // Reload competitions
+    await loadCompetitions();
+    
+  } catch (error) {
+    console.error('Error joining competition:', error);
+    alert('Failed to join competition: ' + error.message);
+  }
+};
+
+// Global competition functions
+ window.startCompetitionTest = function(compId, difficulty, duration, mode) {
+  // Store competition info with LOCKED settings
+  localStorage.setItem('activeCompetition', compId);
+  localStorage.setItem('competitionMode', 'active');
+  localStorage.setItem('competitionDifficulty', difficulty);
+  localStorage.setItem('competitionDuration', duration);
+  localStorage.setItem('competitionModeType', mode);
+  
+  // Switch to dashboard
+  document.querySelector('[data-feature="dashboard"]').click();
+  
+  // Set and LOCK test parameters
+  currentDifficulty = difficulty;
+  document.querySelector(`[data-diff="${difficulty}"]`)?.click();
+  
+  durationSelect.value = duration;
+  modeSelect.value = mode;
+  
+  // DISABLE controls to prevent changing during competition
+  durationSelect.disabled = true;
+  modeSelect.disabled = true;
+  document.querySelectorAll('.difficulty-tab').forEach(tab => {
+    tab.style.pointerEvents = 'none';
+    tab.style.opacity = '0.5';
+  });
+  
+  // Trigger mode change
+  const event = new Event('change');
+  durationSelect.dispatchEvent(event);
+  modeSelect.dispatchEvent(event);
+  
+  // Load new test
+  if (mode === 'quote') loadNewQuote();
+  else if (mode === 'story') loadNewStory();
+  else loadNewPassage();
+  
+  // Focus input
+  focusTypingInput();
+  
+ // Show competition indicator
+showCompetitionIndicator(compId);
+
+alert(`Competition mode activated!\n\nLocked Settings:\n• Difficulty: ${difficulty}\n• Duration: ${duration}s\n• Mode: ${mode}\n\nAll tests will count until you exit.`);
+};
+
+// FUNCTION DEFINITION - Add this complete function
+function showCompetitionIndicator(compId) {
+  // Remove existing indicator if any
+  const existing = document.getElementById('competition-indicator');
+  if (existing) existing.remove();
+  
+  // Create indicator
+  const indicator = document.createElement('div');
+  indicator.id = 'competition-indicator';
+  indicator.style.cssText = `
+    position: fixed;
+    top: 80px;
+    right: 24px;
+    background: linear-gradient(135deg, #51cf66, #37b24d);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    z-index: 9999;
+    box-shadow: 0 4px 16px rgba(81, 207, 102, 0.4);
+    font-weight: 600;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: slideIn 0.3s ease;
+  `;
+  indicator.innerHTML = `
+    <span>🏆</span>
+    <span>Competition Mode Active</span>
+    <button onclick="exitCompetitionMode()" style="
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 8px;
+    ">Exit</button>
+  `;
+  
+  document.body.appendChild(indicator);
+}
+
+// Exit competition mode
+window.exitCompetitionMode = function() {
+  if (confirm('Are you sure you want to exit competition mode? Future tests won\'t count towards the competition.')) {
+    localStorage.removeItem('activeCompetition');
+    localStorage.removeItem('competitionMode');
+    localStorage.removeItem('competitionDifficulty');
+    localStorage.removeItem('competitionDuration');
+    localStorage.removeItem('competitionModeType');
+    
+    // RE-ENABLE controls
+    durationSelect.disabled = false;
+    modeSelect.disabled = false;
+    document.querySelectorAll('.difficulty-tab').forEach(tab => {
+      tab.style.pointerEvents = '';
+      tab.style.opacity = '';
+    });
+    
+    const indicator = document.getElementById('competition-indicator');
+    if (indicator) indicator.remove();
+    
+    alert('Competition mode deactivated. Controls unlocked.');
+  }
+};
 window.viewCompetitionDetails = async function(compId) {
     try {
       const doc = await db.collection('competitions').doc(compId).get();
@@ -3945,125 +4003,164 @@ function focusTypingInput() {
           totalTests: totalTests,
           hasMasteredAllDifficulties: hasMasteredAllDifficulties
         });
-       // Submit score to active competition if in competition mode
-        const competitionMode = localStorage.getItem('competitionMode');
-        const activeCompId = localStorage.getItem('activeCompetition');
-        
-        if (competitionMode === 'active' && activeCompId) {
-          try {
-            const compDoc = await db.collection('competitions').doc(activeCompId).get();
-            if (compDoc.exists) {
-              const comp = compDoc.data();
-              
-              // Check if competition is still active
-              if (comp.status === 'active') {
-                const leaderboard = comp.leaderboard || [];
-                
-                // Update or add to leaderboard
-                const existingEntryIndex = leaderboard.findIndex(e => e.uid === currentUser.uid);
-                
-                if (existingEntryIndex >= 0) {
-                  // Update if new score is better
-                  if (stats.wpm > leaderboard[existingEntryIndex].wpm) {
-                    leaderboard[existingEntryIndex] = {
-                      uid: currentUser.uid,
-                      email: currentUser.email,
-                      wpm: stats.wpm,
-                      accuracy: stats.accuracy,
-                      submittedAt: firebase.firestore.Timestamp.now()
-                    };
-                    await compDoc.ref.update({ leaderboard: leaderboard });
-                    
-                    // Show better score notification
-                    const toast = document.createElement('div');
-                    toast.style.cssText = `
-                      position: fixed;
-                      top: 140px;
-                      right: 24px;
-                      background: linear-gradient(135deg, #FFD700, #FFA500);
-                      color: white;
-                      padding: 16px 24px;
-                      border-radius: 12px;
-                      z-index: 10000;
-                      box-shadow: 0 4px 16px rgba(255, 215, 0, 0.4);
-                      font-weight: 600;
-                      animation: slideIn 0.3s ease;
-                    `;
-                    toast.textContent = '🎉 New personal best in competition!';
-                    document.body.appendChild(toast);
-                    setTimeout(() => toast.remove(), 3000);
-                  } else {
-                    // Score not better, but still submitted
-                    const toast = document.createElement('div');
-                    toast.style.cssText = `
-                      position: fixed;
-                      top: 140px;
-                      right: 24px;
-                      background: var(--accent-solid);
-                      color: white;
-                      padding: 16px 24px;
-                      border-radius: 12px;
-                      z-index: 10000;
-                      box-shadow: 0 4px 16px rgba(159, 124, 255, 0.4);
-                      font-weight: 600;
-                      animation: slideIn 0.3s ease;
-                    `;
-                    toast.textContent = '📊 Score submitted to competition';
-                    document.body.appendChild(toast);
-                    setTimeout(() => toast.remove(), 3000);
-                  }
-                } else {
-                  // Add new entry
-                  await compDoc.ref.update({
-                    leaderboard: firebase.firestore.FieldValue.arrayUnion({
-                      uid: currentUser.uid,
-                      email: currentUser.email,
-                      wpm: stats.wpm,
-                      accuracy: stats.accuracy,
-                      submittedAt: firebase.firestore.Timestamp.now()
-                    })
-                  });
-                  
-                  const toast = document.createElement('div');
-                  toast.style.cssText = `
-                    position: fixed;
-                    top: 140px;
-                    right: 24px;
-                    background: linear-gradient(135deg, #51cf66, #37b24d);
-                    color: white;
-                    padding: 16px 24px;
-                    border-radius: 12px;
-                    z-index: 10000;
-                    box-shadow: 0 4px 16px rgba(81, 207, 102, 0.4);
-                    font-weight: 600;
-                    animation: slideIn 0.3s ease;
-                  `;
-                  toast.textContent = '🎉 First score submitted to competition!';
-                  document.body.appendChild(toast);
-                  setTimeout(() => toast.remove(), 3000);
-                }
-              } else {
-                // Competition ended
-                localStorage.removeItem('activeCompetition');
-                localStorage.removeItem('competitionMode');
-                const indicator = document.getElementById('competition-indicator');
-                if (indicator) indicator.remove();
-                
-                alert('This competition has ended. Your score was not submitted.');
-              }
-            } else {
-              // Competition not found
-              localStorage.removeItem('activeCompetition');
-              localStorage.removeItem('competitionMode');
-              const indicator = document.getElementById('competition-indicator');
-              if (indicator) indicator.remove();
-            }
-            
-          } catch (error) {
-            console.error('Error submitting to competition:', error);
-          }
-        }
 
+      // Submit score to active competition if in competition mode
+const competitionMode = localStorage.getItem('competitionMode');
+const activeCompId = localStorage.getItem('activeCompetition');
+
+if (competitionMode === 'active' && activeCompId) {
+  // VALIDATE settings match competition requirements
+  const reqDifficulty = localStorage.getItem('competitionDifficulty');
+  const reqDuration = parseInt(localStorage.getItem('competitionDuration'));
+  const reqMode = localStorage.getItem('competitionModeType');
+  
+  const settingsMatch = 
+    currentDifficulty === reqDifficulty &&
+    duration === reqDuration &&
+    mode === reqMode;
+  
+  if (!settingsMatch) {
+    alert(`⚠️ Warning: Test settings don't match competition requirements!\n\nRequired:\n• ${reqDifficulty} difficulty\n• ${reqDuration}s duration\n• ${reqMode} mode\n\nThis test will NOT count towards the competition.`);
+  } else {
+    try {
+      const compDoc = await db.collection('competitions').doc(activeCompId).get();
+      if (compDoc.exists) {
+        const comp = compDoc.data();
+        
+        // Check if competition is still active
+        const now = new Date();
+        const endDate = comp.endsAt.toDate();
+        
+        if (endDate > now && comp.status === 'active') {
+          const leaderboard = comp.leaderboard || [];
+          
+          // Update or add to leaderboard
+          const existingEntryIndex = leaderboard.findIndex(e => e.uid === currentUser.uid);
+          
+          if (existingEntryIndex >= 0) {
+            // Update if new score is better
+            if (stats.wpm > leaderboard[existingEntryIndex].wpm) {
+              leaderboard[existingEntryIndex] = {
+                uid: currentUser.uid,
+                email: currentUser.email,
+                wpm: stats.wpm,
+                accuracy: stats.accuracy,
+                submittedAt: firebase.firestore.Timestamp.now()
+              };
+              await compDoc.ref.update({ leaderboard: leaderboard });
+              
+              const toast = document.createElement('div');
+              toast.style.cssText = `
+                position: fixed;
+                top: 140px;
+                right: 24px;
+                background: linear-gradient(135deg, #FFD700, #FFA500);
+                color: white;
+                padding: 16px 24px;
+                border-radius: 12px;
+                z-index: 10000;
+                box-shadow: 0 4px 16px rgba(255, 215, 0, 0.4);
+                font-weight: 600;
+                animation: slideIn 0.3s ease;
+              `;
+              toast.textContent = '🎉 New personal best in competition!';
+              document.body.appendChild(toast);
+              setTimeout(() => toast.remove(), 3000);
+            } else {
+              const toast = document.createElement('div');
+              toast.style.cssText = `
+                position: fixed;
+                top: 140px;
+                right: 24px;
+                background: var(--accent-solid);
+                color: white;
+                padding: 16px 24px;
+                border-radius: 12px;
+                z-index: 10000;
+                box-shadow: 0 4px 16px rgba(159, 124, 255, 0.4);
+                font-weight: 600;
+                animation: slideIn 0.3s ease;
+              `;
+              toast.textContent = '📊 Score submitted to competition';
+              document.body.appendChild(toast);
+              setTimeout(() => toast.remove(), 3000);
+            }
+          } else {
+            // Add new entry
+            await compDoc.ref.update({
+              leaderboard: firebase.firestore.FieldValue.arrayUnion({
+                uid: currentUser.uid,
+                email: currentUser.email,
+                wpm: stats.wpm,
+                accuracy: stats.accuracy,
+                submittedAt: firebase.firestore.Timestamp.now()
+              })
+            });
+            
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+              position: fixed;
+              top: 140px;
+              right: 24px;
+              background: linear-gradient(135deg, #51cf66, #37b24d);
+              color: white;
+              padding: 16px 24px;
+              border-radius: 12px;
+              z-index: 10000;
+              box-shadow: 0 4px 16px rgba(81, 207, 102, 0.4);
+              font-weight: 600;
+              animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = '🎉 First score submitted to competition!';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+          }
+        } else {
+          // Competition ended
+          localStorage.removeItem('activeCompetition');
+          localStorage.removeItem('competitionMode');
+          localStorage.removeItem('competitionDifficulty');
+          localStorage.removeItem('competitionDuration');
+          localStorage.removeItem('competitionModeType');
+          
+          // Re-enable controls
+          durationSelect.disabled = false;
+          modeSelect.disabled = false;
+          document.querySelectorAll('.difficulty-tab').forEach(tab => {
+            tab.style.pointerEvents = '';
+            tab.style.opacity = '';
+          });
+          
+          const indicator = document.getElementById('competition-indicator');
+          if (indicator) indicator.remove();
+          
+          alert('This competition has ended. Your score was not submitted.');
+        }
+      } else {
+        // Competition not found
+        localStorage.removeItem('activeCompetition');
+        localStorage.removeItem('competitionMode');
+        localStorage.removeItem('competitionDifficulty');
+        localStorage.removeItem('competitionDuration');
+        localStorage.removeItem('competitionModeType');
+        
+        // Re-enable controls
+        durationSelect.disabled = false;
+        modeSelect.disabled = false;
+        document.querySelectorAll('.difficulty-tab').forEach(tab => {
+          tab.style.pointerEvents = '';
+          tab.style.opacity = '';
+        });
+        
+        const indicator = document.getElementById('competition-indicator');
+        if (indicator) indicator.remove();
+      }
+      
+    } catch (error) {
+      console.error('Error submitting to competition:', error);
+    }
+  }
+}
         // Update last test results
         lastWPMEl.textContent = stats.wpm;
         lastAccEl.textContent = stats.accuracy + '%';
