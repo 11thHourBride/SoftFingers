@@ -3972,24 +3972,7 @@ function focusTypingInput() {
           personalBests = data.personalBests || {};
         }
         
-        // Add current test to recent tests (keep only last 20)
-      const testRecord = {
-          wpm: stats.wpm,
-          accuracy: stats.accuracy,
-          difficulty: currentDifficulty,
-          duration: duration,
-          mode: mode,
-          timestamp: timestamp,
-          correctWords: stats.correctWords,
-          incorrectWords: stats.incorrectWords,
-          correctKeys: stats.correctKeys,
-          incorrectKeys: stats.incorrectKeys
-        };
-        
-        recentTests.unshift(testRecord); // Add to beginning
-        if (recentTests.length > 20) {
-          recentTests = recentTests.slice(0, 20); // Keep only last 20
-        }
+   
         
         // Update personal best for this difficulty+duration combo
         const bestKey = `${currentDifficulty}_${duration}`;
@@ -4256,63 +4239,57 @@ if (competitionMode === 'active' && activeCompId) {
     // Keep input disabled after test completion
    
   }
- async function refreshDashboard() {
+async function refreshDashboard() {
     if (!currentUser) return;
     
-    // Get user stats from single document
-    const userStatsDoc = await db.collection('users').doc(currentUser.uid).get();
-    
-    if (userStatsDoc.exists) {
-      const data = userStatsDoc.data();
-      const bestKey = `${currentDifficulty}_${duration}`;
-      const personalBest = data.personalBests?.[bestKey];
+    try {
+      // Get user stats from single document
+      const userStatsDoc = await db.collection('users').doc(currentUser.uid).get();
       
-      if (personalBest) {
-        bestWPMEl.textContent = personalBest.wpm;
-        bestAccEl.textContent = personalBest.accuracy + '%';
+      if (userStatsDoc.exists) {
+        const data = userStatsDoc.data();
+        const bestKey = `${currentDifficulty}_${duration}`;
+        const personalBest = data.personalBests?.[bestKey];
+        
+        if (personalBest) {
+          bestWPMEl.textContent = personalBest.wpm;
+          bestAccEl.textContent = personalBest.accuracy + '%';
+        } else {
+          bestWPMEl.textContent = '0';
+          bestAccEl.textContent = '0%';
+        }
+        
+        // Recent tests from array
+        recentTableBody.innerHTML = '';
+        const recentTests = data.recentTests || [];
+        
+        if (recentTests.length === 0) {
+          recentTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No tests yet. Complete a test to see results here.</td></tr>';
+        } else {
+          recentTests.slice(0, 5).forEach(test => {
+            const when = test.timestamp?.toDate ? test.timestamp.toDate().toLocaleDateString() : '—';
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${when}</td>
+              <td class="font-mono">${test.wpm}</td>
+              <td class="font-mono">${test.accuracy}%</td>
+              <td>${test.duration}s</td>
+              <td><span class="status-badge">${test.difficulty || test.mode}</span></td>
+              <td>${test.mode || 'Random'}</td>
+            `;
+            recentTableBody.appendChild(row);
+          });
+        }
       } else {
+        // No user stats document yet
         bestWPMEl.textContent = '0';
         bestAccEl.textContent = '0%';
+        recentTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No tests yet. Complete a test to see results here.</td></tr>';
       }
-      
-      // Recent tests from array
-      recentTableBody.innerHTML = '';
-      const recentTests = data.recentTests || [];
-      recentTests.slice(0, 5).forEach(test => {
-        const when = test.timestamp?.toDate ? test.timestamp.toDate().toLocaleDateString() : '—';
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${when}</td>
-          <td class="font-mono">${test.wpm}</td>
-          <td class="font-mono">${test.accuracy}%</td>
-          <td>${test.duration}s</td>
-          <td><span class="status-badge">${test.difficulty || test.mode}</span></td>
-          <td>${test.mode || 'Random'}</td>
-        `;
-        recentTableBody.appendChild(row);
-      });
+    } catch (error) {
+      console.error('Error refreshing dashboard:', error);
+      recentTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Error loading recent tests</td></tr>';
     }
-    
-    const recentSnap = await db.collection('results')
-      .where('uid','==', currentUser.uid)
-      .orderBy('timestamp','desc')
-      .limit(5)
-      .get();
-    recentTableBody.innerHTML = '';
-    recentSnap.forEach(d => {
-      const v = d.data();
-      const when = v.timestamp?.toDate ? v.timestamp.toDate().toLocaleDateString() : '—';
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${when}</td>
-        <td class="font-mono">${v.wpm}</td>
-        <td class="font-mono">${v.accuracy}%</td>
-        <td>${v.duration}s</td>
-        <td><span class="status-badge">${v.difficulty || v.mode}</span></td>
-        <td>${v.mode || 'Random'}</td>
-      `;
-      recentTableBody.appendChild(row);
-    });
 
     const lbSnap = await db.collection('leaderboard')
       .orderBy('wpm','desc')
