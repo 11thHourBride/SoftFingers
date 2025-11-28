@@ -2589,15 +2589,16 @@ function showLessonResult(passed, wpm, accuracy, lesson) {
   const sendVerifBtn = document.getElementById('send-verif-btn');
   const authSummary = document.getElementById('auth-summary');
 
- const bestWPMEl = document.getElementById('best-wpm');
+const bestWPMEl = document.getElementById('best-wpm');
   const bestAccEl = document.getElementById('best-acc');
   const lastTestResults = document.getElementById('last-test-results');
   const resultsLoader = document.getElementById('results-loader');
-  const resultsContent = document.getElementById('results-content');
   const lastWPMEl = document.getElementById('last-wpm');
   const lastAccEl = document.getElementById('last-acc');
-  const lastCorrectEl = document.getElementById('last-correct');
-  const lastIncorrectEl = document.getElementById('last-incorrect');
+  const lastCorrectWordsEl = document.getElementById('last-correct-words');
+  const lastIncorrectWordsEl = document.getElementById('last-incorrect-words');
+  const lastCorrectKeysEl = document.getElementById('last-correct-keys');
+  const lastIncorrectKeysEl = document.getElementById('last-incorrect-keys');
   const recentTableBody = document.querySelector('#recent-table tbody');
   const leaderboardBody = document.querySelector('#leaderboard-table tbody');
 
@@ -3717,13 +3718,6 @@ function resetTestState() {
   statAcc.textContent = '';
   typingInput.disabled = false;
   
-  // Hide last test results when starting new test
-  if (lastTestResults) {
-    lastTestResults.classList.add('hidden');
-    resultsContent.classList.add('hidden');
-    resultsLoader.classList.add('hidden');
-  }
-  
   renderPassage();
 }
 // Only focus if input is enabled (not disabled after test completion)
@@ -3780,32 +3774,63 @@ function resetTestState() {
   }
 
 function computeStats(typedStr, elapsedSec) {
-  if (elapsedSec <= 0) return { wpm: 0, accuracy: 100, correct: 0, incorrect: 0 };
+  if (elapsedSec <= 0) return { 
+    wpm: 0, 
+    accuracy: 100, 
+    correctWords: 0, 
+    incorrectWords: 0, 
+    correctKeys: 0, 
+    incorrectKeys: 0 
+  };
   
-  // Count correct and incorrect characters
-  let correctChars = 0;
-  let incorrectChars = 0;
+  // Split into words for word-based accuracy
+  const targetWords = targetText.trim().split(/\s+/);
+  const typedWords = typedStr.trim().split(/\s+/);
   
-  for (let i = 0; i < typedStr.length; i++) {
-    if (typedStr[i] === targetText[i]) {
-      correctChars++;
+  let correctWords = 0;
+  let incorrectWords = 0;
+  let correctKeys = 0;
+  let incorrectKeys = 0;
+  
+  // Compare word by word
+  const minLength = Math.min(targetWords.length, typedWords.length);
+  
+  for (let i = 0; i < minLength; i++) {
+    if (typedWords[i] === targetWords[i]) {
+      correctWords++;
+      correctKeys += typedWords[i].length;
     } else {
-      incorrectChars++;
+      incorrectWords++;
+      const targetWord = targetWords[i];
+      const typedWord = typedWords[i];
+      for (let j = 0; j < Math.max(targetWord.length, typedWord.length); j++) {
+        if (targetWord[j] === typedWord[j]) {
+          correctKeys++;
+        } else {
+          incorrectKeys++;
+        }
+      }
     }
   }
   
-  const accuracy = typedStr.length > 0 ? Math.round((correctChars / typedStr.length) * 100) : 100;
+  // Calculate accuracy based on words typed
+  const totalTypedWords = typedWords.length;
+  const accuracy = totalTypedWords > 0 
+    ? Math.round((correctWords / totalTypedWords) * 100) 
+    : 100;
   
-  // WPM calculation
-  const totalCharsTyped = typedStr.length;
-  const grossWPM = (totalCharsTyped / 5) / (elapsedSec / 60);
+  // WPM calculation based on correct words
+  const correctChars = correctWords * 5;
+  const grossWPM = (correctChars / 5) / (elapsedSec / 60);
   const wpm = Math.max(0, Math.round(grossWPM));
   
   return { 
     wpm, 
     accuracy: Math.max(0, Math.min(100, accuracy)),
-    correct: correctChars,
-    incorrect: incorrectChars
+    correctWords: correctWords,
+    incorrectWords: incorrectWords,
+    correctKeys: correctKeys,
+    incorrectKeys: incorrectKeys
   };
 }
 function renderPassage() {
@@ -3841,31 +3866,54 @@ function renderPassage() {
     for (let r = 0; r < visibleWords.length; r += WORDS_PER_ROW) {
       const rowWords = visibleWords.slice(r, r + WORDS_PER_ROW);
 
-      const rowHtml = rowWords.map((word, wi) => {
-        const absoluteIndex = pageStartIndex + r + wi;
-        const typedWord = typedWords[absoluteIndex] || "";
-        let chars = "";
+     const rowHtml = rowWords.map((word, wi) => {
+  const absoluteIndex = pageStartIndex + r + wi;
+  const typedWord = typedWords[absoluteIndex] || "";
+  let chars = "";
+  
+  // Word-level comparison
+  const isCurrentWord = absoluteIndex === currentWordIndex;
+  const wordComplete = typedWord.length > 0 && !isCurrentWord;
+  const wordCorrect = wordComplete && typedWord === word;
+  const wordIncorrect = wordComplete && typedWord !== word;
 
-        for (let i = 0; i < word.length; i++) {
-          const typedChar = typedWord[i];
+  // Render each character
+  for (let i = 0; i < word.length; i++) {
+    const typedChar = typedWord[i];
 
-          if (typedChar === undefined) {
-            chars += `<span>${escapeHtml(word[i])}</span>`;
-          } else if (typedChar === word[i]) {
-            chars += `<span class="correct">${escapeHtml(word[i])}</span>`;
-          } else {
-            chars += `<span class="incorrect">${escapeHtml(word[i])}</span>`;
-          }
-        }
+    if (typedChar === undefined) {
+      // Not typed yet
+      chars += `<span>${escapeHtml(word[i])}</span>`;
+    } else if (isCurrentWord) {
+      // Currently typing - show live feedback
+      if (typedChar === word[i]) {
+        chars += `<span class="correct">${escapeHtml(word[i])}</span>`;
+      } else {
+        chars += `<span class="incorrect">${escapeHtml(word[i])}</span>`;
+      }
+    } else if (wordCorrect) {
+      // Completed word correctly
+      chars += `<span class="correct">${escapeHtml(word[i])}</span>`;
+    } else if (wordIncorrect) {
+      // Completed word incorrectly
+      chars += `<span class="incorrect">${escapeHtml(word[i])}</span>`;
+    }
+  }
+  
+  // Show extra characters typed beyond word length
+  if (typedWord.length > word.length) {
+    for (let i = word.length; i < typedWord.length; i++) {
+      chars += `<span class="incorrect">${escapeHtml(typedWord[i])}</span>`;
+    }
+  }
 
-        let wordClass = "word";
-        if (absoluteIndex === currentWordIndex) {
-          wordClass += " active-word";
-        }
+  let wordClass = "word";
+  if (absoluteIndex === currentWordIndex) {
+    wordClass += " active-word";
+  }
 
-        return `<span class="${wordClass}">${chars} </span>`;
-      }).join("");
-
+  return `<span class="${wordClass}">${chars} </span>`;
+}).join("");
       html += `<div class="row">${rowHtml}</div>`;
     }
 
@@ -3897,11 +3945,12 @@ function focusTypingInput() {
     statWPM.textContent = stats.wpm;
     statAcc.textContent = stats.accuracy + '%';
 
-    // Show loader in last test results
+   // Show last test results section with loader
     if (lastTestResults) {
       lastTestResults.classList.remove('hidden');
-      resultsLoader.classList.remove('hidden');
-      resultsContent.classList.add('hidden');
+    }
+    if (resultsLoader) {
+      resultsLoader.style.display = 'block';
     }
 
     const user = firebase.auth().currentUser;
@@ -3924,15 +3973,17 @@ function focusTypingInput() {
         }
         
         // Add current test to recent tests (keep only last 20)
-        const testRecord = {
+      const testRecord = {
           wpm: stats.wpm,
           accuracy: stats.accuracy,
           difficulty: currentDifficulty,
           duration: duration,
           mode: mode,
           timestamp: timestamp,
-          correct: stats.correct,
-          incorrect: stats.incorrect
+          correctWords: stats.correctWords,
+          incorrectWords: stats.incorrectWords,
+          correctKeys: stats.correctKeys,
+          incorrectKeys: stats.incorrectKeys
         };
         
         recentTests.unshift(testRecord); // Add to beginning
@@ -4164,9 +4215,18 @@ if (competitionMode === 'active' && activeCompId) {
         // Update last test results
         lastWPMEl.textContent = stats.wpm;
         lastAccEl.textContent = stats.accuracy + '%';
-        lastCorrectEl.textContent = stats.correct;
-        lastIncorrectEl.textContent = stats.incorrect;
+        lastCorrectWordsEl.textContent = stats.correctWords;
+        lastIncorrectWordsEl.textContent = stats.incorrectWords;
+        lastCorrectKeysEl.textContent = stats.correctKeys;
+        lastIncorrectKeysEl.textContent = stats.incorrectKeys;
         
+        // Hide loader
+        if (resultsLoader) {
+          resultsLoader.style.display = 'none';
+        }
+        
+        await refreshDashboard();
+
         // Hide loader, show results
         resultsLoader.classList.add('hidden');
         resultsContent.classList.remove('hidden');
@@ -4181,15 +4241,18 @@ if (competitionMode === 'active' && activeCompId) {
       // For guests, just show the results without saving
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      lastWPMEl.textContent = stats.wpm;
+    llastWPMEl.textContent = stats.wpm;
       lastAccEl.textContent = stats.accuracy + '%';
-      lastCorrectEl.textContent = stats.correct;
-      lastIncorrectEl.textContent = stats.incorrect;
+      lastCorrectWordsEl.textContent = stats.correctWords;
+      lastIncorrectWordsEl.textContent = stats.incorrectWords;
+      lastCorrectKeysEl.textContent = stats.correctKeys;
+      lastIncorrectKeysEl.textContent = stats.incorrectKeys;
       
-      resultsLoader.classList.add('hidden');
-      resultsContent.classList.remove('hidden');
+      // Hide loader
+      if (resultsLoader) {
+        resultsLoader.style.display = 'none';
+      }
     }
-  
     // Keep input disabled after test completion
    
   }
