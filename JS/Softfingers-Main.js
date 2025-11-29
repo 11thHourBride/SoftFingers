@@ -3972,7 +3972,24 @@ function focusTypingInput() {
           personalBests = data.personalBests || {};
         }
         
-   
+   // Add current test to recent tests (keep only last 20)
+        const testRecord = {
+          wpm: stats.wpm,
+          accuracy: stats.accuracy,
+          difficulty: currentDifficulty,
+          duration: duration,
+          mode: mode,
+          timestamp: timestamp,
+          correctWords: stats.correctWords,
+          incorrectWords: stats.incorrectWords,
+          correctKeys: stats.correctKeys,
+          incorrectKeys: stats.incorrectKeys
+        };
+        
+        recentTests.unshift(testRecord); // Add to beginning
+        if (recentTests.length > 20) {
+          recentTests = recentTests.slice(0, 20); // Keep only last 20
+        }
         
         // Update personal best for this difficulty+duration combo
         const bestKey = `${currentDifficulty}_${duration}`;
