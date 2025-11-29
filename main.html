@@ -9,7 +9,7 @@
   <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <link rel="stylesheet" href="Softfingers-Main.css">
+  <link rel="stylesheet" href="SoftFingers-Main.css">
   <link rel="stylesheet" href="achievements.css">
   <link rel="stylesheet" href="competition.css">
   <link rel="stylesheet" href="lessons.css">
@@ -239,66 +239,6 @@
 
           <!-- Sidebar -->
           <aside class="sidebar">
-            <!-- Personal Best -->
-            <div class="card sidebar-section">
-              <div class="card-header">
-                <h3 class="card-title">Personal Best</h3>
-                <p class="card-subtitle">Current difficulty & duration</p>
-              </div>
-              <div class="card-content">
-                <div class="stats-grid" style="grid-template-columns: 1fr 1fr;">
-                  <div class="stat-card">
-                    <div class="stat-label">Best WPM</div>
-                    <div class="stat-value" id="best-wpm">0</div>
-                  </div>
-                  <div class="stat-card">
-                    <div class="stat-label">Best Accuracy</div>
-                    <div class="stat-value" id="best-acc">0%</div>
-                  </div>
-                </div>
-                
-              <!-- Last Test Results -->
-                <div id="last-test-results" class="hidden" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border);">
-                  <h4 style="margin: 0 0 12px; font-size: 0.875rem; color: var(--text-secondary);">Last Test Results</h4>
-                                    <div class="loader" id="results-loader" style="margin: 20px auto; display: none;"></div>
-                  <div class="stats-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 12px;">
-                    <div class="stat-card">
-                      <div class="stat-label">WPM</div>
-                      <div class="stat-value" id="last-wpm">0</div>
-                    </div>
-                    <div class="stat-card">
-                      <div class="stat-label">Accuracy</div>
-                      <div class="stat-value" id="last-acc">0%</div>
-                    </div>
-                  </div>
-                  <div style="margin-bottom: 16px; padding: 12px; background: var(--card-secondary); border-radius: 8px;">
-                    <div style="font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; font-weight: 600;">WORDS</div>
-                    <div class="stats-grid" style="grid-template-columns: 1fr 1fr;">
-                      <div class="stat-card">
-                        <div class="stat-label">Correct</div>
-                        <div class="stat-value correct" id="last-correct-words">0</div>
-                      </div>
-                      <div class="stat-card">
-                        <div class="stat-label">Incorrect</div>
-                        <div class="stat-value incorrect" id="last-incorrect-words">0</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div style="padding: 12px; background: var(--card-secondary); border-radius: 8px;">
-                    <div style="font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; font-weight: 600;">KEYSTROKES</div>
-                    <div class="stats-grid" style="grid-template-columns: 1fr 1fr;">
-                      <div class="stat-card">
-                        <div class="stat-label">Correct</div>
-                        <div class="stat-value correct" id="last-correct-keys">0</div>
-                      </div>
-                      <div class="stat-card">
-                        <div class="stat-label">Incorrect</div>
-                        <div class="stat-value incorrect" id="last-incorrect-keys">0</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
             <!-- Feature Sections -->
             <div class="card hidden sidebar-section" id="section-lessons">
               <div class="card-header">
@@ -367,7 +307,130 @@
             </div>
           </aside>
         </div>
+</div>
 
+       
+         <!-- Performance Stats Section (Dashboard Only) -->
+        <div class="performance-stats-section" id="dashboard-performance-stats">
+          <!-- Personal Best Card -->
+          <div class="performance-card personal-best-card">
+            <div class="performance-card-header">
+              <div class="performance-icon">🏆</div>
+              <div>
+                <h3 class="performance-title">Personal Best</h3>
+                <p class="performance-subtitle">Current difficulty & duration</p>
+              </div>
+            </div>
+            <div class="performance-stats-grid">
+              <div class="performance-stat-item">
+                <div class="performance-stat-icon">⚡</div>
+                <div class="performance-stat-content">
+                  <div class="performance-stat-label">Best Speed</div>
+                  <div class="performance-stat-value" id="best-wpm">0</div>
+                  <div class="performance-stat-unit">WPM</div>
+                </div>
+              </div>
+              <div class="performance-stat-item">
+                <div class="performance-stat-icon">🎯</div>
+                <div class="performance-stat-content">
+                  <div class="performance-stat-label">Best Accuracy</div>
+                  <div class="performance-stat-value" id="best-acc">0%</div>
+                  <div class="performance-stat-unit">Precision</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Frequent Mode & Difficulty -->
+            <div class="performance-metadata">
+              <div class="performance-meta-item">
+                <div class="performance-meta-icon">📝</div>
+                <div class="performance-meta-content">
+                  <div class="performance-meta-label">Frequent Mode</div>
+                  <div class="performance-meta-value" id="frequent-mode">Random Words</div>
+                </div>
+              </div>
+              <div class="performance-meta-item">
+                <div class="performance-meta-icon">🎪</div>
+                <div class="performance-meta-content">
+                  <div class="performance-meta-label">Difficulty</div>
+                  <div class="performance-meta-value" id="frequent-difficulty">Beginner</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Last Test Results Card -->
+          <div class="performance-card last-test-card" id="last-test-results-card">
+            <div class="performance-card-header">
+              <div class="performance-icon">📊</div>
+              <div>
+                <h3 class="performance-title">Last Test Results</h3>
+                <p class="performance-subtitle">Your most recent performance</p>
+              </div>
+            </div>
+            
+            <div class="loader" id="results-loader" style="margin: 20px auto; display: none;"></div>
+            
+            <div id="last-test-results" class="hidden">
+              <div class="performance-stats-grid" style="margin-bottom: 20px;">
+                <div class="performance-stat-item highlight">
+                  <div class="performance-stat-icon">⚡</div>
+                  <div class="performance-stat-content">
+                    <div class="performance-stat-label">Speed</div>
+                    <div class="performance-stat-value" id="last-wpm">0</div>
+                    <div class="performance-stat-unit">WPM</div>
+                  </div>
+                </div>
+                <div class="performance-stat-item highlight">
+                  <div class="performance-stat-icon">🎯</div>
+                  <div class="performance-stat-content">
+                    <div class="performance-stat-label">Accuracy</div>
+                    <div class="performance-stat-value" id="last-acc">0%</div>
+                    <div class="performance-stat-unit">Precision</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="performance-details-grid">
+                <div class="performance-detail-card">
+                  <div class="performance-detail-header">
+                    <span class="performance-detail-icon">📝</span>
+                    <span class="performance-detail-title">Words</span>
+                  </div>
+                  <div class="performance-detail-stats">
+                    <div class="performance-detail-stat success">
+                      <div class="performance-detail-value" id="last-correct-words">0</div>
+                      <div class="performance-detail-label">Correct</div>
+                    </div>
+                    <div class="performance-detail-stat error">
+                      <div class="performance-detail-value" id="last-incorrect-words">0</div>
+                      <div class="performance-detail-label">Incorrect</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="performance-detail-card">
+                  <div class="performance-detail-header">
+                    <span class="performance-detail-icon">⌨️</span>
+                    <span class="performance-detail-title">Keystrokes</span>
+                  </div>
+                  <div class="performance-detail-stats">
+                    <div class="performance-detail-stat success">
+                      <div class="performance-detail-value" id="last-correct-keys">0</div>
+                      <div class="performance-detail-label">Correct</div>
+                    </div>
+                    <div class="performance-detail-stat error">
+                      <div class="performance-detail-value" id="last-incorrect-keys">0</div>
+                      <div class="performance-detail-label">Incorrect</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+       
         <!-- Recent Tests -->
         <div class="card mb-6">
           <div class="card-header">
@@ -925,4 +988,3 @@
 
 </body>
 </html>
-
