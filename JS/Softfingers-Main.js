@@ -2589,9 +2589,12 @@ function showLessonResult(passed, wpm, accuracy, lesson) {
   const sendVerifBtn = document.getElementById('send-verif-btn');
   const authSummary = document.getElementById('auth-summary');
 
-const bestWPMEl = document.getElementById('best-wpm');
+  const bestWPMEl = document.getElementById('best-wpm');
   const bestAccEl = document.getElementById('best-acc');
+  const frequentModeEl = document.getElementById('frequent-mode');
+  const frequentDifficultyEl = document.getElementById('frequent-difficulty');
   const lastTestResults = document.getElementById('last-test-results');
+  const lastTestResultsCard = document.getElementById('last-test-results-card');
   const resultsLoader = document.getElementById('results-loader');
   const lastWPMEl = document.getElementById('last-wpm');
   const lastAccEl = document.getElementById('last-acc');
@@ -2646,6 +2649,8 @@ const bestWPMEl = document.getElementById('best-wpm');
       // Update active nav tab
       navTabs.forEach(t => t.classList.remove('active'));
       this.classList.add('active');
+      // Get performance stats section
+      const performanceStats = document.getElementById('dashboard-performance-stats');
       
       // Clear competition mode if leaving dashboard (except when going to competition/lessons page)
       if (feature !== 'dashboard' && feature !== 'competition' && feature !== 'lessons') {
@@ -2676,11 +2681,14 @@ const bestWPMEl = document.getElementById('best-wpm');
         if (sidebar) sidebar.style.display = 'none';
         if (recentTestsCard) recentTestsCard.style.display = 'none';
         if (leaderboardCard) leaderboardCard.style.display = 'none';
+        if (performanceStats) performanceStats.style.display = 'none';
         
         // Show achievements full page
         achievementsFullPage.classList.remove('hidden');
         competitionFullPage.classList.add('hidden');
         if (lessonsFullPage) lessonsFullPage.classList.add('hidden');
+        if (bibleFullPage) bibleFullPage.classList.add('hidden');
+        if (hymnsFullPage) hymnsFullPage.classList.add('hidden');
         
         if (currentUser) {
           renderAchievements();
@@ -2702,11 +2710,14 @@ const bestWPMEl = document.getElementById('best-wpm');
         if (sidebar) sidebar.style.display = 'none';
         if (recentTestsCard) recentTestsCard.style.display = 'none';
         if (leaderboardCard) leaderboardCard.style.display = 'none';
+        if (performanceStats) performanceStats.style.display = 'none';
         
         // Show competition full page
         competitionFullPage.classList.remove('hidden');
         achievementsFullPage.classList.add('hidden');
         if (lessonsFullPage) lessonsFullPage.classList.add('hidden');
+        if (bibleFullPage) bibleFullPage.classList.add('hidden');
+        if (hymnsFullPage) hymnsFullPage.classList.add('hidden');
         
         if (currentUser) {
           loadCompetitions();
@@ -2726,12 +2737,15 @@ const bestWPMEl = document.getElementById('best-wpm');
         if (sidebar) sidebar.style.display = 'none';
         if (recentTestsCard) recentTestsCard.style.display = 'none';
         if (leaderboardCard) leaderboardCard.style.display = 'none';
+        if (performanceStats) performanceStats.style.display = 'none';
         
         // Show lessons full page
         if (lessonsFullPage) {
           lessonsFullPage.classList.remove('hidden');
           achievementsFullPage.classList.add('hidden');
           competitionFullPage.classList.add('hidden');
+          if (bibleFullPage) bibleFullPage.classList.add('hidden');
+        if (hymnsFullPage) hymnsFullPage.classList.add('hidden');
           
           if (currentUser) {
             loadLessonsPage();
@@ -2750,14 +2764,15 @@ const bestWPMEl = document.getElementById('best-wpm');
   if (sidebar) sidebar.style.display = 'none';
   if (recentTestsCard) recentTestsCard.style.display = 'none';
   if (leaderboardCard) leaderboardCard.style.display = 'none';
+  if (performanceStats) performanceStats.style.display = 'none';
   
   if (bibleFullPage) {
     bibleFullPage.classList.remove('hidden');
     achievementsFullPage.classList.add('hidden');
     competitionFullPage.classList.add('hidden');
     if (lessonsFullPage) lessonsFullPage.classList.add('hidden');
-    if (hymnsFullPage) hymnsFullPage.classList.add('hidden');  // ADD THIS LINE
-    
+    if (hymnsFullPage) hymnsFullPage.classList.add('hidden'); 
+  
     loadBiblePage();
   }
 }
@@ -2766,7 +2781,7 @@ else if (feature === 'hymns') {
   if (sidebar) sidebar.style.display = 'none';
   if (recentTestsCard) recentTestsCard.style.display = 'none';
   if (leaderboardCard) leaderboardCard.style.display = 'none';
-  
+  if (performanceStats) performanceStats.style.display = 'none';
   if (hymnsFullPage) {
     hymnsFullPage.classList.remove('hidden');
     achievementsFullPage.classList.add('hidden');
@@ -2786,6 +2801,7 @@ else if (feature === 'hymns') {
         if (sidebar) sidebar.style.display = 'block';
         if (recentTestsCard && currentUser) recentTestsCard.style.display = 'block';
         if (leaderboardCard && currentUser) leaderboardCard.style.display = 'block';
+        if (performanceStats) performanceStats.style.display = 'grid';
         
         
         // Hide achievements, competition, and lessons full pages
@@ -2816,10 +2832,13 @@ else if (feature === 'hymns') {
         if (sidebar) sidebar.style.display = 'block';
         if (recentTestsCard && currentUser) recentTestsCard.style.display = 'block';
         if (leaderboardCard && currentUser) leaderboardCard.style.display = 'block';
+        if (performanceStats) performanceStats.style.display = 'none';
         
         achievementsFullPage.classList.add('hidden');
         competitionFullPage.classList.add('hidden');
         if (lessonsFullPage) lessonsFullPage.classList.add('hidden');
+        if (bibleFullPage) bibleFullPage.classList.add('hidden');
+        if (hymnsFullPage) hymnsFullPage.classList.add('hidden');
         
         sections.forEach(section => {
           if (section.id === `section-${feature}`) {
@@ -3945,12 +3964,13 @@ function focusTypingInput() {
     statWPM.textContent = stats.wpm;
     statAcc.textContent = stats.accuracy + '%';
 
-   // Show last test results section with loader
-    if (lastTestResults) {
-      lastTestResults.classList.remove('hidden');
+  
+  // Show last test results section with loader
+    if (lastTestResultsCard) {
+      lastTestResultsCard.style.display = 'block';
     }
-    if (resultsLoader) {
-      resultsLoader.style.display = 'block';
+    if (lastTestResults) {
+      lastTestResults.classList.add('hidden');
     }
 
     const user = firebase.auth().currentUser;
@@ -3973,7 +3993,7 @@ function focusTypingInput() {
         }
         
    // Add current test to recent tests (keep only last 20)
-        const testRecord = {
+   const testRecord = {
           wpm: stats.wpm,
           accuracy: stats.accuracy,
           difficulty: currentDifficulty,
@@ -3990,6 +4010,21 @@ function focusTypingInput() {
         if (recentTests.length > 20) {
           recentTests = recentTests.slice(0, 20); // Keep only last 20
         }
+        // Track mode usage for frequent mode calculation
+        let modeUsage = {};
+        let difficultyUsage = {};
+        
+        if (userStatsDoc.exists) {
+          const data = userStatsDoc.data();
+          modeUsage = data.modeUsage || {};
+          difficultyUsage = data.difficultyUsage || {};
+        }
+        
+        // Increment mode count
+        modeUsage[mode] = (modeUsage[mode] || 0) + 1;
+        
+        // Increment difficulty count
+        difficultyUsage[currentDifficulty] = (difficultyUsage[currentDifficulty] || 0) + 1;
         
         // Update personal best for this difficulty+duration combo
         const bestKey = `${currentDifficulty}_${duration}`;
@@ -4001,12 +4036,14 @@ function focusTypingInput() {
           };
         }
         
-        // Update user stats document
+       // Update user stats document
         await userStatsRef.set({
           uid: user.uid,
           email: user.email,
           recentTests: recentTests,
           personalBests: personalBests,
+          modeUsage: modeUsage,
+          difficultyUsage: difficultyUsage,
           totalTests: firebase.firestore.FieldValue.increment(1),
           lastActivity: timestamp
         }, { merge: true });
@@ -4220,16 +4257,16 @@ if (competitionMode === 'active' && activeCompId) {
         lastCorrectKeysEl.textContent = stats.correctKeys;
         lastIncorrectKeysEl.textContent = stats.incorrectKeys;
         
-        // Hide loader
+       // Show results, hide loader
+        if (lastTestResults) {
+          lastTestResults.classList.remove('hidden');
+        }
         if (resultsLoader) {
           resultsLoader.style.display = 'none';
         }
         
         await refreshDashboard();
 
-        // Hide loader, show results
-        resultsLoader.classList.add('hidden');
-        resultsContent.classList.remove('hidden');
         
         await refreshDashboard();
       } catch (e) {
@@ -4275,6 +4312,44 @@ async function refreshDashboard() {
           bestWPMEl.textContent = '0';
           bestAccEl.textContent = '0%';
         }
+        // Calculate frequent mode
+        const modeUsage = data.modeUsage || {};
+        let frequentMode = 'passage';
+        let maxModeCount = 0;
+        
+        Object.keys(modeUsage).forEach(m => {
+          if (modeUsage[m] > maxModeCount) {
+            maxModeCount = modeUsage[m];
+            frequentMode = m;
+          }
+        });
+        
+        // Format mode name
+        const modeNames = {
+          'passage': 'Random Words',
+          'quote': 'Quotes',
+          'story': 'Stories'
+        };
+        
+        if (frequentModeEl) {
+          frequentModeEl.textContent = modeNames[frequentMode] || 'Random Words';
+        }
+        
+        // Calculate frequent difficulty
+        const difficultyUsage = data.difficultyUsage || {};
+        let frequentDifficulty = 'Beginner';
+        let maxDiffCount = 0;
+        
+        Object.keys(difficultyUsage).forEach(d => {
+          if (difficultyUsage[d] > maxDiffCount) {
+            maxDiffCount = difficultyUsage[d];
+            frequentDifficulty = d;
+          }
+        });
+        
+        if (frequentDifficultyEl) {
+          frequentDifficultyEl.textContent = frequentDifficulty;
+        }
         
         // Recent tests from array
         recentTableBody.innerHTML = '';
@@ -4301,6 +4376,8 @@ async function refreshDashboard() {
         // No user stats document yet
         bestWPMEl.textContent = '0';
         bestAccEl.textContent = '0%';
+        if (frequentModeEl) frequentModeEl.textContent = 'Random Words';
+        if (frequentDifficultyEl) frequentDifficultyEl.textContent = 'Beginner';
         recentTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No tests yet. Complete a test to see results here.</td></tr>';
       }
     } catch (error) {
@@ -4489,6 +4566,12 @@ console.log('Modal opacity:', window.getComputedStyle(modal).opacity);
 console.log('Modal z-index:', window.getComputedStyle(modal).zIndex);
 console.log('Modal classes:', modal.className);
 console.log('Modal inline style:', modal.style.cssText);
+// Initialize page visibility - hide all full pages except dashboard
+  if (achievementsFullPage) achievementsFullPage.classList.add('hidden');
+  if (competitionFullPage) competitionFullPage.classList.add('hidden');
+  if (lessonsFullPage) lessonsFullPage.classList.add('hidden');
+  if (bibleFullPage) bibleFullPage.classList.add('hidden');
+  if (hymnsFullPage) hymnsFullPage.classList.add('hidden');
 
   console.log('SoftFingers Pro initialized with Firebase integration');
 });
