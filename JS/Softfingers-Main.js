@@ -2595,7 +2595,8 @@ function showLessonResult(passed, wpm, accuracy, lesson) {
   const frequentDifficultyEl = document.getElementById('frequent-difficulty');
   const lastTestResults = document.getElementById('last-test-results');
   const lastTestResultsCard = document.getElementById('last-test-results-card');
-  const resultsLoader = document.getElementById('results-loader');
+  const resultsLoaderContainer = document.getElementById('results-loader-container');
+  const passageContainer = document.getElementById('passage-container');
   const lastWPMEl = document.getElementById('last-wpm');
   const lastAccEl = document.getElementById('last-acc');
   const lastCorrectWordsEl = document.getElementById('last-correct-words');
@@ -3722,7 +3723,31 @@ typingInput.addEventListener('input', (e) => {
     const part = chapter.parts[currentStoryPart] || chapter.parts[0];
     return { title: chapter.title, partIndex: currentStoryPart, text: part };
   }
+function showPassageLoader() {
+  if (passageDisplay) {
+    passageDisplay.innerHTML = '';
+  }
+  if (passageContainer) {
+    passageContainer.classList.add('loading');
+  }
+  if (typingInput) {
+    typingInput.classList.add('loading');
+    typingInput.disabled = true;
+    typingInput.value = '';
+  }
+}
 
+function hidePassageLoader() {
+  if (passageContainer) {
+    passageContainer.classList.remove('loading');
+  }
+  if (typingInput) {
+    typingInput.classList.remove('loading');
+    typingInput.disabled = false;
+  }
+  // Render the passage content after removing loading state
+  renderPassage();
+}
   // ==== LOADERS ====
 function resetTestState() {
   clearInterval(timerInterval);
@@ -3731,11 +3756,16 @@ function resetTestState() {
   running = false;
   startTime = null;
   typed = '';
-  typingInput.value = '';
-  statTime.textContent = timeLeft + 's';
-  statWPM.textContent = '0';
-  statAcc.textContent = '';
-  typingInput.disabled = false;
+  
+  // Safety checks before accessing elements
+  if (typingInput) {
+    typingInput.value = '';
+    typingInput.disabled = false;
+  }
+  
+  if (statTime) statTime.textContent = timeLeft + 's';
+  if (statWPM) statWPM.textContent = '0';
+  if (statAcc) statAcc.textContent = '';
   
   renderPassage();
 }
@@ -3745,27 +3775,44 @@ function resetTestState() {
   }
 
   function loadNewPassage() {
-    targetText = pickPassage();
-    resetTestState();
+    showPassageLoader();
+    
+    setTimeout(() => {
+      targetText = pickPassage();
+      resetTestState();
+      hidePassageLoader();
+      focusTypingInput();
+    }, 300);
   }
 
-  function loadNewQuote() {
-    const q = pickQuote();
-    targetText = q.quote;
-    // Show author info (will be hidden when user is not authenticated)
-    if (quoteAuthorEl) {
-      quoteAuthorEl.textContent = `— ${q.author}`;
-    }
-    resetTestState();
+ function loadNewQuote() {
+    showPassageLoader();
+    
+    setTimeout(() => {
+      const q = pickQuote();
+      targetText = q.quote;
+      // Show author info (will be hidden when user is not authenticated)
+      if (quoteAuthorEl) {
+        quoteAuthorEl.textContent = `— ${q.author}`;
+      }
+      resetTestState();
+      hidePassageLoader();
+      focusTypingInput();
+    }, 300);
   }
 
-  function loadNewStory() {
-    const s = pickStoryText();
-    targetText = s.text;
-    storyMetaEl.textContent = `${s.title} — Part ${s.partIndex + 1}`;
-    resetTestState();
+ function loadNewStory() {
+    showPassageLoader();
+    
+    setTimeout(() => {
+      const s = pickStoryText();
+      targetText = s.text;
+      storyMetaEl.textContent = `${s.title} — Part ${s.partIndex + 1}`;
+      resetTestState();
+      hidePassageLoader();
+      focusTypingInput();
+    }, 300);
   }
-
   // ==== TIMER AND STATS ====
   function startTimer() {
     if (running) return;
@@ -3853,6 +3900,17 @@ function computeStats(typedStr, elapsedSec) {
   };
 }
 function renderPassage() {
+  // Safety check - return early if elements don't exist or are loading
+  if (!passageDisplay || !typingInput) {
+    console.warn('Passage display or typing input not found');
+    return;
+  }
+  
+  // Don't render if still in loading state
+  if (passageContainer && passageContainer.classList.contains('loading')) {
+    return;
+  }
+  
   const words = targetText.split(" ");
   const currentWord = typingInput.value; // What's being typed right now
   const completedTyped = typed; // What's already been typed
@@ -3951,7 +4009,7 @@ function focusTypingInput() {
   }, 100);
 }
 
- async function finalizeTest() {
+async function finalizeTest() {
     if (!running) return;
     running = false;
     clearInterval(timerInterval);
@@ -3964,18 +4022,20 @@ function focusTypingInput() {
     statWPM.textContent = stats.wpm;
     statAcc.textContent = stats.accuracy + '%';
 
-  
-  // Show last test results section with loader
+    // Show results card with loader, hide previous results
     if (lastTestResultsCard) {
       lastTestResultsCard.style.display = 'block';
     }
     if (lastTestResults) {
       lastTestResults.classList.add('hidden');
     }
+    if (resultsLoaderContainer) {
+      resultsLoaderContainer.classList.remove('hidden');
+    }
 
     const user = firebase.auth().currentUser;
     
-   if (user) {
+    if (user) {
       try {
         const timestamp = firebase.firestore.Timestamp.now();
         
@@ -4249,47 +4309,61 @@ if (competitionMode === 'active' && activeCompId) {
     }
   }
 }
-        // Update last test results
-        lastWPMEl.textContent = stats.wpm;
-        lastAccEl.textContent = stats.accuracy + '%';
-        lastCorrectWordsEl.textContent = stats.correctWords;
-        lastIncorrectWordsEl.textContent = stats.incorrectWords;
-        lastCorrectKeysEl.textContent = stats.correctKeys;
-        lastIncorrectKeysEl.textContent = stats.incorrectKeys;
+      // Update last test results display
+        if (lastWPMEl) lastWPMEl.textContent = stats.wpm;
+        if (lastAccEl) lastAccEl.textContent = stats.accuracy + '%';
+        if (lastCorrectWordsEl) lastCorrectWordsEl.textContent = stats.correctWords;
+        if (lastIncorrectWordsEl) lastIncorrectWordsEl.textContent = stats.incorrectWords;
+        if (lastCorrectKeysEl) lastCorrectKeysEl.textContent = stats.correctKeys;
+        if (lastIncorrectKeysEl) lastIncorrectKeysEl.textContent = stats.incorrectKeys;
         
-       // Show results, hide loader
+        // Show results, hide loader
+        if (resultsLoaderContainer) {
+          resultsLoaderContainer.classList.add('hidden');
+        }
         if (lastTestResults) {
           lastTestResults.classList.remove('hidden');
         }
-        if (resultsLoader) {
-          resultsLoader.style.display = 'none';
-        }
         
         await refreshDashboard();
-
         
-        await refreshDashboard();
       } catch (e) {
         console.error('Save failed:', e);
         // Hide loader on error
-        if (resultsLoader) resultsLoader.classList.add('hidden');
+        if (resultsLoaderContainer) {
+          resultsLoaderContainer.classList.add('hidden');
+        }
+        if (lastTestResults) {
+          lastTestResults.classList.remove('hidden');
+        }
       }
     } else {
-      // For guests, just show the results without saving
+      // For guests
       await new Promise(resolve => setTimeout(resolve, 500));
       
-    llastWPMEl.textContent = stats.wpm;
-      lastAccEl.textContent = stats.accuracy + '%';
-      lastCorrectWordsEl.textContent = stats.correctWords;
-      lastIncorrectWordsEl.textContent = stats.incorrectWords;
-      lastCorrectKeysEl.textContent = stats.correctKeys;
-      lastIncorrectKeysEl.textContent = stats.incorrectKeys;
+      if (lastWPMEl) lastWPMEl.textContent = stats.wpm;
+      if (lastAccEl) lastAccEl.textContent = stats.accuracy + '%';
+      if (lastCorrectWordsEl) lastCorrectWordsEl.textContent = stats.correctWords;
+      if (lastIncorrectWordsEl) lastIncorrectWordsEl.textContent = stats.incorrectWords;
+      if (lastCorrectKeysEl) lastCorrectKeysEl.textContent = stats.correctKeys;
+      if (lastIncorrectKeysEl) lastIncorrectKeysEl.textContent = stats.incorrectKeys;
+      // Right before hiding loader:
+console.log('About to hide loader, element exists:', !!resultsLoaderContainer);
+if (resultsLoaderContainer) {
+  console.log('Loader classes before:', resultsLoaderContainer.className);
+  resultsLoaderContainer.classList.add('hidden');
+  console.log('Loader classes after:', resultsLoaderContainer.className);
+}
       
-      // Hide loader
-      if (resultsLoader) {
-        resultsLoader.style.display = 'none';
+      // Show results, hide loader
+      if (resultsLoaderContainer) {
+        resultsLoaderContainer.classList.add('hidden');
+      }
+      if (lastTestResults) {
+        lastTestResults.classList.remove('hidden');
       }
     }
+
     // Keep input disabled after test completion
    
   }
@@ -4572,6 +4646,10 @@ console.log('Modal inline style:', modal.style.cssText);
   if (lessonsFullPage) lessonsFullPage.classList.add('hidden');
   if (bibleFullPage) bibleFullPage.classList.add('hidden');
   if (hymnsFullPage) hymnsFullPage.classList.add('hidden');
+ // Hide loaders on initial page load
+  if (passageContainer) passageContainer.classList.remove('loading');
+  if (typingInput) typingInput.classList.remove('loading');
+  if (resultsLoaderContainer) resultsLoaderContainer.classList.add('hidden');
 
   console.log('SoftFingers Pro initialized with Firebase integration');
 });
