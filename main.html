@@ -212,8 +212,8 @@
                 </div>
               </div>
 
-              <!-- Passage Display -->
-              <div class="passage-container">
+             <!-- Passage Display -->
+              <div class="passage-container" id="passage-container">
                 <div id="passage-display"></div>
               </div>
 
@@ -369,7 +369,10 @@
               </div>
             </div>
             
-            <div class="loader" id="results-loader" style="margin: 20px auto; display: none;"></div>
+            <div class="loader-container hidden" id="results-loader-container">
+              <div class="loader"></div>
+              <p class="loader-text">Calculating results...</p>
+            </div>
             
             <div id="last-test-results" class="hidden">
               <div class="performance-stats-grid" style="margin-bottom: 20px;">
@@ -988,4 +991,3 @@
 
 </body>
 </html>
-
