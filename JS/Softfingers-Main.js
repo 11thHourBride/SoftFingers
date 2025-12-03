@@ -421,7 +421,7 @@ function copyToClipboard(text) {
     }
   };
 
-  // ==== JOIN COMPETITION ====
+ // ==== JOIN COMPETITION ====
   const joinCompForm = document.getElementById('join-competition-form');
   
   if (joinCompForm) {
@@ -440,6 +440,15 @@ function copyToClipboard(text) {
       try {
         const code = document.getElementById('join-code').value.toUpperCase().trim();
         
+        if (!code || code.length < 6) {
+          alert('Please enter a valid 6-character competition code.');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Join Competition';
+          return;
+        }
+        
+        console.log('Searching for competition with code:', code);
+        
         // Find competition by code
         const compSnap = await db.collection('competitions')
           .where('code', '==', code)
@@ -447,7 +456,7 @@ function copyToClipboard(text) {
           .get();
         
         if (compSnap.empty) {
-          alert('Competition not found. Please check the code.');
+          alert('Competition not found. Please check the code and try again.');
           submitBtn.disabled = false;
           submitBtn.textContent = 'Join Competition';
           return;
@@ -456,16 +465,33 @@ function copyToClipboard(text) {
         const compDoc = compSnap.docs[0];
         const competition = compDoc.data();
         
-        // Check if competition is still active
-        if (competition.status !== 'active') {
+        console.log('Found competition:', competition);
+        
+        // IMPORTANT: Check end date FIRST
+        const now = new Date();
+        const endDate = competition.endsAt.toDate();
+        const isStillActive = endDate > now;
+        
+        if (!isStillActive || competition.status !== 'active') {
           alert('This competition has ended.');
+          // Update status in database if needed
+          if (competition.status === 'active') {
+            await compDoc.ref.update({ status: 'completed' });
+          }
           submitBtn.disabled = false;
           submitBtn.textContent = 'Join Competition';
           return;
         }
         
+        // Ensure participantIds exists (migration for old competitions)
+        let participantIds = competition.participantIds;
+        if (!participantIds) {
+          participantIds = competition.participants ? competition.participants.map(p => p.uid) : [competition.creatorId];
+          await compDoc.ref.update({ participantIds: participantIds });
+        }
+        
         // Check if user already joined
-        const alreadyJoined = competition.participantIds.includes(currentUser.uid);  // CHANGED
+        const alreadyJoined = participantIds.includes(currentUser.uid);
         if (alreadyJoined) {
           alert('You have already joined this competition!');
           joinCompModal.classList.add('hidden');
@@ -477,16 +503,21 @@ function copyToClipboard(text) {
         }
         
         // Check if competition is full
-        if (competition.participants.length >= competition.maxParticipants) {
+        const participants = competition.participants || [];
+        const maxParticipants = competition.maxParticipants || 10;
+        
+        if (participants.length >= maxParticipants) {
           alert('This competition is full.');
           submitBtn.disabled = false;
           submitBtn.textContent = 'Join Competition';
           return;
         }
         
+        console.log('Adding user to competition...');
+        
         // Add user to participants
         await compDoc.ref.update({
-          participantIds: firebase.firestore.FieldValue.arrayUnion(currentUser.uid),  // CHANGED
+          participantIds: firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
           participants: firebase.firestore.FieldValue.arrayUnion({
             uid: currentUser.uid,
             email: currentUser.email,
@@ -494,7 +525,9 @@ function copyToClipboard(text) {
           })
         });
         
-        alert('Successfully joined the competition!');
+        console.log('Successfully joined competition');
+        
+        alert('Successfully joined the competition! 🎉');
         joinCompModal.classList.add('hidden');
         joinCompForm.reset();
         
@@ -503,12 +536,22 @@ function copyToClipboard(text) {
         
       } catch (error) {
         console.error('Error joining competition:', error);
-        alert('Failed to join competition. Please try again.');
+        console.error('Error details:', error.code, error.message);
+        
+        // Provide more specific error messages
+        if (error.code === 'permission-denied') {
+          alert('Permission denied. Please make sure you are signed in and try again.');
+        } else if (error.code === 'not-found') {
+          alert('Competition not found. Please check the code.');
+        } else {
+          alert('Failed to join competition: ' + error.message);
+        }
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Join Competition';
       }
     });
+  
   }
 // ==== LOAD COMPETITIONS ====
   async function loadCompetitions() {
