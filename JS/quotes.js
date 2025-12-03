@@ -1,4 +1,4 @@
-// Quote bank (from user)
+// Quote bank 
       const QUOTES = [
         {"quote": "Be the change that you wish to see in the world.", "author": "Mahatma Gandhi"},
        {"quote": "When you stop telling your friends all about yourself, your enemies will stop knowing much about you.", "author": "Anonymous"},
@@ -11,14 +11,14 @@
         {"quote": "The wise in heart will receive commandments: but a prating fool shall fall.", "author": "King Solomon - Proverbs"},
         {"quote": "Blessings are upon the head of the just: but violence covereth the mouth of the wicked.", "author": "King Solomon - Proverbs"},
         {"quote": "The mouth of a righteous man is a well of life: but violence covereth the mouth of the wicked.", "author": "King Solomon - Proverbs"},
-        {"quote": "The rich man's wealth is his strong city: the destruction fo the poor is their poverty.", "author": "King Solomon - Proverbs"},
+        {"quote": "The rich man's wealth is his strong city: the destruction of the poor is their poverty.", "author": "King Solomon - Proverbs"},
         {"quote": "Wise men lay up knowledge: but the mouth of the foolish is near destruction.", "author": "King Solomon - Proverbs"},
         {"quote": "Enter not into the path of the wicked, and go not in the way of evil men.", "author": "King Solomon - Proverbs"},
         {"quote": "Put away from thee a froward mouth, and perverse lips put far from thee.", "author": "King Solomon - Proverbs"},
         {"quote": "Let thine eyes look right on, and let thine eyelids look straight before thee.", "author": "King Solomon - Proverbs"},
         {"quote": "A naughty person, a wicked man, walketh with a froward mouth.", "author": "King Solomon - Proverbs"},
         {"quote": "Get wisdom, get understanding; forget it not neither decline from the words of thy mouth.", "author": "King Solomon - Proverbs"},
-        {"quote": "My son, hear the instruction of thy father, and forsake not the law of thy mother: For they sahll be an ornament of grace unto thy head, and chains about thy neck.", "author": "King Solomon - Proverbs"},
+        {"quote": "My son, hear the instruction of thy father, and forsake not the law of thy mother: For they shall be an ornament of grace unto thy head, and chains about thy neck.", "author": "King Solomon - Proverbs"},
         {"quote": "Devise not evil against thy neighbour, seeing he dwelleth securely by thee.", "author": "King Solomon - Proverbs"},
         {"quote": "The way of the wicked is as darkness: they know not at what they stumble.", "author": "King Solomon - Proverbs"},
         {"quote": "The fear of the LORD is the beginning of knowledge: but fools despise wisdom and instruction.", "author": "King Solomon - Proverbs"},
