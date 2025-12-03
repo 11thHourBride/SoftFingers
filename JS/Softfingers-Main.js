@@ -3479,28 +3479,52 @@ function generateLessonText(lesson, exerciseNum = 0) {
     }
   });
 
-  // ==== SIGNUP ====
-  signupForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    authMessage.textContent = 'Creating account...';
-    authMessage.className = 'text-center mt-4';
-    try {
-      const email = document.getElementById('signup-email').value.trim();
-      const pass = document.getElementById('signup-pass').value;
-      if (pass.length < 6) {
-        authMessage.textContent = 'Password must be at least 6 characters.';
-        authMessage.className = 'text-center mt-4 status-error';
-        return;
-      }
-      const cred = await auth.createUserWithEmailAndPassword(email, pass);
-      await cred.user.sendEmailVerification();
-      authMessage.textContent = 'Account created. Verification email sent.';
-      authMessage.className = 'text-center mt-4 status-success';
-    } catch (err) {
-      authMessage.textContent = err.message;
+// ==== SIGNUP ====
+signupForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  authMessage.textContent = 'Creating account...';
+  authMessage.className = 'text-center mt-4';
+  try {
+    const firstname = document.getElementById('signup-firstname').value.trim();
+    const surname = document.getElementById('signup-surname').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const pass = document.getElementById('signup-pass').value;
+    
+    if (!firstname || !surname) {
+      authMessage.textContent = 'Please enter your first name and surname.';
       authMessage.className = 'text-center mt-4 status-error';
+      return;
     }
-  });
+    
+    if (pass.length < 6) {
+      authMessage.textContent = 'Password must be at least 6 characters.';
+      authMessage.className = 'text-center mt-4 status-error';
+      return;
+    }
+    
+    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+    
+    // Save user profile with names to Firestore
+    await db.collection('users').doc(cred.user.uid).set({
+      uid: cred.user.uid,
+      email: email,
+      firstname: firstname,
+      surname: surname,
+      displayName: `${firstname} ${surname}`,
+      createdAt: firebase.firestore.Timestamp.now()
+    }, { merge: true });
+    
+    await cred.user.sendEmailVerification();
+    authMessage.textContent = 'Account created. Verification email sent.';
+    authMessage.className = 'text-center mt-4 status-success';
+    
+    // Clear form
+    signupForm.reset();
+  } catch (err) {
+    authMessage.textContent = err.message;
+    authMessage.className = 'text-center mt-4 status-error';
+  }
+});
 
   // ==== FORGOT PASSWORD ====
   forgotBtn.addEventListener('click', async () => {
@@ -3740,7 +3764,7 @@ function resetTestState() {
       resetTestState();
       hidePassageLoader();
       focusTypingInput();
-    }, 300);
+    }, 3000);
   }
 
  function loadNewQuote() {
@@ -3756,7 +3780,7 @@ function resetTestState() {
       resetTestState();
       hidePassageLoader();
       focusTypingInput();
-    }, 300);
+    }, 3000);
   }
 
  function loadNewStory() {
@@ -3769,7 +3793,7 @@ function resetTestState() {
       resetTestState();
       hidePassageLoader();
       focusTypingInput();
-    }, 300);
+    }, 3000);
   }
   // ==== TIMER AND STATS ====
   function startTimer() {
@@ -4413,29 +4437,56 @@ async function refreshDashboard() {
       recentTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Error loading recent tests</td></tr>';
     }
 
-    const lbSnap = await db.collection('leaderboard')
-      .orderBy('wpm','desc')
-      .limit(10)
-      .get();
-    leaderboardBody.innerHTML = '';
-    let rank = 1;
-    lbSnap.forEach(d => {
-      const v = d.data();
-      const when = v.timestamp?.toDate ? v.timestamp.toDate().toLocaleDateString() : '';
-      const shortUser = v.uid ? v.uid.slice(0, 6) + '...' : 'Anonymous';
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><strong>#${rank}</strong></td>
-        <td>${shortUser}</td>
-        <td class="font-mono">${v.wpm}</td>
-        <td class="font-mono">${v.accuracy}%</td>
-        <td>${when}</td>
-        <td><span class="status-badge">${v.mode || 'Random'}</span></td>
-      `;
-      leaderboardBody.appendChild(tr);
-      rank++;
-    });
-  }
+const lbSnap = await db.collection('leaderboard')
+  .orderBy('wpm','desc')
+  .limit(10)
+  .get();
+leaderboardBody.innerHTML = '';
+let rank = 1;
+
+// Fetch all user names in parallel
+const entries = await Promise.all(
+  lbSnap.docs.map(async (d) => {
+    const v = d.data();
+    const when = v.timestamp?.toDate ? v.timestamp.toDate().toLocaleDateString() : '';
+    
+    // Fetch user's display name from users collection
+    let displayName = 'Anonymous';
+    if (v.uid) {
+      try {
+        const userDoc = await db.collection('users').doc(v.uid).get();
+        if (userDoc.exists) {
+          const userData = userDoc.data();
+          displayName = userData.displayName || `${userData.firstname || ''} ${userData.surname || ''}`.trim() || userData.email?.split('@')[0] || 'User';
+        } else {
+          displayName = v.email?.split('@')[0] || v.uid.slice(0, 8);
+        }
+      } catch (error) {
+        console.error('Error fetching user name:', error);
+        displayName = v.email?.split('@')[0] || 'User';
+      }
+    }
+    
+    return { v, when, displayName };
+  })
+);
+
+// Render all entries
+entries.forEach(({ v, when, displayName }) => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><strong>#${rank}</strong></td>
+    <td>${displayName}</td>
+    <td class="font-mono">${v.wpm}</td>
+    <td class="font-mono">${v.accuracy}%</td>
+    <td>${when}</td>
+    <td><span class="status-badge">${v.mode || 'Random'}</span></td>
+  `;
+  leaderboardBody.appendChild(tr);
+  rank++;
+});
+}
+  
 
  // ==== AUTH STATE CHANGE ====
   auth.onAuthStateChanged(async user => {
@@ -4450,11 +4501,23 @@ async function refreshDashboard() {
       // Show leaderboard and recent runs sections when logged in
       toggleDashboardSections(true);
       
-      // Update auth summary in header
-      authSummary.innerHTML = `
-        <div class="user-badge">${user.email}</div>
-        ${user.emailVerified ? '<span class="status-success text-xs">✓</span>' : '<span class="status-warning text-xs">⚠</span>'}
-      `;
+     // Fetch user's display name
+let displayName = user.email;
+try {
+  const userDoc = await db.collection('users').doc(user.uid).get();
+  if (userDoc.exists) {
+    const userData = userDoc.data();
+    displayName = userData.displayName || `${userData.firstname || ''} ${userData.surname || ''}`.trim() || user.email;
+  }
+} catch (error) {
+  console.error('Error fetching user name:', error);
+}
+
+// Update auth summary in header
+authSummary.innerHTML = `
+  <div class="user-badge">${displayName}</div>
+  ${user.emailVerified ? '<span class="status-success text-xs">✓</span>' : '<span class="status-warning text-xs">⚠</span>'}
+`;
       
       // Show logout and verify buttons, hide signin button
       logoutBtn.style.display = 'inline-block';
@@ -4606,7 +4669,29 @@ console.log('Modal inline style:', modal.style.cssText);
   if (resultsLoaderContainer) resultsLoaderContainer.classList.add('hidden');
 
   // Initialize dashboard as active on page load
-  document.body.classList.add('dashboard-active');
+document.body.classList.add('dashboard-active');
+
+// EXPLICITLY SHOW DASHBOARD ELEMENTS
+if (dashboardSection) {
+  dashboardSection.style.display = 'block';
+  dashboardSection.classList.remove('hidden');
+}
+
+if (typingCard) {
+  typingCard.style.display = 'block';
+  typingCard.classList.remove('hidden');
+}
+
+if (sidebar) {
+  sidebar.style.display = 'none'; // Keep hidden as per your design
+}
+
+// Show the main grid
+const mainGrid = document.querySelector('#section-dashboard .grid');
+if (mainGrid) {
+  mainGrid.style.display = 'grid';
+  mainGrid.classList.remove('hidden');
+}
   
   // Ensure dashboard is the active tab on page load
   navTabs.forEach(t => t.classList.remove('active'));
