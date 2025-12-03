@@ -595,7 +595,69 @@
     }
 
     /* Utility Classes */
-    .hidden { display: none !important; }
+    /* Utility Classes */
+.hidden { display: none; }  /* Remove !important */
+
+/* Add these specific overrides to handle visibility */
+.grid:not(.hidden) { 
+  display: grid !important; 
+}
+
+.card:not(.hidden) { 
+  display: block !important; 
+}
+
+.performance-stats-section:not(.hidden) {
+  display: grid !important;
+}
+
+.table-container:not(.hidden) {
+  display: block !important;
+}
+
+/* Ensure loaders work correctly */
+.loader-container.hidden {
+  display: none !important;
+}
+
+#last-test-results.hidden {
+  display: none !important;
+}
+
+#results-loader-container.hidden {
+  display: none !important;
+}
+
+/* Full page sections */
+#achievements-full-page,
+#competition-full-page,
+#lessons-full-page,
+#bible-full-page,
+#hymns-full-page {
+  width: 100%;
+  min-height: calc(100vh - 73px);
+  padding: 32px 0;
+}
+
+/* Simple hiding - just use display none */
+#achievements-full-page.hidden,
+#competition-full-page.hidden,
+#lessons-full-page.hidden,
+#bible-full-page.hidden,
+#hymns-full-page.hidden {
+  display: none;
+}
+
+/* Dashboard section */
+#section-dashboard {
+  width: 100%;
+}
+
+/* Remove any absolute positioning from typing card */
+.typing-card {
+  width: 100%;
+  margin-bottom: 2rem;
+}
     .text-center { text-align: center; }
     .text-muted { color: var(--muted); }
     .text-small { font-size: 0.875rem; }
@@ -1246,4 +1308,35 @@
   .performance-details-grid {
     grid-template-columns: 1fr;
   }
+}
+/* Dashboard element visibility control */
+#dashboard-performance-stats,
+.card:has(#recent-table),
+.card:has(#leaderboard-table) {
+  display: none;
+}
+
+/* Show dashboard elements only when dashboard is active */
+body.dashboard-active #dashboard-performance-stats {
+  display: grid !important;
+}
+
+body.dashboard-active .card:has(#recent-table),
+body.dashboard-active .card:has(#leaderboard-table) {
+  display: block !important;
+}
+
+
+
+/* Force hide dashboard elements on non-dashboard pages */
+body:not(.dashboard-active) #dashboard-performance-stats {
+  display: none !important
+}
+
+body:not(.dashboard-active) .card:has(#recent-table) {
+  display: none !important;
+}
+
+body:not(.dashboard-active) .card:has(#leaderboard-table) {
+  display: none !important;
 }
