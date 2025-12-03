@@ -3641,12 +3641,7 @@ typingInput.addEventListener('input', (e) => {
   
   renderPassage();
   
-  // Check if test is complete (in case no space at end)
-  if ((typed + newTyped).length >= targetText.length) {
-    typed += newTyped;
-    typingInput.value = '';
-    finalizeTest();
-  }
+  
 });
 
   typingInput.addEventListener('paste', e => e.preventDefault());
@@ -3848,10 +3843,11 @@ function computeStats(typedStr, elapsedSec) {
     ? Math.round((correctWords / totalTypedWords) * 100) 
     : 100;
   
-  // WPM calculation based on correct words
-  const correctChars = correctWords * 5;
-  const grossWPM = (correctChars / 5) / (elapsedSec / 60);
-  const wpm = Math.max(0, Math.round(grossWPM));
+  // WPM calculation: (correct characters / 5) / minutes elapsed
+  // Standard formula: 1 word = 5 characters
+  const minutes = elapsedSec / 60;
+  const correctChars = correctWords * 5; // Each correct word = 5 chars
+  const wpm = minutes > 0 ? Math.max(0, Math.round(correctChars / 5 / minutes)) : 0;
   
   return { 
     wpm, 
@@ -3940,12 +3936,7 @@ function renderPassage() {
     }
   }
   
-  // Show extra characters typed beyond word length
-  if (typedWord.length > word.length) {
-    for (let i = word.length; i < typedWord.length; i++) {
-      chars += `<span class="incorrect">${escapeHtml(typedWord[i])}</span>`;
-    }
-  }
+ 
 
   let wordClass = "word";
   if (absoluteIndex === currentWordIndex) {
