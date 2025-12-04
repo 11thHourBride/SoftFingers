@@ -3876,7 +3876,7 @@ function computeStats(typedStr, elapsedSec) {
   
   // Split into words for word-based accuracy
   const targetWords = targetText.trim().split(/\s+/);
-  const typedWords = typedStr.trim().split(/\s+/);
+  const typedWords = typedStr.trim().split(/\s+/).filter(w => w.length > 0);
   
   let correctWords = 0;
   let incorrectWords = 0;
@@ -3904,17 +3904,22 @@ function computeStats(typedStr, elapsedSec) {
     }
   }
   
+  // Add space characters to correct keys count
+  if (correctWords > 0) {
+    correctKeys += correctWords;
+  }
+  
   // Calculate accuracy based on words typed
   const totalTypedWords = typedWords.length;
   const accuracy = totalTypedWords > 0 
     ? Math.round((correctWords / totalTypedWords) * 100) 
     : 100;
   
-  // WPM calculation: (correct characters / 5) / minutes elapsed
-  // Standard formula: 1 word = 5 characters
+  // ⭐ NEW WPM CALCULATION - This is the key fix! ⭐
+  // Standard formula: WPM = (Total Characters Typed / 5) / Minutes Elapsed
   const minutes = elapsedSec / 60;
-  const correctChars = correctWords * 5; // Each correct word = 5 chars
-  const wpm = minutes > 0 ? Math.max(0, Math.round(correctChars / 5 / minutes)) : 0;
+  const totalCharactersTyped = typedStr.length; // Count ALL characters including spaces
+  const wpm = minutes > 0 ? Math.round((totalCharactersTyped / 5) / minutes) : 0;
   
   return { 
     wpm, 
