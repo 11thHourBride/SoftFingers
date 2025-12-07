@@ -585,6 +585,108 @@
   }
 }
 
+/* Chapter Summary Modal */
+.bible-chapter-summary-modal {
+  background: white;
+  padding: 48px;
+  border-radius: 24px;
+  text-align: center;
+  max-width: 600px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+  animation: scaleIn 0.3s ease;
+  border: 3px solid rgba(255, 215, 0, 0.3);
+}
+
+.chapter-summary-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+  animation: bounce 0.6s ease;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.bible-chapter-summary-modal h3 {
+  margin: 0 0 8px;
+  font-size: 2rem;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+}
+
+.chapter-summary-book {
+  font-size: 1.125rem;
+  color: var(--muted);
+  margin: 0 0 32px;
+  font-weight: 600;
+}
+
+.chapter-summary-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.chapter-summary-stat {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 165, 0, 0.05));
+  border: 2px solid rgba(255, 215, 0, 0.2);
+  border-radius: 16px;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.chapter-summary-stat .stat-icon {
+  font-size: 2rem;
+}
+
+.chapter-summary-stat .stat-content {
+  text-align: center;
+}
+
+.chapter-summary-stat .stat-value {
+  font-size: 2.5rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.chapter-summary-stat .stat-label {
+  font-size: 0.875rem;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.chapter-summary-message {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  margin: 0 0 32px;
+  line-height: 1.6;
+}
+
+/* Word wrapper to prevent word breaks */
+.word-wrapper {
+  display: inline-block;
+  white-space: nowrap;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .bible-practice-card {
@@ -593,6 +695,14 @@
   
   .bible-page-title {
     font-size: 2rem;
+  }
+  
+  .bible-chapter-summary-modal {
+    padding: 40px 32px;
+  }
+  
+  .chapter-summary-stats {
+    gap: 16px;
   }
 }
 
@@ -655,9 +765,18 @@
     padding: 0 16px;
   }
   
-  .bible-times-up-modal {
+  .bible-times-up-modal,
+  .bible-chapter-summary-modal {
     padding: 32px 24px;
     margin: 20px;
+  }
+  
+  .chapter-summary-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .chapter-summary-stat .stat-value {
+    font-size: 2rem;
   }
   
   .bible-completion-toast {
@@ -692,173 +811,4 @@
   .bible-stat-card .stat-value {
     font-size: 2rem;
   }
-}/* Bible Practice Styles */
-#bible-full-page {
-  min-height: 60vh;
-  padding: 32px 40px;
-  width: 118%; 
-  background-color: #ffffff;
-  border-radius: 10px;
 }
-.bible-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 32px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--border);
-}
-
-.bible-page-title {
-  margin: 0 0 8px;
-  font-size: 2rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #FFD700, #FFA500);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.bible-page-subtitle {
-  color: var(--muted);
-  font-size: 1rem;
-  margin: 0;
-}
-
-.bible-stats-summary {
-  display: flex;
-  gap: 16px;
-}
-
-.bible-testament-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
-  background: var(--card-secondary);
-  border-radius: 12px;
-  padding: 6px;
-}
-
-.bible-testament-tab {
-  flex: 1;
-  padding: 12px 24px;
-  border-radius: 8px;
-  cursor: pointer;
-  text-align: center;
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.bible-testament-tab:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.bible-testament-tab.active {
-  background: var(--accent);
-  color: white;
-  box-shadow: 0 4px 12px rgba(159, 124, 255, 0.3);
-}
-
-.bible-books-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
-  margin-bottom: 32px;
-}
-
-.bible-book-card {
-  background: var(--card-secondary);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.bible-book-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  border-color: var(--accent-solid);
-}
-
-.bible-book-name {
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin: 0 0 8px;
-}
-
-.bible-book-meta {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.875rem;
-  color: var(--muted);
-}
-
-.bible-practice-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 24px;
-}
-
-.bible-verse-display {
-  background: white;
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  color: black;
-  padding: 24px;
-  margin-bottom: 24px;
-  min-height: 120px;
-  word-wrap: break-word;
-}
-
-.verse-text {
-  font-size: 2.25rem;
-  line-height: 1.8;
-  font-family: 'Georgia', 'Times New Roman', serif;
-}
-
-.verse-text .correct {
-  color: #51cf66;
-}
-
-.verse-text .incorrect {
-  color: #ff6b6b;
-  background: rgba(255, 107, 107, 0.1);
-}
-
-.verse-text .current {
-  background: rgba(159, 124, 255, 0.3);
-  padding: 0 2px;
-}
-
-.bible-input {
-  width: 100%;
-  min-height: 120px;
-  background: var(--card-secondary);
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
-  font-family: 'Georgia', 'Times New Roman', serif;
-  font-size: 1.125rem;
-  color: var(--text);
-  margin-bottom: 24px;
-}
-
-.bible-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.bible-stat-card {
-  background: var(--card-secondary);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
-  text-align: center;
-}
-
-
