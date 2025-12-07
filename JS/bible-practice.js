@@ -682,8 +682,9 @@ function loadBiblePage() {
   setupBibleEventListeners();
 }
 
+// Update the setupBibleEventListeners function to properly handle timer selection
 function setupBibleEventListeners() {
-  // Set up testament tabs
+  // Testament tabs
   document.querySelectorAll('.bible-testament-tab').forEach(tab => {
     tab.addEventListener('click', function() {
       document.querySelectorAll('.bible-testament-tab').forEach(t => t.classList.remove('active'));
@@ -691,28 +692,40 @@ function setupBibleEventListeners() {
       currentTestament = this.dataset.testament;
       loadBibleBooks(currentTestament);
     });
-    // Set up timer select
+  });
+    // Timer select - FIXED VERSION
   const timerSelect = document.getElementById('bible-timer-select');
   if (timerSelect && !timerSelect.dataset.listenerAdded) {
     timerSelect.dataset.listenerAdded = 'true';
     timerSelect.addEventListener('change', (e) => {
       bibleTimerDuration = parseInt(e.target.value);
       bibleTimeLeft = bibleTimerDuration;
-      document.getElementById('bible-countdown').textContent = 
-        bibleTimerDuration === 0 ? '∞' : bibleTimerDuration + 's';
+      
+      const countdownEl = document.getElementById('bible-countdown');
+      if (bibleTimerDuration === 0) {
+        countdownEl.textContent = '∞';
+        countdownEl.className = ''; // Remove warning/danger classes
+      } else {
+        countdownEl.textContent = bibleTimerDuration + 's';
+        countdownEl.className = ''; // Remove warning/danger classes
+      }
     });
   }
-  });
   
-  // Set up back button
-  document.getElementById('back-to-books')?.addEventListener('click', () => {
-    document.getElementById('bible-books-grid').style.display = 'grid';
-    document.getElementById('bible-practice-card').style.display = 'none';
-    bibleTyped = '';
-    document.getElementById('bible-input').value = '';
-  });
+  // Back button
+  const backBtn = document.getElementById('back-to-books');
+  if (backBtn && !backBtn.dataset.listenerAdded) {
+    backBtn.dataset.listenerAdded = 'true';
+    backBtn.addEventListener('click', () => {
+      document.getElementById('bible-books-grid').style.display = 'grid';
+      document.getElementById('bible-practice-card').style.display = 'none';
+      stopBibleTimer();
+      bibleTyped = '';
+      document.getElementById('bible-input').value = '';
+    });
+  }
   
-  // Set up bible input
+  // Bible input
   const bibleInput = document.getElementById('bible-input');
   if (bibleInput && !bibleInput.dataset.listenerAdded) {
     bibleInput.dataset.listenerAdded = 'true';
@@ -720,6 +733,82 @@ function setupBibleEventListeners() {
     bibleInput.addEventListener('paste', e => e.preventDefault());
   }
 }
+
+// Enhanced startBibleTimer with visual feedback
+function startBibleTimer() {
+  // Clear any existing timer
+  if (bibleTimerInterval) {
+    clearInterval(bibleTimerInterval);
+  }
+  
+  // If timer is disabled (0), don't start
+  if (bibleTimerDuration === 0) {
+    document.getElementById('bible-countdown').textContent = '∞';
+    document.getElementById('bible-countdown').className = '';
+    return;
+  }
+  
+  bibleTimeLeft = bibleTimerDuration;
+  const countdownEl = document.getElementById('bible-countdown');
+  countdownEl.textContent = bibleTimeLeft + 's';
+  countdownEl.className = ''; // Reset classes
+  
+  bibleTimerInterval = setInterval(() => {
+    bibleTimeLeft--;
+    
+    if (bibleTimeLeft <= 0) {
+      clearInterval(bibleTimerInterval);
+      bibleTimerInterval = null;
+      countdownEl.textContent = '0s';
+      countdownEl.className = 'danger';
+      
+      // Disable input
+      document.getElementById('bible-input').disabled = true;
+      
+      // Show times up modal
+      showTimesUpModal();
+    } else {
+      countdownEl.textContent = bibleTimeLeft + 's';
+      
+      // Update visual feedback based on time remaining
+      if (bibleTimeLeft <= 10) {
+        countdownEl.className = 'danger';
+      } else if (bibleTimeLeft <= 30) {
+        countdownEl.className = 'warning';
+      } else {
+        countdownEl.className = '';
+      }
+    }
+  }, 1000);
+}
+// Show times up modal
+function showTimesUpModal() {
+  const overlay = document.createElement('div');
+  overlay.className = 'bible-times-up-overlay';
+  overlay.innerHTML = `
+    <div class="bible-times-up-modal">
+      <h3>⏰ Time's Up!</h3>
+      <p>Complete this verse or move to the next one to continue practicing.</p>
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <button class="btn btn-secondary" onclick="this.closest('.bible-times-up-overlay').remove()">
+          Review Verse
+        </button>
+        <button class="btn" onclick="this.closest('.bible-times-up-overlay').remove(); nextVerse();">
+          Next Verse →
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  
+  // Remove overlay when clicking outside modal
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      overlay.remove();
+    }
+  });
+}
+
 
 // Update Bible stats from localStorage
 function updateBibleStats() {
@@ -850,7 +939,7 @@ function canGoNextChapter() {
   return currentIndex < availableChapters.length - 1;
 }
 
-// Load current verse
+// Enhanced loadCurrentVerse with proper timer reset
 function loadCurrentVerse() {
   const verses = currentBibleBook.verses[currentChapter];
   
@@ -871,19 +960,24 @@ function loadCurrentVerse() {
   input.disabled = false;
   input.focus();
   
- // Reset stats
-document.getElementById('bible-time').textContent = '0s';
-document.getElementById('bible-wpm').textContent = '0';
-document.getElementById('bible-accuracy').textContent = '100%';
+  // Reset stats display
+  document.getElementById('bible-time').textContent = '0s';
+  document.getElementById('bible-wpm').textContent = '0';
+  document.getElementById('bible-accuracy').textContent = '100%';
 
-// Reset timer
-stopBibleTimer();
-bibleTimeLeft = bibleTimerDuration;
-document.getElementById('bible-countdown').textContent = 
-  bibleTimerDuration === 0 ? '∞' : bibleTimerDuration + 's';
-document.getElementById('bible-countdown').style.color = 'var(--accent-solid)';
+  // Reset and display timer
+  stopBibleTimer();
+  bibleTimeLeft = bibleTimerDuration;
+  const countdownEl = document.getElementById('bible-countdown');
+  
+  if (bibleTimerDuration === 0) {
+    countdownEl.textContent = '∞';
+    countdownEl.className = '';
+  } else {
+    countdownEl.textContent = bibleTimerDuration + 's';
+    countdownEl.className = '';
+  }
 }
-
 // Render verse with colored characters
 function renderBibleVerse() {
   const display = document.getElementById('verse-text');
@@ -911,12 +1005,13 @@ function renderBibleVerse() {
   display.innerHTML = html;
 }
 
-// Handle bible input
+// Enhanced handleBibleInput with timer start
 function handleBibleInput(e) {
- if (!bibleStartTime) {
-  bibleStartTime = Date.now();
-  startBibleTimer(); // Start countdown when typing begins
-}
+  // Start timer on first keystroke
+  if (!bibleStartTime) {
+    bibleStartTime = Date.now();
+    startBibleTimer(); // Start countdown when typing begins
+  }
   
   bibleTyped = e.target.value;
   renderBibleVerse();
@@ -939,12 +1034,17 @@ function handleBibleInput(e) {
   
   // Check completion
   if (bibleTyped.length >= currentVerseText.length) {
-    completeBibleVerse(wpm, accuracy);
+    const finalAccuracy = Math.round((correct / currentVerseText.length) * 100);
+    completeBibleVerse(wpm, finalAccuracy);
   }
 }
 
-// Complete verse
+// Enhanced completeBibleVerse with timer stop
 function completeBibleVerse(wpm, accuracy) {
+  // Stop timer
+  stopBibleTimer();
+  
+  // Disable input
   document.getElementById('bible-input').disabled = true;
   
   // Save verse completion to localStorage
@@ -956,24 +1056,16 @@ function completeBibleVerse(wpm, accuracy) {
   // Update display
   updateBibleStats();
   
-  // Show completion message
+  // Show completion toast
   const toast = document.createElement('div');
-  toast.style.cssText = `
-    position: fixed;
-    top: 100px;
-    right: 24px;
-    background: linear-gradient(135deg, #FFD700, #FFA500);
-    color: white;
-    padding: 16px 24px;
-    border-radius: 12px;
-    z-index: 10000;
-    box-shadow: 0 4px 16px rgba(255, 215, 0, 0.4);
-    font-weight: 600;
-    animation: slideIn 0.3s ease;
-  `;
+  toast.className = 'bible-completion-toast';
   toast.textContent = `✝️ Verse completed! ${wpm} WPM • ${accuracy}%`;
   document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
+  
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 300);
+  }, 2700);
   
   // Auto-load next verse after 2 seconds
   const verses = currentBibleBook.verses[currentChapter];
@@ -982,6 +1074,19 @@ function completeBibleVerse(wpm, accuracy) {
       currentVerseIndex++;
       loadCurrentVerse();
     }, 2000);
+  } else {
+    // Show chapter completed message
+    setTimeout(() => {
+      const chapterToast = document.createElement('div');
+      chapterToast.className = 'bible-completion-toast';
+      chapterToast.textContent = `🎉 Chapter ${currentChapter} completed!`;
+      document.body.appendChild(chapterToast);
+      
+      setTimeout(() => {
+        chapterToast.style.opacity = '0';
+        setTimeout(() => chapterToast.remove(), 300);
+      }, 3000);
+    }, 2500);
   }
 }
 
@@ -1041,7 +1146,7 @@ function startBibleTimer() {
   }, 1000);
 }
 
-// Stop timer
+// Enhanced stopBibleTimer
 function stopBibleTimer() {
   if (bibleTimerInterval) {
     clearInterval(bibleTimerInterval);
