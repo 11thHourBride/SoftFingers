@@ -1,7 +1,6 @@
-// ==== HYMNS PRACTICE SYSTEM ====
+// ==== ENHANCED HYMNS PRACTICE SYSTEM ====
 
-
-// Public domain hymns collection (you can add more)
+// Public domain hymns collection
 const HYMNS_DATA = [
   {
     id: 1,
@@ -62,8 +61,8 @@ const HYMNS_DATA = [
 ];
 
 let currentHymn = null;
-let currentHymnVerseIndex = 0;  // CHANGED
-let currentHymnVerseText = '';  // CHANGED
+let currentHymnVerseIndex = 0;
+let currentHymnVerseText = '';
 let hymnsTyped = '';
 let hymnsStartTime = null;
 let hymnsTimerDuration = 90;
@@ -71,6 +70,15 @@ let hymnsTimeLeft = 90;
 let hymnsTimerInterval = null;
 let hymnsMode = 'typing';
 let hymnsAudioPlaying = false;
+
+// Hymn tracking for stats
+let hymnStats = {
+  totalWords: 0,
+  totalChars: 0,
+  correctChars: 0,
+  totalTime: 0,
+  versesCompleted: 0
+};
 
 // Initialize Hymns page
 function loadHymnsPage() {
@@ -98,14 +106,19 @@ function setupHymnsEventListeners() {
   });
   
   // Back button
-  document.getElementById('back-to-hymns')?.addEventListener('click', () => {
-    stopHymnsTimer();
-    stopHymnsAudio();
-    document.getElementById('hymns-list-grid').style.display = 'grid';
-    document.getElementById('hymns-practice-card').style.display = 'none';
-    hymnsTyped = '';
-    document.getElementById('hymns-input').value = '';
-  });
+  const backBtn = document.getElementById('back-to-hymns');
+  if (backBtn && !backBtn.dataset.listenerAdded) {
+    backBtn.dataset.listenerAdded = 'true';
+    backBtn.addEventListener('click', () => {
+      stopHymnsTimer();
+      stopHymnsAudio();
+      document.getElementById('hymns-list-grid').style.display = 'grid';
+      document.getElementById('hymns-practice-card').style.display = 'none';
+      hymnsTyped = '';
+      document.getElementById('hymns-input').value = '';
+      resetHymnStats();
+    });
+  }
   
   // Timer select
   const timerSelect = document.getElementById('hymns-timer-select');
@@ -114,14 +127,31 @@ function setupHymnsEventListeners() {
     timerSelect.addEventListener('change', (e) => {
       hymnsTimerDuration = parseInt(e.target.value);
       hymnsTimeLeft = hymnsTimerDuration;
-      document.getElementById('hymns-countdown').textContent = 
-        hymnsTimerDuration === 0 ? '∞' : hymnsTimerDuration + 's';
+      
+      const countdownEl = document.getElementById('hymns-countdown');
+      if (hymnsTimerDuration === 0) {
+        countdownEl.textContent = '∞';
+        countdownEl.className = '';
+      } else {
+        countdownEl.textContent = hymnsTimerDuration + 's';
+        countdownEl.className = '';
+      }
     });
   }
   
   // Audio controls
-  document.getElementById('play-hymn-audio')?.addEventListener('click', playHymnAudio);
-  document.getElementById('stop-hymn-audio')?.addEventListener('click', stopHymnsAudio);
+  const playBtn = document.getElementById('play-hymn-audio');
+  const stopBtn = document.getElementById('stop-hymn-audio');
+  
+  if (playBtn && !playBtn.dataset.listenerAdded) {
+    playBtn.dataset.listenerAdded = 'true';
+    playBtn.addEventListener('click', playHymnAudio);
+  }
+  
+  if (stopBtn && !stopBtn.dataset.listenerAdded) {
+    stopBtn.dataset.listenerAdded = 'true';
+    stopBtn.addEventListener('click', stopHymnsAudio);
+  }
   
   // Hymns input
   const hymnsInput = document.getElementById('hymns-input');
@@ -130,6 +160,17 @@ function setupHymnsEventListeners() {
     hymnsInput.addEventListener('input', handleHymnsInput);
     hymnsInput.addEventListener('paste', e => e.preventDefault());
   }
+}
+
+// Reset hymn stats
+function resetHymnStats() {
+  hymnStats = {
+    totalWords: 0,
+    totalChars: 0,
+    correctChars: 0,
+    totalTime: 0,
+    versesCompleted: 0
+  };
 }
 
 // Update stats
@@ -192,7 +233,8 @@ window.openHymn = function(hymnId) {
   currentHymn = HYMNS_DATA.find(h => h.id === hymnId);
   if (!currentHymn) return;
   
-  currentVerseIndex = 0;
+  currentHymnVerseIndex = 0;
+  resetHymnStats();
   
   // Hide list, show practice
   document.getElementById('hymns-list-grid').style.display = 'none';
@@ -208,12 +250,12 @@ window.openHymn = function(hymnId) {
 
 // Load current verse
 function loadCurrentHymnVerse() {
-  if (currentVerseIndex >= currentHymn.verses.length) {
+  if (currentHymnVerseIndex >= currentHymn.verses.length) {
     completeHymn();
     return;
   }
   
-  currentVerseText = currentHymn.verses[currentVerseIndex];
+  currentHymnVerseText = currentHymn.verses[currentHymnVerseIndex];
   hymnsTyped = '';
   hymnsStartTime = null;
   
@@ -229,22 +271,29 @@ function loadCurrentHymnVerse() {
   document.getElementById('hymns-time').textContent = '0s';
   document.getElementById('hymns-wpm').textContent = '0';
   document.getElementById('hymns-accuracy').textContent = '100%';
+  document.getElementById('hymns-progress').textContent = '0%';
   
   // Reset timer
   stopHymnsTimer();
   hymnsTimeLeft = hymnsTimerDuration;
-  document.getElementById('hymns-countdown').textContent = 
-    hymnsTimerDuration === 0 ? '∞' : hymnsTimerDuration + 's';
-  document.getElementById('hymns-countdown').style.color = 'var(--accent-solid)';
+  const countdownEl = document.getElementById('hymns-countdown');
+  
+  if (hymnsTimerDuration === 0) {
+    countdownEl.textContent = '∞';
+    countdownEl.className = '';
+  } else {
+    countdownEl.textContent = hymnsTimerDuration + 's';
+    countdownEl.className = '';
+  }
 }
 
 // Update verse display
 function updateHymnVerseDisplay() {
-  const verseInfo = `Verse ${currentVerseIndex + 1} of ${currentHymn.verses.length}`;
+  const verseInfo = `Verse ${currentHymnVerseIndex + 1} of ${currentHymn.verses.length}`;
   document.getElementById('hymns-verse-info').textContent = verseInfo;
 }
 
-// Render hymn verse
+// FIX #1: Render hymn verse with proper word wrapping (no word breaks)
 function renderHymnVerse() {
   if (hymnsMode === 'audio' && !hymnsAudioPlaying) {
     document.getElementById('hymns-verse-text').innerHTML = 
@@ -255,38 +304,71 @@ function renderHymnVerse() {
   const display = document.getElementById('hymns-verse-text');
   
   // Split text by newlines to handle line-by-line display
-  const lines = currentVerseText.split('\n');
+  const lines = currentHymnVerseText.split('\n');
   let html = '';
   let charIndex = 0;
   
   lines.forEach((line, lineIdx) => {
     let lineHtml = '';
     
-    for (let i = 0; i < line.length; i++) {
-      const char = line[i];
-      const typedChar = hymnsTyped[charIndex];
+    // Split line into words to prevent mid-word breaks
+    const words = line.split(' ');
+    
+    words.forEach((word, wordIdx) => {
+      // Add word wrapper to keep words together
+      lineHtml += '<span class="word-wrapper">';
       
-      let charClass = 'char';
-      
-      if (charIndex === hymnsTyped.length) {
-        charClass += ' current';
-      } else if (typedChar !== undefined) {
-        if (typedChar === char) {
-          charClass += ' correct';
-        } else {
-          charClass += ' incorrect';
+      // Render each character in the word
+      for (let i = 0; i < word.length; i++) {
+        const char = word[i];
+        const typedChar = hymnsTyped[charIndex];
+        
+        let charClass = 'char';
+        
+        if (charIndex === hymnsTyped.length) {
+          charClass += ' current';
+        } else if (typedChar !== undefined) {
+          if (typedChar === char) {
+            charClass += ' correct';
+          } else {
+            charClass += ' incorrect';
+          }
         }
+        
+        lineHtml += `<span class="${charClass}">${escapeHtml(char)}</span>`;
+        charIndex++;
       }
       
-      lineHtml += `<span class="${charClass}">${char === ' ' ? '&nbsp;' : escapeHtml(char)}</span>`;
-      charIndex++;
-    }
+      lineHtml += '</span>';
+      
+      // Add space between words (except last word in line)
+      if (wordIdx < words.length - 1) {
+        const spaceTypedChar = hymnsTyped[charIndex];
+        let spaceClass = 'char';
+        
+        if (charIndex === hymnsTyped.length) {
+          spaceClass += ' current';
+        } else if (spaceTypedChar !== undefined) {
+          if (spaceTypedChar === ' ') {
+            spaceClass += ' correct';
+          } else {
+            spaceClass += ' incorrect';
+          }
+        }
+        
+        lineHtml += `<span class="${spaceClass}">&nbsp;</span>`;
+        charIndex++;
+      }
+    });
     
     html += `<div class="hymn-line">${lineHtml}</div>`;
     
     // Account for newline character in typed text
     if (lineIdx < lines.length - 1) {
-      charIndex++; // Skip the \n character
+      const newlineChar = hymnsTyped[charIndex];
+      if (newlineChar === '\n' || newlineChar === undefined) {
+        charIndex++;
+      }
     }
   });
   
@@ -295,13 +377,13 @@ function renderHymnVerse() {
 
 // Play audio
 function playHymnAudio() {
-  if (!currentVerseText) return;
+  if (!currentHymnVerseText) return;
   
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
     
-    const utterance = new SpeechSynthesisUtterance(currentVerseText);
-    utterance.rate = 0.8; // Slower for transcription
+    const utterance = new SpeechSynthesisUtterance(currentHymnVerseText);
+    utterance.rate = 0.8;
     utterance.pitch = 1.0;
     utterance.volume = 1.0;
     
@@ -318,21 +400,13 @@ function playHymnAudio() {
       document.getElementById('hymns-input').focus();
       
       const toast = document.createElement('div');
-      toast.style.cssText = `
-        position: fixed;
-        top: 100px;
-        right: 24px;
-        background: linear-gradient(135deg, #51cf66, #37b24d);
-        color: white;
-        padding: 12px 20px;
-        border-radius: 8px;
-        z-index: 10000;
-        font-weight: 600;
-        animation: slideIn 0.3s ease;
-      `;
+      toast.className = 'hymns-completion-toast';
       toast.textContent = '✅ Audio complete! Now type what you heard.';
       document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 2700);
     };
     
     window.speechSynthesis.speak(utterance);
@@ -366,17 +440,20 @@ function handleHymnsInput(e) {
   
   let correct = 0;
   for (let i = 0; i < hymnsTyped.length; i++) {
-    if (hymnsTyped[i] === currentVerseText[i]) correct++;
+    if (hymnsTyped[i] === currentHymnVerseText[i]) correct++;
   }
   const accuracy = hymnsTyped.length > 0 ? Math.round((correct / hymnsTyped.length) * 100) : 100;
+  const progress = Math.round((hymnsTyped.length / currentHymnVerseText.length) * 100);
   
   document.getElementById('hymns-time').textContent = Math.floor(elapsed) + 's';
   document.getElementById('hymns-wpm').textContent = wpm;
   document.getElementById('hymns-accuracy').textContent = accuracy + '%';
+  document.getElementById('hymns-progress').textContent = progress + '%';
   
   // Check completion
-  if (hymnsTyped.length >= currentVerseText.length) {
-    completeHymnVerse(wpm, accuracy);
+  if (hymnsTyped.length >= currentHymnVerseText.length) {
+    const finalAccuracy = Math.round((correct / currentHymnVerseText.length) * 100);
+    completeHymnVerse(wpm, finalAccuracy, elapsed);
   }
 }
 
@@ -386,11 +463,14 @@ function startHymnsTimer() {
   
   if (hymnsTimerDuration === 0) {
     document.getElementById('hymns-countdown').textContent = '∞';
+    document.getElementById('hymns-countdown').className = '';
     return;
   }
   
   hymnsTimeLeft = hymnsTimerDuration;
-  document.getElementById('hymns-countdown').textContent = hymnsTimeLeft + 's';
+  const countdownEl = document.getElementById('hymns-countdown');
+  countdownEl.textContent = hymnsTimeLeft + 's';
+  countdownEl.className = '';
   
   hymnsTimerInterval = setInterval(() => {
     hymnsTimeLeft--;
@@ -398,23 +478,56 @@ function startHymnsTimer() {
     if (hymnsTimeLeft <= 0) {
       clearInterval(hymnsTimerInterval);
       hymnsTimerInterval = null;
-      document.getElementById('hymns-countdown').textContent = '0s';
-      document.getElementById('hymns-countdown').style.color = '#ff6b6b';
+      countdownEl.textContent = '0s';
+      countdownEl.className = 'danger';
       document.getElementById('hymns-input').disabled = true;
-      alert('Time is up! Move to the next verse or try again.');
+      showHymnsTimesUpModal();
     } else {
-      document.getElementById('hymns-countdown').textContent = hymnsTimeLeft + 's';
+      countdownEl.textContent = hymnsTimeLeft + 's';
       
       if (hymnsTimeLeft <= 10) {
-        document.getElementById('hymns-countdown').style.color = '#ff6b6b';
+        countdownEl.className = 'danger';
       } else if (hymnsTimeLeft <= 30) {
-        document.getElementById('hymns-countdown').style.color = '#ffc107';
+        countdownEl.className = 'warning';
       } else {
-        document.getElementById('hymns-countdown').style.color = 'var(--accent-solid)';
+        countdownEl.className = '';
       }
     }
   }, 1000);
 }
+
+// Show times up modal
+function showHymnsTimesUpModal() {
+  const overlay = document.createElement('div');
+  overlay.className = 'hymns-modal-overlay';
+  overlay.innerHTML = `
+    <div class="hymn-summary-modal">
+      <h3>⏰ Time's Up!</h3>
+      <p class="hymn-summary-subtitle">Move to the next verse or try again.</p>
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <button class="btn btn-secondary" onclick="this.closest('.hymns-modal-overlay').remove()">
+          Review Verse
+        </button>
+        <button class="btn" onclick="this.closest('.hymns-modal-overlay').remove(); nextHymnVerse();">
+          Next Verse →
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      overlay.remove();
+    }
+  });
+}
+
+// Next verse function
+window.nextHymnVerse = function() {
+  currentHymnVerseIndex++;
+  loadCurrentHymnVerse();
+};
 
 // Stop timer
 function stopHymnsTimer() {
@@ -424,16 +537,24 @@ function stopHymnsTimer() {
   }
 }
 
-// Complete verse
-function completeHymnVerse(wpm, accuracy) {
+// FIX #3: Complete verse with hymn stats tracking
+function completeHymnVerse(wpm, accuracy, elapsed) {
   document.getElementById('hymns-input').disabled = true;
   stopHymnsTimer();
   stopHymnsAudio();
   
+  // Update hymn stats
+  const wordCount = currentHymnVerseText.split(/\s+/).length;
+  hymnStats.totalWords += wordCount;
+  hymnStats.totalChars += currentHymnVerseText.length;
+  hymnStats.correctChars += Math.round((accuracy / 100) * currentHymnVerseText.length);
+  hymnStats.totalTime += elapsed;
+  hymnStats.versesCompleted++;
+  
   // Save progress
   const key = `hymn_progress_${currentHymn.id}`;
   const progress = JSON.parse(localStorage.getItem(key) || '{"versesCompleted": 0}');
-  progress.versesCompleted = Math.max(progress.versesCompleted, currentVerseIndex + 1);
+  progress.versesCompleted = Math.max(progress.versesCompleted, currentHymnVerseIndex + 1);
   progress.completed = progress.versesCompleted >= currentHymn.verses.length;
   localStorage.setItem(key, JSON.stringify(progress));
   
@@ -453,36 +574,105 @@ function completeHymnVerse(wpm, accuracy) {
   
   // Show completion
   const toast = document.createElement('div');
-  toast.style.cssText = `
-    position: fixed;
-    top: 100px;
-    right: 24px;
-    background: linear-gradient(135deg, #9f7cff, #6b4eff);
-    color: white;
-    padding: 16px 24px;
-    border-radius: 12px;
-    z-index: 10000;
-    box-shadow: 0 4px 16px rgba(159, 124, 255, 0.4);
-    font-weight: 600;
-    animation: slideIn 0.3s ease;
-  `;
+  toast.className = 'hymns-completion-toast';
   toast.textContent = `🎵 Verse completed! ${wpm} WPM • ${accuracy}%`;
   document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
   
-  // Auto next verse
   setTimeout(() => {
-    currentVerseIndex++;
-    loadCurrentHymnVerse();
-  }, 2000);
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 300);
+  }, 2700);
+  
+  // Check if hymn is complete
+  if (currentHymnVerseIndex < currentHymn.verses.length - 1) {
+    // Auto next verse
+    setTimeout(() => {
+      currentHymnVerseIndex++;
+      loadCurrentHymnVerse();
+    }, 2000);
+  } else {
+    // FIX #2: Hymn completed - show summary
+    setTimeout(() => {
+      completeHymn();
+    }, 2000);
+  }
 }
 
-// Complete hymn
+// FIX #2 & #3: Complete hymn with summary
 function completeHymn() {
-  alert(`🎉 Hymn "${currentHymn.title}" completed! Well done!`);
-  document.getElementById('hymns-list-grid').style.display = 'grid';
-  document.getElementById('hymns-practice-card').style.display = 'none';
-  loadHymnsList();
+  showHymnSummary(() => {
+    document.getElementById('hymns-list-grid').style.display = 'grid';
+    document.getElementById('hymns-practice-card').style.display = 'none';
+    loadHymnsList();
+  });
+}
+
+// FIX #3: Show hymn summary modal
+function showHymnSummary(onClose) {
+  // Calculate overall hymn stats
+  const overallWPM = hymnStats.totalTime > 0 
+    ? Math.round((hymnStats.totalWords / hymnStats.totalTime) * 60) 
+    : 0;
+  const overallAccuracy = hymnStats.totalChars > 0 
+    ? Math.round((hymnStats.correctChars / hymnStats.totalChars) * 100) 
+    : 100;
+  
+  const overlay = document.createElement('div');
+  overlay.className = 'hymns-modal-overlay';
+  overlay.innerHTML = `
+    <div class="hymn-summary-modal">
+      <div class="hymn-summary-icon">🎉</div>
+      <h3>${currentHymn.title} Completed!</h3>
+      <p class="hymn-summary-subtitle">${currentHymn.author} (${currentHymn.year})</p>
+      
+      <div class="hymn-summary-stats">
+        <div class="hymn-summary-stat">
+          <div class="stat-icon">⚡</div>
+          <div class="stat-content">
+            <div class="stat-value">${overallWPM}</div>
+            <div class="stat-label">Overall WPM</div>
+          </div>
+        </div>
+        <div class="hymn-summary-stat">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-content">
+            <div class="stat-value">${overallAccuracy}%</div>
+            <div class="stat-label">Overall Accuracy</div>
+          </div>
+        </div>
+        <div class="hymn-summary-stat">
+          <div class="stat-icon">📝</div>
+          <div class="stat-content">
+            <div class="stat-value">${hymnStats.versesCompleted}</div>
+            <div class="stat-label">Verses Completed</div>
+          </div>
+        </div>
+      </div>
+      
+      <p class="hymn-summary-message">
+        You typed ${hymnStats.totalWords} words with ${overallAccuracy}% accuracy! Beautiful work!
+      </p>
+      
+      <button class="btn" onclick="this.closest('.hymns-modal-overlay').remove();" style="width: 200px; margin: 0 auto;">
+        Continue →
+      </button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  
+  // Handle close
+  overlay.querySelector('.btn').addEventListener('click', () => {
+    overlay.remove();
+    if (onClose) onClose();
+  });
+  
+  // Remove overlay when clicking outside modal
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      overlay.remove();
+      if (onClose) onClose();
+    }
+  });
 }
 
 // Helper
