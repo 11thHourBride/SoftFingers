@@ -651,7 +651,129 @@ const BIBLE_DATA = {
         1: [
           "The Revelation of Jesus Christ, which God gave unto him, to shew unto his servants things which must shortly come to pass; and he sent and signified it by his angel unto his servant John:",
           "Who bare record of the word of God, and of the testimony of Jesus Christ, and of all things that he saw.",
-          "Blessed is he that readeth, and they that hear the words of this prophecy, and keep those things which are written therein: for the time is at hand."
+          "Blessed is he that readeth, and they that hear the words of this prophecy, and keep those things which are written therein: for the time is at hand.",
+          "John to the seven churches which are in Asia: Grace be unto you, and peace, from him which is, and which was, and which is to come; and from the seven Spirits which are before his throne;",
+          "And from Jesus Christ, who is the faithful witness, and the first begotten of the dead, and the prince of the kings of the earth. Unto him that loved us, and washed us from our sins in his own blood,",
+          "And hath made us kings and priests unto God and his Father; to him be glory and dominion for ever and ever. Amen.",
+          "Behold, he cometh with clouds; and every eye shall see him, and they also which pierced him: and all kindreds of the earth shall wail because of him. Even so, Amen.",
+          "I am Alpha and Omega, the beginning and the ending, saith the Lord, which is, and which was, and which is to come, the Almighty.",
+          "I John, who also am your brother, and companion in tribulation, and in the kingdom and patience of Jesus Christ, was in the isle that is called Patmos, for the word of God, and for the testimony of Jesus Christ.",
+          "I was in the Spirit on the Lord's day, and heard behind me a great voice, as of a trumpet,",
+          "Saying, I am Alpha and Omega, the first and the last: and, What thou seest, write in a book, and send it unto the seven churches which are in Asia; unto Ephesus, and unto Smyrna, and unto Pergamos, and unto Thyatira, and unto Sardis, and unto Philadelphia, and unto Laodicea.",
+          "And I turned to see the voice that spake with me. And being turned, I saw seven golden candlesticks;",
+          "And in the midst of the seven candlesticks one like unto the Son of man, clothed with a garment down to the foot, and girt about the paps with a golden girdle.",
+          "His head and his hairs were white like wool, as white as snow; and his eyes were as a flame of fire.",
+          "And his feet like unto fine brass, as if they burned in a furnace; and his voice as the sound of many waters.",
+          "And he had in his right hand seven stars: and out of his mouth went a sharp twoedged sword: and his countenance was as the sun shineth in his strength.",
+          "And when I saw him, I fell at his feet as dead. And he laid his right hand upon me, saying unto me, Fear not; I am the first and the last:",
+          "I am he that liveth, and was dead; and, behold, I am alive for evermore, Amen; and have the keys of hell and of death.",
+          "Write the things which thou hast seen, and the things which are, and the things which shall be hereafter;",
+          "The mystery of the seven stars which thou sawest in my right hand, and the seven golden candlesticks. The seven stars are the angels of the seven churches: and the seven candlesticks which thou sawest are the seven churches."
+        ],
+        2: [
+          "Unto the angel of the church of Ephesus write; These things saith he that holdeth the seven stars in his right hand, who walketh in the midst of the seven golden candlesticks;",
+          "I know thy works, and thy labour, and thy patience, and how thou canst not bear them which are evil: and thou hast tried them which say they are apostles, and are not, and hast found them liars:",
+          "And hast borne, and hast patience, and for my name's sake hast laboured, and hast not fainted.",
+          "Nevertheless I have somewhat against thee, because thou hast left thy first love.",
+          "Remember therefore from whence thou art fallen, and repent, and do the first works; or else I will come unto thee quickly, and will remove thy candlestick out of his place, except thou repent.",
+          "But this thou hast, that thou hatest the deeds of the Nicolaitans, which I also hate.",
+          "He that hath an ear, let him hear what the Spirit saith unto the churches; To him that overcometh will I give to eat of the tree of life, which is in the midst of the paradise of God.",
+          "And unto the angel of the church in Smyrna write; These things saith the first and the last, which was dead, and is alive;",
+          "I know thy works, and tribulation, and poverty, (but thou art rich) and I know the blasphemy of them which say they are  Jews, and are not, but are the synagogue of Satan.",
+          "Fear none of those things which thou shalt suffer: behold, the devil shall cast some of you into prison, that ye may be tried; and ye shall have tribulation ten days: be thou faithful unto death, and I will give thee a crown of life.",
+          "He that hath an ear, let him hear what the Spirit saith unto the churches; He that overcometh shall not be hurt of the second death.",
+          "And unto the angel of the church in Pergamos write; These things saith he which hath the sharp sword with two edges;",
+          "I know thy works, and where thou dwellest, even where Satan's seat is: and thou holdest fast my name, and hast not denied my faith, even in those days wherein Antipas was my faithful martyr, who was slain among you, where Satan dwelleth.",
+          "But I have a few things against thee, because thou hast there them that hold the doctrine of Balaam, who taught Balac to cast a stumblingblock before the children of  Israel, to eat things sacrificed unto idols, and to commit fornication.",
+          "So hast thou also them that hold the doctrine of the Nicolaitans, which thing I hate.",
+          "Repent; or else I will come unto thee quickly, and will fight against them with the sword of my mouth.",
+          "He that hath an ear, let him hear what the Spirit saith unto the churches; To him that overcometh will I give to eat of the hidden manna, and will give him a white stone, and in the stone a new name written, which no man knoweth saving he that receiveth it.",
+          "And unto the angel of the church in Thyatira write; These things saith the Son of God, who hath his eyes like unto a flame of fire, and his feet are like fine brass;",
+          "I know thy works, and charity, and service, and faith, and thy patience, and thy works; and the last to be more than the first.",
+          "Notwithstanding I have a few things against thee, because thou sufferest that  woman Jezebel, which calleth herself a prophetess, to teach and to seduce my servants to commit fornication, and to eat things sacrificed unto idols.",
+          "And I gave her space to repent of her fornication; and she repented not.",
+          "Behold, I will cast her into a bed, and them that commit adultery with her into great tribulation, except they repent of their deeds.",
+          "And I will kill her children with death; and all the churches shall know that I am he which searcheth the reins and hearts: and I will give unto every one of you according to your works.",
+          "But unto you I say, and unto the rest in Thyatira, as many as have not this doctrine, and which have not known the depths of Satan, as they speak; I will put upon you none other burden.",
+          "But that which ye have already hold fast till I come.",
+          "And he that overcometh, and keepeth my works unto the end, to him will I give power over the nations:",
+          "And he shall rule them with a rod of iron; as the vessels of a potter shall they be broken to shivers: even as I received of my Father.",
+          "And I will give him the morning star.",
+          "He that hath an ear, let him hear what the Spirit saith unto the churches."
+           
+        ],
+        3: [
+          "And unto the angel of the church in Sardis write; These things saith he that hath the seven Spirits of God, and the seven stars; I know thy works, that thou hast a name that thou livest, and art dead.",
+          "Be watchful, and strengthen the things which remain, that are ready to die: for I have not found thy works perfect before God.",
+          "Remember therefore how thou hast received and heard, and hold fast, and repent. If therefore thou shalt not watch, I will come on thee as a thief, and thou shalt not know what hour I will come upon thee.",
+          "Thou hast a few names even in Sardis which have not defiled their garments; and they shall walk with me in white: for they are worthy.",
+          "He that overcometh, the same shall be clothed in white raiment; and I will not blot out his name out of the book of life, but I will confess his name before my Father, and before his angels.",
+          "And unto the angel of the church in Philadelphia write; These things saith he that is holy, he that is true, he that hath the key of David, he that openeth, and not shutteth; and shutteth, and not openeth;",
+          "I know thy works: behold, I have set before thee an open door, and no man can shut it: for thou hast a little strength, and hast kept my word, and hast not denied my name.",
+          "Behold, I will make them of the synagogue of Satan, which say they are Jews, and are not, but do lie; behold, I will make them to come and worship before thy feet, and to know that I have loved thee.",
+          "Because thou hast kept the word of my patience, I also will keep thee from the hour of temptation, which shall come upon all the world, to try them that dwell upon the earth.",
+          "Behold, I come quickly: hold that fast which thou hast, that no man take thy crown.",
+          "He that overcometh, I will make him a pillar in the temple of my God, and he shall go no more out: and I will write upon him the name of my God, and the name of the city of my God, which is new Jerusalem, which cometh down out of heaven from my God: and I will write upon him my new name.",
+          "He that hath an ear, let him hear what the Spirit saith unto the churches.",
+          "And unto the angel of the church of the Laodiceans write; These things saith the Amen, the faithful and true witness, the beginning of the creation of God;",
+          "I know thy works, that thou art neither cold nor hot: I would thou wert cold or hot.",
+          "So then because thou art lukewarm, and neither cold nor hot, I will spue thee out of my mouth.",
+          "Because thou sayest, I am rich, and increased with goods, and have need of nothing; and knowest not that thou art wretched, and miserable, and poor, and blind, and naked:",
+          "I counsel thee to buy of me gold tried in the fire, that thou mayest be rich; and white raiment, that thou mayest be clothed, and that the shame of thy nakedness do not appear; and anoint thine eyes with eyesalve, that thou mayest see.",
+          "As many as I love, I rebuke and chasten: be zealous therefore, and repent.",
+          "Behold, I stand at the door, and knock: if any man hear my voice, and open the door, I will come in to him, and will sup with him, and he with me.",
+          "To him that overcometh will I grant to sit with me in my throne, even as I also overcame, and am set down with my Father in his throne.",
+          "He that hath an ear, let him hear what the Spirit saith unto the churches."
+        ],
+        4: [
+          "After this I looked, and, behold, a door was opened in heaven: and the first voice which I heard was as it were of a trumpet talking with me; which said, Come up hither, and I will shew thee things which must be hereafter.",
+          "And immediately I was in the spirit: and, behold, a throne was set in heaven, and one sat on the throne.",
+          "And he that sat was to look upon like a jasper and a sardine stone: and there was a rainbow round about the throne, in sight like unto an emerald.",
+          "And round about the throne were four and twenty seats: and upon the seats I saw four and twenty elders sitting, clothed in white raiment; and they had on their heads crowns of gold.",
+          "And out of the throne proceeded lightnings and thunderings and voices: and there were seven lamps of fire burning before the throne, which are the seven Spirits of God.",
+          "And before the throne there was a sea of glass like unto crystal: and in the midst of the throne, and round about the throne, were four beasts full of eyes before and behind.",
+          "And the first beast was like a lion, and the second beast like a calf, and the third beast had a face as a man, and the fourth beast was like a flying eagle.",
+          "And the four beasts had each of them six wings about him; and they were full of eyes within: and they rest not day and night, saying, Holy, holy, holy, Lord God Almighty, which was, and is, and is to come.",
+          "And when those beasts give glory and honour and thanks to him that sat on the throne, who liveth for ever and ever,",
+          "The four and twenty elders fall down before him that sat on the throne, and worship him that liveth for ever and ever, and cast their crowns before the throne, saying,",
+          "Thou art worthy, O Lord, to receive glory and honour and power: for thou hast created all things, and for thy pleasure they are and were created."
+        ],
+        
+        5: [
+          "And I saw in the right hand of him that sat on the throne a book written within and on the backside, sealed with seven seals.",
+          "And I saw a strong angel proclaiming with a loud voice, Who is worthy to open the book, and to loose the seals thereof?",
+          "And no man in heaven, nor in earth, neither under the earth, was able to open the book, neither to look thereon.",
+          "And I wept much, because no man was found worthy to open and to read the book, neither to look thereon.",
+          "And one of the elders saith unto me, Weep not: behold, the Lion of the tribe of Juda, the Root of David, hath prevailed to open the book, and to loose the seven seals thereof.",
+          "And I beheld, and, lo, in the midst of the throne and of the four beasts, and in the midst of the elders, stood a Lamb as it had been slain, having seven horns and seven eyes, which are the seven Spirits of God sent forth into all the earth.",
+          "And he came and took the book out of the right hand of him that sat upon the throne.",
+          "And when he had taken the book, the four beasts and four and twenty elders fell down before the Lamb, having every one of them harps, and golden vials full of odours, which are the prayers of saints.",
+          "And they sung a new song, saying, Thou art worthy to take the book, and to open the seals thereof: for thou wast slain, and hast redeemed us to God by thy blood out of every kindred, and tongue, and people, and nation;",
+          "And hast made us unto our God kings and priests: and we shall reign on the earth.",
+          "And I beheld, and I heard the voice of many angels round about the throne and the beasts and the elders: and the number of them was ten thousand times ten thousand, and thousands of thousands;",
+          "Saying with a loud voice, Worthy is the Lamb that was slain to receive power, and riches, and wisdom, and strength, and honour, and glory, and blessing.",
+          "And every creature which is in heaven, and on the earth, and under the earth, and such as are in the sea, and all that are in them, heard I saying, Blessing, and honour, and glory, and power, be unto him that sitteth upon the throne, and unto the Lamb for ever and ever.",
+          "And the four beasts said, Amen. And the four and twenty elders fell down and worshipped him that liveth for ever and ever."
+        ],
+        6: [
+          "And I saw when the Lamb opened one of the seals, and I heard, as it were the noise of thunder, one of the four beasts saying, Come and see.",
+          "And I saw, and behold a white horse: and he that sat on him had a bow; and a crown was given unto him: and he went forth conquering, and to conquer.",
+          "And when he had opened the second seal, I heard the second beast say, Come and see.",
+          "And there went out another horse that was red: and power was given to him that sat thereon to take peace from the earth, and that they should kill one another: and there was given unto him a great sword.",
+          "And when he had opened the third seal, I heard the third beast say, Come and see.",
+          "And I beheld, and lo a black horse; and he that sat on him had a pair of balances in his hand.",
+          "And I heard a voice in the midst of the four beasts say, A measure of wheat for a penny, and three measures of barley for a penny; and see thou hurt not the oil and the wine.",
+          "And when he had opened the fourth seal, I heard the voice of the fourth beast say, Come and see.",
+          "And I looked, and behold a pale horse: and his name that sat on him was Death, and Hell followed with him. And power was given unto them over the fourth part of the earth, to kill with sword, and with hunger, and with death, and with the beasts of the earth.",
+          "And when he had opened the fifth seal, I saw under the altar the souls of them that were slain for the word of God, and for the testimony which they held:",
+          "And they cried with a loud voice, saying, How long, O Lord, holy and true, dost thou not judge and avenge our blood on them that dwell on the earth?",
+          "And white robes were given unto every one of them; and it was said unto them, that they should rest yet for a little season, until their fellowservants also and their brethren, that should be killed as they were, should be fulfilled.",
+          "And I beheld when he had opened the sixth seal, and, lo, there was a great earthquake; and the sun became black as sackcloth of hair, and the moon became as blood;",
+          "And the stars of heaven fell unto the earth, even as a fig tree casteth her untimely figs, when she is shaken of a mighty wind.",
+          "And the heaven departed as a scroll when it is rolled together; and every mountain and island were moved out of their places.",
+          "And the kings of the earth, and the great men, and the rich men, and the chief captains, and the mighty men, and every bondman, and every free man, hid themselves in the dens and in the rocks of the mountains;",
+          "And said to the mountains and rocks, Fall on us, and hide us from the face of him that sitteth on the throne, and from the wrath of the Lamb:",
+          "For the great day of his wrath is come; and who shall be able to stand?"
         ],
         21: [
           "And I saw a new heaven and a new earth: for the first heaven and the first earth were passed away; and there was no more sea.",
@@ -662,6 +784,8 @@ const BIBLE_DATA = {
     }
   ]
 };
+
+// Enhanced Bible Practice JavaScript with Fixes
 
 // State variables
 let currentBibleBook = null;
@@ -675,14 +799,22 @@ let bibleTimerDuration = 60;
 let bibleTimeLeft = 60;
 let bibleTimerInterval = null;
 
+// Chapter tracking for stats
+let chapterStats = {
+  totalWords: 0,
+  totalChars: 0,
+  correctChars: 0,
+  totalTime: 0,
+  versesCompleted: 0
+};
+
 // Initialize Bible page
 function loadBiblePage() {
-  updateBibleStats(); // Update stats on load
+  updateBibleStats();
   loadBibleBooks(currentTestament);
   setupBibleEventListeners();
 }
 
-// Update the setupBibleEventListeners function to properly handle timer selection
 function setupBibleEventListeners() {
   // Testament tabs
   document.querySelectorAll('.bible-testament-tab').forEach(tab => {
@@ -693,7 +825,8 @@ function setupBibleEventListeners() {
       loadBibleBooks(currentTestament);
     });
   });
-    // Timer select - FIXED VERSION
+  
+  // Timer select
   const timerSelect = document.getElementById('bible-timer-select');
   if (timerSelect && !timerSelect.dataset.listenerAdded) {
     timerSelect.dataset.listenerAdded = 'true';
@@ -704,10 +837,10 @@ function setupBibleEventListeners() {
       const countdownEl = document.getElementById('bible-countdown');
       if (bibleTimerDuration === 0) {
         countdownEl.textContent = '∞';
-        countdownEl.className = ''; // Remove warning/danger classes
+        countdownEl.className = '';
       } else {
         countdownEl.textContent = bibleTimerDuration + 's';
-        countdownEl.className = ''; // Remove warning/danger classes
+        countdownEl.className = '';
       }
     });
   }
@@ -722,6 +855,7 @@ function setupBibleEventListeners() {
       stopBibleTimer();
       bibleTyped = '';
       document.getElementById('bible-input').value = '';
+      resetChapterStats();
     });
   }
   
@@ -851,6 +985,9 @@ window.openBibleBook = function(testament, bookName) {
   currentChapter = parseInt(availableChapters[0]);
   currentVerseIndex = 0;
   
+  // Reset chapter stats
+  resetChapterStats();
+  
   // Hide books, show practice
   document.getElementById('bible-books-grid').style.display = 'none';
   document.getElementById('bible-practice-card').style.display = 'block';
@@ -862,6 +999,16 @@ window.openBibleBook = function(testament, bookName) {
   loadCurrentVerse();
 };
 
+// Reset chapter stats
+function resetChapterStats() {
+  chapterStats = {
+    totalWords: 0,
+    totalChars: 0,
+    correctChars: 0,
+    totalTime: 0,
+    versesCompleted: 0
+  };
+}
 // Update the chapter/verse display
 function updateChapterVerseDisplay() {
   const availableChapters = Object.keys(currentBibleBook.verses).sort((a, b) => parseInt(a) - parseInt(b));
@@ -870,14 +1017,12 @@ function updateChapterVerseDisplay() {
   
   const displayText = `${currentBibleBook.name} ${currentChapter}:${currentVerseIndex + 1} of ${totalVerses}`;
   
-  // Create or update the display element
   const practiceCard = document.getElementById('bible-practice-card');
   let chapterDisplay = practiceCard.querySelector('.bible-chapter-display');
   
   if (!chapterDisplay) {
     chapterDisplay = document.createElement('div');
     chapterDisplay.className = 'bible-chapter-display';
-    chapterDisplay.style.cssText = 'text-align: center; margin: 16px 0; font-size: 1.125rem; font-weight: 600; color: var(--accent-solid);';
     
     const verseDisplay = document.getElementById('bible-verse-display');
     verseDisplay.parentNode.insertBefore(chapterDisplay, verseDisplay);
@@ -917,13 +1062,35 @@ window.changeChapter = function(direction) {
   const currentIndex = availableChapters.indexOf(currentChapter);
   
   if (direction === -1 && currentIndex > 0) {
-    currentChapter = availableChapters[currentIndex - 1];
-    currentVerseIndex = 0;
-    loadCurrentVerse();
+    // Show chapter summary before going back
+    if (chapterStats.versesCompleted > 0) {
+      showChapterSummary(() => {
+        currentChapter = availableChapters[currentIndex - 1];
+        currentVerseIndex = 0;
+        resetChapterStats();
+        loadCurrentVerse();
+      });
+    } else {
+      currentChapter = availableChapters[currentIndex - 1];
+      currentVerseIndex = 0;
+      resetChapterStats();
+      loadCurrentVerse();
+    }
   } else if (direction === 1 && currentIndex < availableChapters.length - 1) {
-    currentChapter = availableChapters[currentIndex + 1];
-    currentVerseIndex = 0;
-    loadCurrentVerse();
+    // Show chapter summary before moving forward
+    if (chapterStats.versesCompleted > 0) {
+      showChapterSummary(() => {
+        currentChapter = availableChapters[currentIndex + 1];
+        currentVerseIndex = 0;
+        resetChapterStats();
+        loadCurrentVerse();
+      });
+    } else {
+      currentChapter = availableChapters[currentIndex + 1];
+      currentVerseIndex = 0;
+      resetChapterStats();
+      loadCurrentVerse();
+    }
   }
 };
 
@@ -939,7 +1106,7 @@ function canGoNextChapter() {
   return currentIndex < availableChapters.length - 1;
 }
 
-// Enhanced loadCurrentVerse with proper timer reset
+// Load current verse
 function loadCurrentVerse() {
   const verses = currentBibleBook.verses[currentChapter];
   
@@ -978,39 +1145,71 @@ function loadCurrentVerse() {
     countdownEl.className = '';
   }
 }
-// Render verse with colored characters
+// FIX #1: Render verse with proper word wrapping (no word breaks)
 function renderBibleVerse() {
   const display = document.getElementById('verse-text');
-  let html = '';
   
-  for (let i = 0; i < currentVerseText.length; i++) {
-    const char = currentVerseText[i];
-    const typedChar = bibleTyped[i];
+  // Split text into words to prevent mid-word line breaks
+  const words = currentVerseText.split(' ');
+  let html = '';
+  let charIndex = 0;
+  
+  words.forEach((word, wordIdx) => {
+    // Add space wrapper to keep words together
+    html += '<span class="word-wrapper" style="display: inline-block; white-space: nowrap;">';
     
-    let charClass = 'char';
-    
-    if (i === bibleTyped.length) {
-      charClass += ' current';
-    } else if (typedChar !== undefined) {
-      if (typedChar === char) {
-        charClass += ' correct';
-      } else {
-        charClass += ' incorrect';
+    // Render each character in the word
+    for (let i = 0; i < word.length; i++) {
+      const char = word[i];
+      const typedChar = bibleTyped[charIndex];
+      
+      let charClass = 'char';
+      
+      if (charIndex === bibleTyped.length) {
+        charClass += ' current';
+      } else if (typedChar !== undefined) {
+        if (typedChar === char) {
+          charClass += ' correct';
+        } else {
+          charClass += ' incorrect';
+        }
       }
+      
+      html += `<span class="${charClass}">${escapeHtml(char)}</span>`;
+      charIndex++;
     }
     
-    html += `<span class="${charClass}">${char === ' ' ? '&nbsp;' : escapeHtml(char)}</span>`;
-  }
+    html += '</span>';
+    
+    // Add space between words (except last word)
+    if (wordIdx < words.length - 1) {
+      const spaceTypedChar = bibleTyped[charIndex];
+      let spaceClass = 'char';
+      
+      if (charIndex === bibleTyped.length) {
+        spaceClass += ' current';
+      } else if (spaceTypedChar !== undefined) {
+        if (spaceTypedChar === ' ') {
+          spaceClass += ' correct';
+        } else {
+          spaceClass += ' incorrect';
+        }
+      }
+      
+      html += `<span class="${spaceClass}">&nbsp;</span>`;
+      charIndex++;
+    }
+  });
   
   display.innerHTML = html;
 }
 
-// Enhanced handleBibleInput with timer start
+// Handle bible input
 function handleBibleInput(e) {
   // Start timer on first keystroke
   if (!bibleStartTime) {
     bibleStartTime = Date.now();
-    startBibleTimer(); // Start countdown when typing begins
+    startBibleTimer();
   }
   
   bibleTyped = e.target.value;
@@ -1035,17 +1234,25 @@ function handleBibleInput(e) {
   // Check completion
   if (bibleTyped.length >= currentVerseText.length) {
     const finalAccuracy = Math.round((correct / currentVerseText.length) * 100);
-    completeBibleVerse(wpm, finalAccuracy);
+    completeBibleVerse(wpm, finalAccuracy, elapsed);
   }
 }
 
-// Enhanced completeBibleVerse with timer stop
-function completeBibleVerse(wpm, accuracy) {
+// FIX #3: Complete verse with chapter stats tracking
+function completeBibleVerse(wpm, accuracy, elapsed) {
   // Stop timer
   stopBibleTimer();
   
   // Disable input
   document.getElementById('bible-input').disabled = true;
+  
+  // Update chapter stats
+  const wordCount = currentVerseText.split(' ').length;
+  chapterStats.totalWords += wordCount;
+  chapterStats.totalChars += currentVerseText.length;
+  chapterStats.correctChars += Math.round((accuracy / 100) * currentVerseText.length);
+  chapterStats.totalTime += elapsed;
+  chapterStats.versesCompleted++;
   
   // Save verse completion to localStorage
   const statsKey = 'bible_stats_global';
@@ -1067,26 +1274,198 @@ function completeBibleVerse(wpm, accuracy) {
     setTimeout(() => toast.remove(), 300);
   }, 2700);
   
-  // Auto-load next verse after 2 seconds
+  // Check if chapter is complete
   const verses = currentBibleBook.verses[currentChapter];
   if (currentVerseIndex < verses.length - 1) {
+    // Auto-load next verse after 2 seconds
     setTimeout(() => {
       currentVerseIndex++;
       loadCurrentVerse();
     }, 2000);
   } else {
-    // Show chapter completed message
+    // FIX #2 & #3: Chapter completed - show summary and auto-advance
     setTimeout(() => {
-      const chapterToast = document.createElement('div');
-      chapterToast.className = 'bible-completion-toast';
-      chapterToast.textContent = `🎉 Chapter ${currentChapter} completed!`;
-      document.body.appendChild(chapterToast);
+      completeChapter();
+    }, 2000);
+  }
+}
+
+// FIX #2 & #3: Complete chapter and show summary
+function completeChapter() {
+  showChapterSummary(() => {
+    // Check if there's a next chapter
+    const availableChapters = Object.keys(currentBibleBook.verses).map(Number).sort((a, b) => a - b);
+    const currentIndex = availableChapters.indexOf(currentChapter);
+    
+    if (currentIndex < availableChapters.length - 1) {
+      // Move to next chapter
+      currentChapter = availableChapters[currentIndex + 1];
+      currentVerseIndex = 0;
+      resetChapterStats();
+      loadCurrentVerse();
+    } else {
+      // Book completed
+      const bookToast = document.createElement('div');
+      bookToast.className = 'bible-completion-toast';
+      bookToast.textContent = `📖 ${currentBibleBook.name} completed! Amazing work!`;
+      document.body.appendChild(bookToast);
       
       setTimeout(() => {
-        chapterToast.style.opacity = '0';
-        setTimeout(() => chapterToast.remove(), 300);
-      }, 3000);
-    }, 2500);
+        bookToast.style.opacity = '0';
+        setTimeout(() => bookToast.remove(), 300);
+      }, 4000);
+      
+      // Go back to books after 3 seconds
+      setTimeout(() => {
+        document.getElementById('bible-books-grid').style.display = 'grid';
+        document.getElementById('bible-practice-card').style.display = 'none';
+      }, 5000);
+    }
+  });
+}
+
+// FIX #3: Show chapter summary modal
+function showChapterSummary(onClose) {
+  // Calculate overall chapter stats
+  const overallWPM = chapterStats.totalTime > 0 
+    ? Math.round((chapterStats.totalWords / chapterStats.totalTime) * 60) 
+    : 0;
+  const overallAccuracy = chapterStats.totalChars > 0 
+    ? Math.round((chapterStats.correctChars / chapterStats.totalChars) * 100) 
+    : 100;
+  
+  const overlay = document.createElement('div');
+  overlay.className = 'bible-times-up-overlay';
+  overlay.innerHTML = `
+    <div class="bible-chapter-summary-modal">
+      <div class="chapter-summary-icon">🎉</div>
+      <h3>Chapter ${currentChapter} Completed!</h3>
+      <p class="chapter-summary-book">${currentBibleBook.name}</p>
+      
+      <div class="chapter-summary-stats">
+        <div class="chapter-summary-stat">
+          <div class="stat-icon">⚡</div>
+          <div class="stat-content">
+            <div class="stat-value">${overallWPM}</div>
+            <div class="stat-label">Overall WPM</div>
+          </div>
+        </div>
+        <div class="chapter-summary-stat">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-content">
+            <div class="stat-value">${overallAccuracy}%</div>
+            <div class="stat-label">Overall Accuracy</div>
+          </div>
+        </div>
+        <div class="chapter-summary-stat">
+          <div class="stat-icon">📝</div>
+          <div class="stat-content">
+            <div class="stat-value">${chapterStats.versesCompleted}</div>
+            <div class="stat-label">Verses Completed</div>
+          </div>
+        </div>
+      </div>
+      
+      <p class="chapter-summary-message">
+        You typed ${chapterStats.totalWords} words with ${overallAccuracy}% accuracy!
+      </p>
+      
+      <button class="btn" onclick="this.closest('.bible-times-up-overlay').remove();" style="width: 200px; margin: 0 auto;">
+        Continue →
+      </button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  
+  // Handle close
+  overlay.querySelector('.btn').addEventListener('click', () => {
+    overlay.remove();
+    if (onClose) onClose();
+  });
+  
+  // Remove overlay when clicking outside modal
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      overlay.remove();
+      if (onClose) onClose();
+    }
+  });
+}
+
+// Start countdown timer
+function startBibleTimer() {
+  if (bibleTimerInterval) {
+    clearInterval(bibleTimerInterval);
+  }
+  
+  if (bibleTimerDuration === 0) {
+    document.getElementById('bible-countdown').textContent = '∞';
+    document.getElementById('bible-countdown').className = '';
+    return;
+  }
+  
+  bibleTimeLeft = bibleTimerDuration;
+  const countdownEl = document.getElementById('bible-countdown');
+  countdownEl.textContent = bibleTimeLeft + 's';
+  countdownEl.className = '';
+  
+  bibleTimerInterval = setInterval(() => {
+    bibleTimeLeft--;
+    
+    if (bibleTimeLeft <= 0) {
+      clearInterval(bibleTimerInterval);
+      bibleTimerInterval = null;
+      countdownEl.textContent = '0s';
+      countdownEl.className = 'danger';
+      
+      document.getElementById('bible-input').disabled = true;
+      showTimesUpModal();
+    } else {
+      countdownEl.textContent = bibleTimeLeft + 's';
+      
+      if (bibleTimeLeft <= 10) {
+        countdownEl.className = 'danger';
+      } else if (bibleTimeLeft <= 30) {
+        countdownEl.className = 'warning';
+      } else {
+        countdownEl.className = '';
+      }
+    }
+  }, 1000);
+}
+
+// Show times up modal
+function showTimesUpModal() {
+  const overlay = document.createElement('div');
+  overlay.className = 'bible-times-up-overlay';
+  overlay.innerHTML = `
+    <div class="bible-times-up-modal">
+      <h3>⏰ Time's Up!</h3>
+      <p>Complete this verse or move to the next one to continue practicing.</p>
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <button class="btn btn-secondary" onclick="this.closest('.bible-times-up-overlay').remove()">
+          Review Verse
+        </button>
+        <button class="btn" onclick="this.closest('.bible-times-up-overlay').remove(); nextVerse();">
+          Next Verse →
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      overlay.remove();
+    }
+  });
+}
+
+// Stop timer
+function stopBibleTimer() {
+  if (bibleTimerInterval) {
+    clearInterval(bibleTimerInterval);
+    bibleTimerInterval = null;
   }
 }
 
@@ -1100,58 +1479,6 @@ function escapeHtml(text) {
     "'": '&#039;'
   };
   return text.replace(/[&<>"']/g, m => map[m]);
-}
-// Start countdown timer
-function startBibleTimer() {
-  // Clear any existing timer
-  if (bibleTimerInterval) {
-    clearInterval(bibleTimerInterval);
-  }
-  
-  // If timer is disabled (0), don't start
-  if (bibleTimerDuration === 0) {
-    document.getElementById('bible-countdown').textContent = '∞';
-    return;
-  }
-  
-  bibleTimeLeft = bibleTimerDuration;
-  document.getElementById('bible-countdown').textContent = bibleTimeLeft + 's';
-  
-  bibleTimerInterval = setInterval(() => {
-    bibleTimeLeft--;
-    
-    if (bibleTimeLeft <= 0) {
-      clearInterval(bibleTimerInterval);
-      bibleTimerInterval = null;
-      document.getElementById('bible-countdown').textContent = '0s';
-      document.getElementById('bible-countdown').style.color = '#ff6b6b';
-      
-      // Disable input
-      document.getElementById('bible-input').disabled = true;
-      
-      // Show time's up message
-      alert('Time is up! Complete the verse or move to the next one.');
-    } else {
-      document.getElementById('bible-countdown').textContent = bibleTimeLeft + 's';
-      
-      // Change color when time is running out
-      if (bibleTimeLeft <= 10) {
-        document.getElementById('bible-countdown').style.color = '#ff6b6b';
-      } else if (bibleTimeLeft <= 30) {
-        document.getElementById('bible-countdown').style.color = '#ffc107';
-      } else {
-        document.getElementById('bible-countdown').style.color = 'var(--accent-solid)';
-      }
-    }
-  }, 1000);
-}
-
-// Enhanced stopBibleTimer
-function stopBibleTimer() {
-  if (bibleTimerInterval) {
-    clearInterval(bibleTimerInterval);
-    bibleTimerInterval = null;
-  }
 }
 
 // Export for use in main file
