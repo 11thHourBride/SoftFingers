@@ -81,7 +81,7 @@ const HISTORY_DATA = {
         title: "Joan of Arc",
         year: "May 30, 1431",
         image: "https://images.unsplash.com/photo-1583001809774-fa8bc181a1b2?w=800&q=80",
-        text: "Joan of Arc, a peasant girl from Domrémy, France, became one of history's most remarkable figures, uniting religious devotion with military genius during the Hundred Years' War. At age thirteen, Joan began experiencing visions of Saints Michael, Catherine, and Margaret, who instructed her to support Charles VII and help free France from English domination. Despite her youth and gender, she convinced Charles to allow her to lead French forces. Wearing armor and carrying her banner inscribed with 'Jesus, Mary,' Joan led the French army to crucial victories, breaking the English siege of Orléans and enabling Charles's coronation at Reims. Her military success defied all contemporary expectations of women's roles. In 1430, Burgundian forces allied with England captured Joan. Rather than treating her as a prisoner of war, they charged her with heresy and witchcraft, specifically targeting her claim of divine guidance and her wearing of men's clothing. Her trial was politically motivated, designed to discredit Charles VII by proving his victories came through a heretic. Though only nineteen, Joan defended herself brilliantly against her interrogators, but was ultimately condemned. On May 30, 1431, Joan was burned at the stake in Rouen's marketplace. She requested a cross to hold and reportedly called on Jesus until the flames silenced her. An English soldier who witnessed her death later said, 'We are lost; we have burned a saint.' Twenty-five years later, Pope Callixtus III authorized a retrial that declared her innocent. In 1920, the Catholic Church canonized her as Saint Joan of Arc. Her story transcends simple martyrdom-she was a warrior, visionary, and symbol of courage who maintained faith even facing flames, becoming France's patron saint and an enduring icon of conviction and bravery."
+        text: "Joan of Arc, a peasant girl from Domremy, France, became one of history's most remarkable figures, uniting religious devotion with military genius during the Hundred Years' War. At age thirteen, Joan began experiencing visions of Saints Michael, Catherine, and Margaret, who instructed her to support Charles VII and help free France from English domination. Despite her youth and gender, she convinced Charles to allow her to lead French forces. Wearing armor and carrying her banner inscribed with 'Jesus, Mary,' Joan led the French army to crucial victories, breaking the English siege of Orléans and enabling Charles's coronation at Reims. Her military success defied all contemporary expectations of women's roles. In 1430, Burgundian forces allied with England captured Joan. Rather than treating her as a prisoner of war, they charged her with heresy and witchcraft, specifically targeting her claim of divine guidance and her wearing of men's clothing. Her trial was politically motivated, designed to discredit Charles VII by proving his victories came through a heretic. Though only nineteen, Joan defended herself brilliantly against her interrogators, but was ultimately condemned. On May 30, 1431, Joan was burned at the stake in Rouen's marketplace. She requested a cross to hold and reportedly called on Jesus until the flames silenced her. An English soldier who witnessed her death later said, 'We are lost; we have burned a saint.' Twenty-five years later, Pope Callixtus III authorized a retrial that declared her innocent. In 1920, the Catholic Church canonized her as Saint Joan of Arc. Her story transcends simple martyrdom-she was a warrior, visionary, and symbol of courage who maintained faith even facing flames, becoming France's patron saint and an enduring icon of conviction and bravery."
       },
       {
         id: "thomas_cranmer",
@@ -96,8 +96,242 @@ const HISTORY_DATA = {
         year: "34 AD",
         image: "https://images.unsplash.com/photo-1519817650390-64a93db51149?w=800&q=80",
         text: "Stephen holds the distinction of being Christianity's first martyr, or 'protomartyr,' his death recorded in vivid detail in Acts chapters 6 and 7. Chosen as one of seven deacons to serve the early Jerusalem church, Stephen was 'full of faith and of the Holy Spirit,' performing great wonders and signs among the people. His wisdom in debating Scripture was so compelling that his opponents 'could not stand against the wisdom and the Spirit with which he was speaking.' Unable to defeat him through argument, they brought false witnesses who accused him of blasphemy against Moses, the Law, and the Temple. Arrested and brought before the Sanhedrin, Stephen was given opportunity to defend himself. His response was not a defense but a bold sermon recounting Israel's history of rejecting God's messengers, culminating in their betrayal and murder of 'the Righteous One'-Jesus Christ. He accused the religious leaders directly: 'You stiff-necked people, uncircumcised in heart and ears, you always resist the Holy Spirit.' As the council raged against him, Stephen looked up and declared, 'Behold, I see the heavens opened, and the Son of Man standing at the right hand of God.' This claim of seeing Jesus in glory was the final straw. The crowd rushed upon him, dragged him outside the city, and stoned him to death. As stones struck him, Stephen prayed, 'Lord Jesus, receive my spirit,' echoing Jesus's words on the cross. His final words were for his executioners: 'Lord, do not hold this sin against them.' Among the crowd approving Stephen's death was a young Pharisee named Saul, who would later become the apostle Paul after his own dramatic conversion. Stephen's death was approximately 34 AD, just a few years after Christ's crucifixion, and it marked the beginning of severe persecution that scattered Christians beyond Jerusalem, paradoxically spreading the Gospel throughout the Roman world. Stephen's courage, his Christ-like forgiveness of his killers, and his vision of Jesus standing to receive him set the pattern for Christian martyrdom throughout history."
-      }
-    ]
+      },
+      {
+  id: "justin_martyr",
+  title: "Justin Martyr",
+  year: "c. 165 AD",
+  image: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=800&q=80",
+  text: "Justin Martyr was a Christian apologist and philosopher born in Samaria who initially sought truth through Stoicism, Platonism, and other philosophical schools before converting to Christianity. After his conversion, Justin devoted his life to defending the Christian faith against pagan critics and Jewish opponents, presenting Christianity as the fulfillment of true philosophy. He wrote influential works such as the First Apology and Dialogue with Trypho, addressing Roman emperors and intellectuals. During the reign of Emperor Marcus Aurelius, Justin was arrested in Rome along with several of his students. When ordered by the prefect Rusticus to sacrifice to the Roman gods, Justin refused, boldly declaring that no one in their right mind would abandon true worship for false gods. As a result of his confession, Justin and his companions were scourged and then beheaded. His willingness to suffer death rather than deny Christ earned him the name 'Martyr,' and his writings remain foundational in early Christian theology and apologetics."
+},
+{
+  id: "blandina_of_lyons",
+  title: "Blandina of Lyons",
+  year: "177 AD",
+  image: "https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=800&q=80",
+  text: "Blandina was a young Christian slave who suffered martyrdom during the persecution of Christians in Lyons, Gaul, under Emperor Marcus Aurelius. Despite her fragile physical appearance, Blandina demonstrated extraordinary courage under torture. She was repeatedly scourged, placed on a hot iron chair, and thrown to wild beasts, yet she did not renounce her faith. Throughout her suffering, she continually confessed, 'I am a Christian, and nothing wicked is done among us.' Her endurance strengthened fellow believers who were witnessing the executions. Eventually, after surviving multiple brutal attempts to kill her, Blandina was wrapped in a net and gored to death by a bull in the arena. Her steadfast faith became a powerful testimony to the strength of Christ working through the weak, and her martyrdom was widely celebrated among early Christians."
+},
+{
+  id: "cyprian_of_carthage",
+  title: "Cyprian of Carthage",
+  year: "September 14, 258 AD",
+  image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80",
+  text: "Cyprian was the bishop of Carthage and a prominent leader in the North African church during a time of intense persecution. A former rhetorician, he converted to Christianity later in life and quickly rose to leadership due to his intellect and moral authority. During the Decian and Valerian persecutions, Cyprian refused to sacrifice to the Roman gods or surrender the Scriptures. He was exiled for a time but later arrested again under Emperor Valerian's edict against Christian clergy. When the proconsul pronounced the sentence of death, Cyprian calmly responded, 'Thanks be to God.' He was led outside the city and beheaded by the sword. His execution was witnessed by many believers, whom he encouraged to remain steadfast. Cyprian's martyrdom reinforced the authority of church leadership and the call to faithfulness under persecution."
+},
+{
+  id: "agnes_of_rome",
+  title: "Agnes of Rome",
+  year: "c. 304 AD",
+  image: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=800&q=80",
+  text: "Agnes of Rome was a young Christian girl, traditionally believed to be around twelve or thirteen years old, who was martyred during the Diocletian persecution. Known for her devotion to Christ, Agnes rejected marriage proposals from influential Roman men, declaring that she was already betrothed to Christ. Enraged by her refusal and her confession of faith, Roman authorities subjected her to public humiliation and threats. Despite attempts to coerce her into renouncing Christianity, Agnes remained steadfast. According to tradition, she was ultimately condemned to death and executed, either by the sword or by fire. Her purity, courage, and unwavering faith made her one of the most beloved virgin martyrs of the early church, and she became a symbol of holiness and devotion to Christ."
+},
+{
+  id: "maximilian_of_tebessa",
+  title: "Maximilian of Tebessa",
+  year: "March 12, 295 AD",
+  image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80",
+  text: "Maximilian of Tebessa was a young Christian from North Africa who was martyred for refusing compulsory military service in the Roman army. When summoned before the proconsul, Maximilian declared that he could not serve as a soldier because his allegiance belonged solely to Christ. Despite repeated attempts to persuade him, including appeals from his own father, Maximilian remained firm in his conviction. The Roman official viewed his refusal as defiance of imperial authority and ordered his execution. Maximilian was beheaded, calmly accepting death and professing his faith until the end. His martyrdom stands as an early Christian witness to conscientious objection and the belief that obedience to God takes precedence over loyalty to the state."
+},
+{
+  id: "simeon_of_jerusalem",
+  title: "Simeon of Jerusalem",
+  year: "c. 107 AD",
+  image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&q=80",
+  text: "Simeon of Jerusalem was a prominent leader in the early Christian church and is traditionally identified as a relative of Jesus, often described as the son of Clopas. After the martyrdom of James the Just, Simeon became the bishop of Jerusalem and led the church during a period of great instability, including the aftermath of the Jewish revolts against Rome. During the reign of Emperor Trajan, Simeon was accused before Roman authorities as both a Christian and a descendant of David, which made him politically suspect. At an advanced age, reportedly over one hundred years old, Simeon was subjected to prolonged torture in an attempt to force him to renounce Christ. Despite severe suffering, he remained faithful. He was ultimately crucified, glorifying God through his endurance. His martyrdom strengthened the persecuted church and testified to the faithfulness of Christ's followers even unto death."
+},
+{
+  id: "pothinus_of_lyons",
+  title: "Pothinus of Lyons",
+  year: "177 AD",
+  image: "https://images.unsplash.com/photo-1519098901909-b1553a1190af?w=800&q=80",
+  text: "Pothinus was the first recorded bishop of Lyons in Gaul and a disciple of Polycarp, placing him firmly within the apostolic tradition. During the severe persecution of Christians in Lyons under Emperor Marcus Aurelius, Pothinus, though over ninety years old and physically weak, was dragged before Roman authorities. When questioned about the identity of the Christian God, he boldly answered, 'You shall know when you are worthy.' Enraged by his confession, officials and mobs assaulted him, beating him severely and casting him into prison. Due to the injuries sustained from the abuse, Pothinus died shortly thereafter. His death was regarded by the church as martyrdom, and his leadership and faithfulness left a lasting legacy in the development of Christianity in Western Europe."
+},
+{
+  id: "fructuosus_of_tarragona",
+  title: "Fructuosus of Tarragona",
+  year: "January 21, 259 AD",
+  image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&q=80",
+  text: "Fructuosus was the bishop of Tarragona in Roman Spain during the persecution ordered by Emperor Valerian. Along with his deacons Augurius and Eulogius, Fructuosus was arrested for refusing to participate in pagan sacrifices. While imprisoned, he continued to encourage the faithful and reassure them of God's sovereignty. When brought to trial, Fructuosus openly confessed his allegiance to Christ. He and his companions were sentenced to death by burning. As the flames rose, witnesses reported that Fructuosus remained calm and prayerful, committing himself and his fellow believers to God. His martyrdom became one of the earliest well-documented Christian executions in Spain and served as a powerful testimony of pastoral faithfulness unto death."
+},
+{
+  id: "lucian_of_antioch",
+  title: "Lucian of Antioch",
+  year: "January 7, 312 AD",
+  image: "https://images.unsplash.com/photo-1503264116251-35a269479413?w=800&q=80",
+  text: "Lucian of Antioch was a respected theologian, biblical scholar, and presbyter who played a significant role in the intellectual life of the early church. He was known for his commitment to a literal interpretation of Scripture and for his influence on later theological debates in the East. During the persecution under Emperor Maximinus Daia, Lucian was arrested for his Christian faith and imprisoned. Refusing to eat food offered to idols or renounce Christ, he endured prolonged suffering in confinement. Eventually, Lucian died from the harsh treatment he received while imprisoned. His death was honored as martyrdom, and his legacy continued through his students and his contribution to the transmission of the biblical text."
+},
+{
+  id: "paul_of_thebes",
+  title: "Paul of Thebes",
+  year: "c. 341 AD",
+  image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&q=80",
+  text: "Paul of Thebes is traditionally regarded as the first Christian hermit, fleeing to the Egyptian desert during the persecution of Emperor Decius. Although he lived much of his life in solitude, his commitment to Christ was forged in an era when public confession of faith could result in death. According to tradition, Paul endured deprivation and isolation for decades, fully devoted to prayer and ascetic discipline. While not executed in a public arena, his life was shaped by persecution, and early Christian writers honored him among the witnesses who suffered for their faith. His story inspired the later monastic movement and demonstrated a form of martyrdom expressed through lifelong self-denial and separation for the sake of Christ."
+},
+{
+  id: "alban_of_britain",
+  title: "Alban of Britain",
+  year: "c. 304 AD",
+  image: "https://images.unsplash.com/photo-1499346030926-9a72daac6c63?w=800&q=80",
+  text: "Alban is traditionally regarded as the first Christian martyr of Britain. He lived in Roman Britain during the persecution under Emperor Diocletian. According to early accounts, Alban sheltered a Christian priest who was fleeing persecution. Deeply moved by the priest's faith and prayers, Alban converted to Christianity. When authorities came searching for the priest, Alban exchanged clothes with him and presented himself to the soldiers instead. Brought before a Roman judge, Alban openly confessed that he was now a Christian and refused to sacrifice to the Roman gods. He was scourged and sentenced to death. Alban was led to execution on a hill overlooking the city of Verulamium, where he was beheaded. His martyrdom made him a foundational figure in British Christianity, and his witness inspired the growth of the church in the region."
+},
+{
+  id: "cecilia_of_rome",
+  title: "Cecilia of Rome",
+  year: "c. 230 AD",
+  image: "https://images.unsplash.com/photo-1500534623283-312aade485b7?w=800&q=80",
+  text: "Cecilia of Rome was a noblewoman and devout Christian who lived during a period of intermittent persecution. According to tradition, she dedicated her life to Christ and encouraged others to embrace the faith, including her husband Valerian and his brother Tiburtius, both of whom later became martyrs. Cecilia was arrested for refusing to worship the Roman gods. She was condemned to death by suffocation in her own bath, but after surviving for several days, the executioner was ordered to behead her. Despite multiple blows, she lived for three days afterward, during which she continued to confess Christ and distribute her possessions to the poor. Her death sealed her testimony, and she became one of the most revered martyrs of the Roman church, later honored as the patron saint of sacred music."
+},
+{
+  id: "sebastian_of_rome",
+  title: "Sebastian of Rome",
+  year: "c. 288 AD",
+  image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&q=80",
+  text: "Sebastian was a Roman soldier and officer in the imperial guard who secretly professed Christianity while serving under Emperor Diocletian. He used his position to encourage imprisoned Christians and strengthen their faith. When his Christian identity was discovered, Sebastian was ordered to be executed. He was bound to a stake and shot with arrows, left for dead by the soldiers. However, he survived and was nursed back to health by fellow believers. Rather than fleeing, Sebastian later confronted the emperor, openly rebuking him for persecuting Christians. Enraged, Diocletian ordered Sebastian to be beaten to death with clubs. His courage in returning to proclaim Christ after surviving execution made him a powerful symbol of bold witness and perseverance."
+},
+{
+  id: "boniface_of_mainz",
+  title: "Boniface of Mainz",
+  year: "June 5, 754 AD",
+  image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80",
+  text: "Boniface was an Anglo-Saxon missionary and church reformer who played a central role in the evangelization of Germanic Europe. Known as the 'Apostle of the Germans,' he preached the gospel, established churches, and challenged pagan practices. In his old age, Boniface returned to the mission field in Frisia, fully aware of the dangers he faced. While preparing to confirm new converts, his group was attacked by armed pagans. Boniface reportedly forbade his companions from fighting back, urging them to trust in Christ. He was struck down and killed along with many of his fellow missionaries. His martyrdom sealed a lifetime of missionary service and greatly influenced the Christianization of Europe."
+},
+{
+  id: "adalbert_of_prague",
+  title: "Adalbert of Prague",
+  year: "April 23, 997 AD",
+  image: "https://images.unsplash.com/photo-1503264116251-35a269479413?w=800&q=80",
+  text: "Adalbert of Prague was a bishop, missionary, and reformer who labored to bring Christian teaching to Central and Eastern Europe. Frustrated by resistance to reform within his diocese, he devoted himself to missionary work among the Prussian peoples. Adalbert preached against pagan idolatry and immoral practices, calling people to repentance and faith in Christ. His message provoked hostility, and he was eventually attacked by pagan priests. Adalbert was speared and beheaded, and his body was left unburied as a warning. His martyrdom strengthened missionary resolve across Europe and contributed to the spread of Christianity in the region."
+},
+{
+  id: "dietrich_bonhoeffer",
+  title: "Dietrich Bonhoeffer",
+  year: "April 9, 1945",
+  image: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=800&q=80",
+  text: "Dietrich Bonhoeffer was a German pastor, theologian, and outspoken opponent of Nazi ideology. As a leader within the Confessing Church, he rejected Adolf Hitler's attempt to control the German church and distort Christian teaching. Bonhoeffer participated in efforts to resist the Nazi regime and was eventually arrested by the Gestapo. After two years of imprisonment, he was implicated in a plot against Hitler. Just weeks before the end of World War II, Bonhoeffer was taken to Flossenbürg concentration camp, where he was stripped, mocked, and hanged. Witnesses recalled his calm demeanor and prayerful spirit before his execution. Bonhoeffer's death stands as a modern example of costly discipleship and faithful resistance to evil."
+},
+{
+  id: "shapur_ii_martyrs",
+  title: "The Martyrs of Persia under Shapur II",
+  year: "c. 339–379 AD",
+  image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80",
+  text: "During the reign of the Persian king Shapur II, Christians in the Sassanian Empire faced one of the most sustained and brutal persecutions in Middle Eastern history. Christianity was increasingly associated with the Roman Empire, Persia's political enemy, leading authorities to view Christians as potential traitors. Heavy taxes were imposed on Christian communities, and bishops and clergy were singled out for arrest. Thousands of believers were imprisoned, tortured, and executed for refusing to worship the sun or renounce Christ. Many were killed by beheading, crucifixion, or exposure. These martyrs included bishops, monks, women, and children who chose death rather than deny their faith. The Persian persecutions forged a resilient Eastern Christian identity and deeply shaped Syriac Christian theology and liturgy."
+},
+{
+  id: "simeon_bar_sabbae",
+  title: "Simeon bar Sabbae",
+  year: "c. 344 AD",
+  image: "https://images.unsplash.com/photo-1503264116251-35a269479413?w=800&q=80",
+  text: "Simeon bar Sabbae was the Catholicos, or chief bishop, of the Church of the East in Persia during the reign of Shapur II. When ordered to collect oppressive taxes from Christians and compel them to worship the Persian sun god, Simeon refused, declaring his loyalty to Christ alone. He was arrested and imprisoned, where he was repeatedly pressured to apostatize. Simeon steadfastly refused, even when he was forced to watch the execution of fellow clergy and believers. Ultimately, Simeon himself was beheaded along with many of his companions. His martyrdom marked the beginning of a widespread persecution and established him as one of the most revered Middle Eastern Christian martyrs."
+},
+{
+  id: "ananias_of_arbela",
+  title: "Ananias of Arbela",
+  year: "c. 345 AD",
+  image: "https://images.unsplash.com/photo-1500534623283-312aade485b7?w=800&q=80",
+  text: "Ananias was a bishop in Arbela, a prominent Christian center in ancient Mesopotamia. During the Persian persecutions under Shapur II, Ananias was arrested for refusing to worship fire and the sun, central elements of Zoroastrian religion. Despite imprisonment and torture, he remained firm in his confession of Christ. Authorities attempted to intimidate him by threatening his congregation, but Ananias refused to abandon his faith or leadership. He was eventually executed, most likely by beheading. His martyrdom strengthened the Church of the East and reinforced the resolve of Mesopotamian Christians to remain faithful under extreme pressure."
+},
+{
+  id: "jacob_of_nisibis",
+  title: "Jacob of Nisibis",
+  year: "c. 338 AD",
+  image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&q=80",
+  text: "Jacob of Nisibis was a bishop and ascetic leader in Mesopotamia who played a crucial role in defending Christianity during periods of persecution and military conflict. Though not executed publicly, Jacob endured repeated threats, exile, and deprivation because of his refusal to compromise his faith. During sieges and political upheavals between Rome and Persia, Jacob continued to pastor his people, offering spiritual leadership in times of danger. Early Eastern Christian tradition honors him among the martyrs and confessors who suffered greatly for Christ, even when death did not come by execution. His life exemplifies steadfast endurance in the face of sustained hostility."
+},
+{
+  id: "ahdemmeh_of_tikrit",
+  title: "Ahdemmeh of Tikrit",
+  year: "c. 575 AD",
+  image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80",
+  text: "Ahdemmeh was a bishop and missionary in Mesopotamia during the early centuries of Islamic expansion. Known for his evangelistic work among Arab tribes, Ahdemmeh converted many from paganism and other beliefs to Christianity. His success drew hostility from political authorities who viewed his influence as destabilizing. Ahdemmeh was arrested and accused of undermining public order. Refusing to renounce his faith or cease preaching Christ, he was executed by order of the authorities. His martyrdom marked a significant moment in the history of Arab Christianity and demonstrated the continued witness of the church in the Middle East despite changing political powers."
+},
+{
+  id: "martyrs_of_najran",
+  title: "The Martyrs of Najran",
+  year: "c. 523 AD",
+  image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&q=80",
+  text: "The Martyrs of Najran were a community of Christians in southern Arabia who suffered persecution under the Himyarite king Dhu Nuwas. After converting to Judaism, the king sought to eliminate Christianity from his kingdom. Christians in Najran were ordered to renounce their faith or face death. Many refused, including clergy, nobles, women, and children. They were executed by burning, beheading, or being thrown into mass graves. Their deaths were widely reported in both Christian and non-Christian sources, including Syriac and Byzantine records. The martyrdom of the Najran Christians stands as one of the most significant episodes of Christian persecution in pre-Islamic Arabia."
+},
+{
+  id: "sophronius_of_jerusalem",
+  title: "Sophronius of Jerusalem",
+  year: "638 AD",
+  image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80",
+  text: "Sophronius was the Patriarch of Jerusalem during the Islamic conquest of the city. A monk, theologian, and defender of orthodox Christology, he labored to preserve Christian doctrine amid profound political change. When Muslim forces besieged Jerusalem, Sophronius negotiated the city's peaceful surrender to Caliph Umar ibn al-Khattab in order to spare its inhabitants from slaughter. Although not executed by the sword, Sophronius witnessed the loss of Christian political authority and the imposition of restrictions on Christian worship. Overwhelmed by grief and the suffering of his flock, he died shortly thereafter. Eastern Christian tradition honors him among the martyrs and confessors who endured suffering and loss for the faith during the transition to Islamic rule."
+},
+{
+  id: "martyrs_of_damascus",
+  title: "The Martyrs of Damascus",
+  year: "c. 780 AD",
+  image: "https://images.unsplash.com/photo-1503264116251-35a269479413?w=800&q=80",
+  text: "During the early Abbasid period, several Christians in Damascus were executed for publicly confessing Christ after converting from Islam or for openly criticizing Islamic teachings. Under Islamic law, apostasy from Islam was punishable by death. These believers were summoned before judges and given opportunities to recant. When they refused, choosing allegiance to Christ over their own lives, they were condemned and executed, often by beheading. Their deaths sent shockwaves through Christian communities in Syria, reinforcing the cost of open confession in an Islamic society. The Martyrs of Damascus became symbols of faithful witness under Islamic rule."
+},
+{
+  id: "bacchus_of_jerusalem",
+  title: "Bacchus of Jerusalem",
+  year: "787 AD",
+  image: "https://images.unsplash.com/photo-1500534623283-312aade485b7?w=800&q=80",
+  text: "Bacchus was a young Palestinian Christian who lived under Islamic governance and was known for his outspoken defense of the Christian faith. After engaging in public debates that criticized Islamic doctrine and affirmed Christ's divinity, Bacchus was arrested by Muslim authorities. He was interrogated repeatedly and pressured to convert to Islam. When he refused, Bacchus was imprisoned and eventually executed by beheading. His martyrdom is recorded in Greek and Arabic Christian sources and reflects the risks faced by Christians who openly expressed their faith in Islamic-controlled territories."
+},
+{
+  id: "anthony_rawh_of_damascus",
+  title: "Anthony Rawh of Damascus",
+  year: "799 AD",
+  image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&q=80",
+  text: "Anthony Rawh was a Christian from Damascus who converted from Islam to Christianity, an act considered apostasy under Islamic law. After his conversion, Anthony openly professed his faith in Christ and refused repeated calls to return to Islam. Brought before Islamic judges, he endured imprisonment and harsh interrogation. Despite threats of execution, Anthony remained steadfast. He was ultimately sentenced to death and beheaded. His martyrdom became a sober reminder of the high cost of conversion and open confession in the early Islamic world."
+},
+{
+  id: "martyrs_of_cordoba",
+  title: "The Martyrs of Córdoba",
+  year: "850–859 AD",
+  image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80",
+  text: "The Martyrs of Cordoba were a group of Christians living in Islamic Spain (Al-Andalus) who were executed for publicly proclaiming Christian beliefs or denouncing Islamic teachings. Many were clergy or monks who voluntarily presented themselves before Muslim authorities, confessing Christ and rejecting Islam. Under Islamic law, such actions were considered capital offenses. Between 850 and 859 AD, dozens were executed, primarily by beheading. Though controversial even among Christians of their time, these martyrs were later honored for their uncompromising witness. Their deaths highlight the tensions between religious conviction and political authority in medieval Islamic societies."
+},
+{
+  id: "isaac_of_syria",
+  title: "Isaac of Syria",
+  year: "c. 700 AD",
+  image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&q=80",
+  text: "Isaac of Syria was a bishop and ascetic theologian who lived under early Islamic rule in Mesopotamia. While not executed, Isaac endured significant hardship, social marginalization, and ecclesiastical pressure because of his faith and teachings. After briefly serving as bishop, he withdrew into a life of solitude, prayer, and writing. Eastern Christian tradition honors Isaac among the confessors who suffered for Christ under non-Christian rule. His spiritual writings, composed in a time of political vulnerability for Christians, continue to shape Christian spirituality across denominational lines."
+},
+{
+  id: "victoria_of_kairouan",
+  title: "Victoria of Kairouan",
+  year: "c. 851 AD",
+  image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80",
+  text: "Victoria of Kairouan was a Christian woman from Roman North Africa (modern-day Tunisia) who lived under Islamic rule during the Aghlabid period. She and several of her brothers were accused of abandoning Islam in favor of Christianity, an offense punishable by death under Islamic law. Arrested and brought before authorities, Victoria was pressured to recant her Christian confession and return to Islam. She refused, openly declaring her allegiance to Christ. According to early Latin and Arabic Christian sources, Victoria was executed by beheading. Her martyrdom illustrates the vulnerability of Christian minorities in North Africa during the early Islamic centuries and stands as one of the clearest documented cases of female Christian martyrdom in Islamic-ruled Ifriqiya."
+},
+{
+  id: "martyrs_of_carthage_agh_labid",
+  title: "The Martyrs of Carthage under the Aghlabids",
+  year: "c. 850–900 AD",
+  image: "https://images.unsplash.com/photo-1503264116251-35a269479413?w=800&q=80",
+  text: "During the rule of the Aghlabid dynasty in Ifriqiya, the once-flourishing Christian communities of Carthage and its surrounding regions faced increasing legal and social pressure. Several Christians were executed after being accused of apostasy from Islam or of publicly affirming Christian beliefs deemed offensive by Islamic authorities. Those arrested were interrogated and offered opportunities to recant. When they refused, they were sentenced to death, typically by beheading. Although individual names are not always preserved, these martyrs are remembered collectively in North African Christian tradition. Their deaths marked the near-final disappearance of organized Christianity in much of Tunisia by the tenth century."
+},
+{
+  id: "martyrs_of_tahert",
+  title: "The Martyrs of Tahert",
+  year: "c. 820 AD",
+  image: "https://images.unsplash.com/photo-1500534623283-312aade485b7?w=800&q=80",
+  text: "Tahert, located in present-day Algeria, was an important intellectual and religious center during the early Islamic period. Within its Christian minority, several believers were executed after being charged with apostasy or blasphemy for publicly affirming Christian doctrines. Islamic judges summoned these Christians and demanded that they renounce Christ and conform to Islamic belief. Their refusal led to capital punishment, usually carried out by beheading. Though their names are largely lost to history, their martyrdoms are referenced in later North African and Andalusian Christian writings. The Martyrs of Tahert represent the steady erosion of Christian life in inland North Africa under Islamic governance."
+},
+{
+  id: "martyrs_of_tripolitania",
+  title: "The Martyrs of Tripolitania",
+  year: "c. 900 AD",
+  image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&q=80",
+  text: "In Tripolitania, corresponding to parts of modern-day Libya, remnants of ancient Christian communities survived into the early centuries of Islamic rule. Some believers were executed after refusing to embrace Islam or after openly reaffirming Christian faith following conversion pressure. These Christians were tried by local authorities and given opportunities to recant. Choosing fidelity to Christ, they accepted death rather than apostasy. Their executions contributed to the rapid decline of Christianity in the region. Later Christian chroniclers preserved their memory as witnesses to the endurance of faith in one of the most difficult environments for the early medieval church."
+},
+{
+  id: "martyrs_of_egypt_islamic_period",
+  title: "The Martyrs of Egypt under Early Islamic Rule",
+  year: "c. 700–900 AD",
+  image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80",
+  text: "Following the Islamic conquest of Egypt, the Coptic Christian population faced heavy taxation, legal restrictions, and periodic outbreaks of violence. While many Christians lived as protected minorities, some were executed after resisting forced conversion, rebelling against oppressive policies, or publicly affirming Christian doctrines deemed unacceptable. These martyrs were often imprisoned, beaten, and executed by beheading. Though many individual names are no longer recorded, Coptic tradition preserves their witness in liturgical commemorations. Their suffering played a significant role in shaping the enduring identity and resilience of the Coptic Church under Islamic rule."
+}
+
+
+
+   ]
   },
   
   discoveries: {
@@ -126,7 +360,8 @@ const HISTORY_DATA = {
         year: "1687",
         image: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=800&q=80",
         text: "Isaac Newton's formulation of the law of universal gravitation unified celestial and terrestrial mechanics under a single mathematical framework. His work explained not only why apples fall from trees but also why planets orbit the sun. Published in his masterwork 'Principia Mathematica,' Newton's laws of motion and gravitation remained unchallenged for over two centuries and still accurately predict the motion of most objects we encounter daily."
-      }
+      },
+      
     ]
   },
   
