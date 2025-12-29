@@ -937,11 +937,25 @@ function renderHistoryText() {
   
   const { text, typed } = window.currentHistoryStory;
   const storyText = document.getElementById('history-story-text');
+  const storyDisplay = document.getElementById('history-story-display');
   const input = document.getElementById('history-input');
   const currentTyped = typed + input.value;
   
+  // Calculate how many characters to show (show current position + context)
+  const currentPosition = currentTyped.length;
+  const charsPerLine = 80; // Approximate characters per line
+  const currentLine = Math.floor(currentPosition / charsPerLine);
+  const startPosition = Math.max(0, (currentLine - 1) * charsPerLine); // Show previous line for context
+  const endPosition = Math.min(text.length, startPosition + (charsPerLine * 3)); // Show 3 lines
+  
   let html = '';
-  for (let i = 0; i < text.length; i++) {
+  
+  // Add indicator if there's hidden text before
+  if (startPosition > 0) {
+    html += '<div style="text-align: center; color: var(--muted); font-size: 0.875rem; margin-bottom: 8px;">... previous text completed ...</div>';
+  }
+  
+  for (let i = startPosition; i < endPosition; i++) {
     const char = text[i];
     const typedChar = currentTyped[i];
     
@@ -958,13 +972,23 @@ function renderHistoryText() {
     }
   }
   
+  // Add indicator if there's more text after
+  if (endPosition < text.length) {
+    const remainingChars = text.length - endPosition;
+    html += `<div style="text-align: center; color: var(--muted); font-size: 0.875rem; margin-top: 8px;">... ${remainingChars} characters remaining ...</div>`;
+  }
+  
   storyText.innerHTML = html;
+  
+  // Auto-scroll to top to keep current typing position visible
+  if (storyDisplay) {
+    storyDisplay.scrollTop = 0;
+  }
   
   // Calculate progress
   const progress = Math.round((currentTyped.length / text.length) * 100);
   document.getElementById('history-progress').textContent = progress + '%';
 }
-
 // History input handler
 document.addEventListener('DOMContentLoaded', () => {
   const historyInput = document.getElementById('history-input');
