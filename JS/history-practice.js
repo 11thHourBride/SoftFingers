@@ -556,65 +556,6 @@ const HISTORY_DATA = {
     ]
   }
 };
-// Initialize History Practice
-function initHistoryPractice() {
-  const historyListGrid = document.getElementById('history-list-grid');
-  if (!historyListGrid) return;
-  
-  // Render category cards
-  let html = '';
-  Object.keys(HISTORY_DATA).forEach(categoryKey => {
-    const category = HISTORY_DATA[categoryKey];
-    html += `
-      <div class="history-category-card" onclick="selectHistoryCategory('${categoryKey}')">
-        <div class="history-category-image" style="background-image: url('${category.image}')"></div>
-        <div class="history-category-content">
-          <div class="history-category-icon">${category.icon}</div>
-          <h3 class="history-category-title">${category.name}</h3>
-          <p class="history-category-description">${category.description}</p>
-          <div class="history-category-count">${category.stories.length} stories</div>
-        </div>
-      </div>
-    `;
-  });
-  
-  historyListGrid.innerHTML = html;
-}
-
-// Select a history category
-window.selectHistoryCategory = function(categoryKey) {
-  const category = HISTORY_DATA[categoryKey];
-  const storiesGrid = document.getElementById('history-stories-grid');
-  const listGrid = document.getElementById('history-list-grid');
-  const backBtn = document.getElementById('back-to-categories');
-  const pageTitle = document.querySelector('.history-header h2');
-  
-  // Hide categories, show stories
-  listGrid.style.display = 'none';
-  storiesGrid.style.display = 'grid';
-  backBtn.style.display = 'inline-flex';
-  pageTitle.textContent = category.name;
-  
-  // Render stories
-  let html = '';
-  category.stories.forEach(story => {
-    html += `
-      <div class="history-story-card" onclick="startHistoryPractice('${categoryKey}', '${story.id}')">
-        <div class="history-story-image" style="background-image: url('${story.image}')"></div>
-        <div class="history-story-content">
-          <h4 class="history-story-title">${story.title}</h4>
-          <div class="history-story-year">${story.year}</div>
-          <p class="history-story-preview">${story.text.substring(0, 120)}...</p>
-          <button class="btn btn-small" onclick="event.stopPropagation(); startHistoryPractice('${categoryKey}', '${story.id}')">
-            Start Typing
-          </button>
-        </div>
-      </div>
-    `;
-  });
-  
-  storiesGrid.innerHTML = html;
-};
 
 // Initialize History Practice
 function initHistoryPractice() {
