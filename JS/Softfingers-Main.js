@@ -4002,73 +4002,80 @@ function renderPassage() {
   if (typed === '' && currentWord === '') {
     currentWordIndex = 0;
   }
-    const style = window.getComputedStyle(passageDisplay);
-    const containerWidth = passageDisplay.clientWidth;
-    const fontSize = parseInt(style.fontSize, 10);
-    const charWidth = fontSize * 0.6;
-    const avgWordLength = 6;
-    const WORDS_PER_ROW = Math.max(1, Math.floor(containerWidth / (avgWordLength * charWidth)));
 
-    const ROW_SIZE = WORDS_PER_ROW;
-    let pageStartIndex = 0;
-    while (pageStartIndex + ROW_SIZE <= currentWordIndex && pageStartIndex + ROW_SIZE < words.length) {
-      pageStartIndex += ROW_SIZE;
-    }
+  const style = window.getComputedStyle(passageDisplay);
+  const containerWidth = passageDisplay.clientWidth;
+  const fontSize = parseInt(style.fontSize, 10);
+  const charWidth = fontSize * 0.6;
+  const avgWordLength = 6;
+  const WORDS_PER_ROW = Math.max(1, Math.floor(containerWidth / (avgWordLength * charWidth)));
 
-    const visibleWords = words.slice(pageStartIndex, pageStartIndex + ROW_SIZE *2 );
-
-    let html = "";
-    for (let r = 0; r < visibleWords.length; r += WORDS_PER_ROW) {
-      const rowWords = visibleWords.slice(r, r + WORDS_PER_ROW);
-
-     const rowHtml = rowWords.map((word, wi) => {
-  const absoluteIndex = pageStartIndex + r + wi;
-  const typedWord = typedWords[absoluteIndex] || "";
-  let chars = "";
+  const ROW_SIZE = WORDS_PER_ROW;
   
-  // Word-level comparison
-  const isCurrentWord = absoluteIndex === currentWordIndex;
-  const wordComplete = typedWord.length > 0 && !isCurrentWord;
-  const wordCorrect = wordComplete && typedWord === word;
-  const wordIncorrect = wordComplete && typedWord !== word;
+  // NEW: Calculate which row the current word is on
+  const currentRow = Math.floor(currentWordIndex / ROW_SIZE);
+  
+  // NEW: Start displaying from the current row (or previous row to show context)
+  const displayStartRow = Math.max(0, currentRow);
+  const pageStartIndex = displayStartRow * ROW_SIZE;
 
-  // Render each character
-  for (let i = 0; i < word.length; i++) {
-    const typedChar = typedWord[i];
+  // Show 2 rows worth of words
+  const visibleWords = words.slice(pageStartIndex, pageStartIndex + ROW_SIZE * 2);
 
-    if (typedChar === undefined) {
-      // Not typed yet
-      chars += `<span>${escapeHtml(word[i])}</span>`;
-    } else if (isCurrentWord) {
-      // Currently typing - show live feedback
-      if (typedChar === word[i]) {
-        chars += `<span class="correct">${escapeHtml(word[i])}</span>`;
-      } else {
-        chars += `<span class="incorrect">${escapeHtml(word[i])}</span>`;
+  let html = "";
+  for (let r = 0; r < visibleWords.length; r += WORDS_PER_ROW) {
+    const rowWords = visibleWords.slice(r, r + WORDS_PER_ROW);
+
+    const rowHtml = rowWords.map((word, wi) => {
+      const absoluteIndex = pageStartIndex + r + wi;
+      const typedWord = typedWords[absoluteIndex] || "";
+      let chars = "";
+      
+      // Word-level comparison
+      const isCurrentWord = absoluteIndex === currentWordIndex;
+      const wordComplete = typedWord.length > 0 && !isCurrentWord;
+      const wordCorrect = wordComplete && typedWord === word;
+      const wordIncorrect = wordComplete && typedWord !== word;
+
+      // Render each character
+      for (let i = 0; i < word.length; i++) {
+        const typedChar = typedWord[i];
+
+        if (typedChar === undefined) {
+          // Not typed yet
+          chars += `<span>${escapeHtml(word[i])}</span>`;
+        } else if (isCurrentWord) {
+          // Currently typing - show live feedback
+          if (typedChar === word[i]) {
+            chars += `<span class="correct">${escapeHtml(word[i])}</span>`;
+          } else {
+            chars += `<span class="incorrect">${escapeHtml(word[i])}</span>`;
+          }
+        } else if (wordCorrect) {
+          // Completed word correctly
+          chars += `<span class="correct">${escapeHtml(word[i])}</span>`;
+        } else if (wordIncorrect) {
+          // Completed word incorrectly
+          chars += `<span class="incorrect">${escapeHtml(word[i])}</span>`;
+        }
       }
-    } else if (wordCorrect) {
-      // Completed word correctly
-      chars += `<span class="correct">${escapeHtml(word[i])}</span>`;
-    } else if (wordIncorrect) {
-      // Completed word incorrectly
-      chars += `<span class="incorrect">${escapeHtml(word[i])}</span>`;
-    }
+
+      let wordClass = "word";
+      if (absoluteIndex === currentWordIndex) {
+        wordClass += " active-word";
+      }
+
+      return `<span class="${wordClass}">${chars} </span>`;
+    }).join("");
+    
+    html += `<div class="row">${rowHtml}</div>`;
   }
+
+  passageDisplay.innerHTML = html;
   
- 
-
-  let wordClass = "word";
-  if (absoluteIndex === currentWordIndex) {
-    wordClass += " active-word";
-  }
-
-  return `<span class="${wordClass}">${chars} </span>`;
-}).join("");
-      html += `<div class="row">${rowHtml}</div>`;
-    }
-
-    passageDisplay.innerHTML = html;
-  }
+  // NEW: Smooth scroll to keep current line at top
+  passageDisplay.scrollTop = 0;
+}
 
   function escapeHtml(s) {
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
