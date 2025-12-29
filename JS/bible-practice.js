@@ -1,13 +1,64 @@
-// ==== BIBLE PRACTICE SYSTEM ====
+// Enhanced Bible Practice with Chapter Selection and Audio Mode
+// This file should replace or be merged with JS/bible-practice.js
 
-// Expanded Bible verses from KJV
-const BIBLE_DATA = {
-  oldTestament: [
-    {
-      name: "Genesis",
-      totalChapters: 50,
-      verses: {
-        1: [
+const BIBLE_BOOKS = {
+  old: [
+    { name: "Genesis", chapters: 50, testament: "old" },
+    { name: "Exodus", chapters: 40, testament: "old" },
+    { name: "Leviticus", chapters: 27, testament: "old" },
+    { name: "Numbers", chapters: 36, testament: "old" },
+    { name: "Deuteronomy", chapters: 34, testament: "old" },
+    { name: "Joshua", chapters: 24, testament: "old" },
+    { name: "Judges", chapters: 21, testament: "old" },
+    { name: "Ruth", chapters: 4, testament: "old" },
+    { name: "1 Samuel", chapters: 31, testament: "old" },
+    { name: "2 Samuel", chapters: 24, testament: "old" },
+    { name: "1 Kings", chapters: 22, testament: "old" },
+    { name: "2 Kings", chapters: 25, testament: "old" },
+    { name: "1 Chronicles", chapters: 29, testament: "old" },
+    { name: "2 Chronicles", chapters: 36, testament: "old" },
+    { name: "Ezra", chapters: 10, testament: "old" },
+    { name: "Nehemiah", chapters: 13, testament: "old" },
+    { name: "Esther", chapters: 10, testament: "old" },
+    { name: "Job", chapters: 42, testament: "old" },
+    { name: "Psalms", chapters: 150, testament: "old" },
+    { name: "Proverbs", chapters: 31, testament: "old" }
+  ],
+  new: [
+    { name: "Matthew", chapters: 28, testament: "new" },
+    { name: "Mark", chapters: 16, testament: "new" },
+    { name: "Luke", chapters: 24, testament: "new" },
+    { name: "John", chapters: 21, testament: "new" },
+    { name: "Acts", chapters: 28, testament: "new" },
+    { name: "Romans", chapters: 16, testament: "new" },
+    { name: "1 Corinthians", chapters: 16, testament: "new" },
+    { name: "2 Corinthians", chapters: 13, testament: "new" },
+    { name: "Galatians", chapters: 6, testament: "new" },
+    { name: "Ephesians", chapters: 6, testament: "new" },
+    { name: "Philippians", chapters: 4, testament: "new" },
+    { name: "Colossians", chapters: 4, testament: "new" },
+    { name: "1 Thessalonians", chapters: 5, testament: "new" },
+    { name: "2 Thessalonians", chapters: 3, testament: "new" },
+    { name: "1 Timothy", chapters: 6, testament: "new" },
+    { name: "2 Timothy", chapters: 4, testament: "new" },
+    { name: "Titus", chapters: 3, testament: "new" },
+    { name: "Philemon", chapters: 1, testament: "new" },
+    { name: "Hebrews", chapters: 13, testament: "new" },
+    { name: "James", chapters: 5, testament: "new" },
+    { name: "1 Peter", chapters: 5, testament: "new" },
+    { name: "2 Peter", chapters: 3, testament: "new" },
+    { name: "1 John", chapters: 5, testament: "new" },
+    { name: "2 John", chapters: 1, testament: "new" },
+    { name: "3 John", chapters: 1, testament: "new" },
+    { name: "Jude", chapters: 1, testament: "new" },
+    { name: "Revelation", chapters: 22, testament: "new" }
+  ]
+};
+
+// Sample verses for demonstration (In production, you'd fetch from Bible API)
+// Each chapter has multiple verses
+const SAMPLE_VERSES = {
+   "Genesis:1": [
           "In the beginning God created the heaven and the earth.",
           "And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters.",
           "And God said, Let there be light: and there was light.",
@@ -40,7 +91,7 @@ const BIBLE_DATA = {
         "And to every beast of the earth, and to every fowl of the air, and to every thing that creepeth upon the earth, wherein there is life, I have given every green herb for meat: and it was so.",
         "And God saw every thing that he had made, and, behold, it was very good. And the evening and the morning were the sixth day."
 ],
-        2: [
+        "Genesis:2": [
   "Thus the heavens and the earth were finished, and all the host of them.",
   "And on the seventh day God ended his work which he had made; and he rested on the seventh day from all his work which he had made.",
   "And God blessed the seventh day, and sanctified it: because that in it he had rested from all his work which God created and made.",
@@ -68,7 +119,7 @@ const BIBLE_DATA = {
   "And they were both naked, the man and his wife, and were not ashamed."
 ]
 ,
-        3:[
+       "Genesis:3":[
   "Now the serpent was more subtil than any beast of the field which the Lord God had made. And he said unto the woman, Yea, hath God said, Ye shall not eat of every tree of the garden?",
   "And the woman said unto the serpent, We may eat of the fruit of the trees of the garden:",
   "But of the fruit of the tree which is in the midst of the garden, God hath said, Ye shall not eat of it, neither shall ye touch it, lest ye die.",
@@ -94,7 +145,7 @@ const BIBLE_DATA = {
   "Therefore the Lord God sent him forth from the garden of Eden, to till the ground from whence he was taken.",
   "So he drove out the man; and he placed at the east of the garden of Eden Cherubims, and a flaming sword which turned every way, to keep the way of the tree of life."
 ],
-    4:[
+    "Genesis:4":[
   "And Adam knew Eve his wife; and she conceived, and bare Cain, and said, I have gotten a man from the Lord.",
   "And she again bare his brother Abel. And Abel was a keeper of sheep, but Cain was a tiller of the ground.",
   "And in process of time it came to pass, that Cain brought of the fruit of the ground an offering unto the Lord.",
@@ -122,7 +173,7 @@ const BIBLE_DATA = {
   "And Adam knew his wife again; and she bare a son, and called his name Seth: For God, said she, hath appointed me another seed instead of Abel, whom Cain slew.",
   "And to Seth, to him also there was born a son; and he called his name Enos: then began men to call upon the name of the Lord."
 ],
-     5:[
+    "Genesis:5":[
   "This is the book of the generations of Adam. In the day that God created man, in the likeness of God made he him;",
   "Male and female created he them; and blessed them, and called their name Adam, in the day when they were created.",
   "And Adam lived an hundred and thirty years, and begat a son in his own likeness, after his image; and called his name Seth:",
@@ -156,7 +207,7 @@ const BIBLE_DATA = {
   "And all the days of Lamech were seven hundred seventy and seven years: and he died.",
   "And Noah was five hundred years old: and Noah begat Shem, Ham, and Japheth."
 ],
-     6:[
+    "Genesis:6":[
   "And it came to pass, when men began to multiply on the face of the earth, and daughters were born unto them,",
   "That the sons of God saw the daughters of men that they were fair; and they took them wives of all which they chose.",
   "And the Lord said, My spirit shall not always strive with man, for that he also is flesh: yet his days shall be an hundred and twenty years.",
@@ -180,7 +231,7 @@ const BIBLE_DATA = {
   "And take thou unto thee of all food that is eaten, and thou shalt gather it to thee; and it shall be for food for thee, and for them.",
   "Thus did Noah; according to all that God commanded him, so did he."
 ],
-        7:[
+        "Genesis:7":[
   "And the Lord said unto Noah, Come thou and all thy house into the ark; for thee have I seen righteous before me in this generation.",
   "Of every clean beast thou shalt take to thee by sevens, the male and his female: and of beasts that are not clean by two, the male and his female.",
   "Of fowls also of the air by sevens, the male and the female; to keep seed alive upon the face of all the earth.",
@@ -206,7 +257,7 @@ const BIBLE_DATA = {
   "And every living substance was destroyed which was upon the face of the ground, both man, and cattle, and the creeping things, and the fowl of the heaven; and they were destroyed from the earth: and Noah only remained alive, and they that were with him in the ark.",
   "And the waters prevailed upon the earth an hundred and fifty days."
 ],
-    8: [
+    "Genesis:8": [
   "And God remembered Noah, and every living thing, and all the cattle that was with him in the ark: and God made a wind to pass over the earth, and the waters assuaged;",
   "The fountains also of the deep and the windows of heaven were stopped, and the rain from heaven was restrained;",
   "And the waters returned from off the earth continually: and after the end of the hundred and fifty days the waters were abated.",
@@ -230,7 +281,7 @@ const BIBLE_DATA = {
   "And the Lord smelled a sweet savour; and the Lord said in his heart, I will not again curse the ground any more for man's sake; for the imagination of man's heart is evil from his youth; neither will I again smite any more every thing living, as I have done.",
   "While the earth remaineth, seedtime and harvest, and cold and heat, and summer and winter, and day and night shall not cease."
 ],
-   9: [
+  "Genesis:9": [
   "And God blessed Noah and his sons, and said unto them, Be fruitful, and multiply, and replenish the earth.",
   "And the fear of you and the dread of you shall be upon every beast of the earth, and upon every fowl of the air, upon all that moveth upon the earth, and upon all the fishes of the sea; into your hand are they delivered.",
   "Every moving thing that liveth shall be meat for you; even as the green herb have I given you all things.",
@@ -261,7 +312,7 @@ const BIBLE_DATA = {
   "And Noah lived after the flood three hundred and fifty years.",
   "And all the days of Noah were nine hundred and fifty years: and he died."
    ],
-    10: [
+    "Genesis:10": [
       "Now these are the generations of the sons of Noah, Shem, Ham, and Japheth: and unto them were sons born after the flood.",
       "The sons of Japheth; Gomer, and Magog, and Madai, and Javan, and Tubal, and Meshech, and Tiras.",
       "And the sons of Gomer; Ashkenaz, and Riphath, and Togarmah.",
@@ -290,7 +341,7 @@ const BIBLE_DATA = {
       "These are the sons of Shem, after their families, after their tongues, in their lands, after their nations.",
       "These are the families of the sons of Noah, after their generations, in their nations: and by these were the nations divided in the earth after the flood."
     ],
-      11: [
+      "Genesis:11": [
       "And the whole earth was of one language, and of one speech.",
       "And it came to pass, as they journeyed from the east, that they found a plain in the land of Shinar; and they dwelt there.",
       "And they said one to another, Go to, let us make brick, and burn them thoroughly. And they had brick for stone, and slime had they for morter.",
@@ -324,7 +375,7 @@ const BIBLE_DATA = {
       "And Terah took Abram his son, and Lot the son of Haran his son's son, and Sarai his daughter in law, his son Abram's wife; and they went forth with them from Ur of the Chaldees, to go into the land of Canaan; and they came unto Haran, and dwelt there.",
       "And the days of Terah were two hundred and five years: and Terah died in Haran."
       ],
-      12: [
+      "Genesis:12": [
       "Now the Lord had said unto Abram, Get thee out of thy country, and from thy kindred, and from thy father's house, unto a land that I will shew thee.",
       "And I will make of thee a great nation, and I will bless thee, and make thy name great; and thou shalt be a blessing.",
       "And I will bless them that bless thee, and curse him that curseth thee: and in thee shall all families of the earth be blessed.",
@@ -346,7 +397,7 @@ const BIBLE_DATA = {
       "Why saidst thou, She is my sister? so I might have taken her to me to wife: now therefore behold thy wife, take her, and go thy way.",
       "And Pharaoh commanded his men concerning him: and they sent him away, and his wife, and all that he had."
       ],
-      13: [
+     "Genesis:13": [
       "And Abram went up out of Egypt, he, and his wife, and all that he had, and Lot with him, into the south.",
       "And Abram was very rich in cattle, in silver, and in gold.",
       "And he went on his journeys from the south even to Bethel, unto the place where his tent had been at the beginning, between Bethel and Hai;",
@@ -366,7 +417,7 @@ const BIBLE_DATA = {
       "Arise, walk through the land in the length of it and in the breadth of it; for I will give it unto thee.",
       "Then Abram moved his tent, and came and dwelt in the plain of Mamre, which is in Hebron, and built there an altar unto the Lord."
       ],
-      14: [
+      "Genesis:14": [
       "And it came to pass in the days of Amraphel king of Shinar, Arioch king of Ellasar, Chedorlaomer king of Elam, and Tidal king of nations;",
       "That these made war with Bera king of Sodom, and with Birsha king of Gomorrah, Shinab king of Admah, and Shemeber king of Zeboiim, and the king of Bela, which is Zoar.",
       "All these were joined together in the vale of Siddim, which is the salt sea.",
@@ -391,14 +442,9 @@ const BIBLE_DATA = {
       "And Abram said to the king of Sodom, I have lift up mine hand unto the Lord, the most high God, the possessor of heaven and earth,",
       "That I will not take from a thread even to a shoelatchet, and that I will not take any thing that is thine, lest thou shouldest say, I have made Abram rich:",
       "Save only that which the weapons of my enemies have taken away; unto me be the portion of the men which went with me: let them take their portion."
-      ]
-      }
-    },
-    {
-      name: "Exodus",
-      totalChapters: 40,
-      verses: {
-        20: [
+      ],
+    
+        "Exodus:20": [
           "And God spake all these words, saying,",
           "I am the LORD thy God, which have brought thee out of the land of Egypt, out of the house of bondage.",
           "Thou shalt have no other gods before me.",
@@ -407,14 +453,8 @@ const BIBLE_DATA = {
           "And shewing mercy unto thousands of them that love me, and keep my commandments.",
           "Thou shalt not take the name of the LORD thy God in vain; for the LORD will not hold him guiltless that taketh his name in vain.",
           "Remember the sabbath day, to keep it holy."
-        ]
-      }
-    },
-    {
-      name: "Psalms",
-      totalChapters: 150,
-      verses: {
-        1: [
+        ],
+  "Psalm:1": [
           "Blessed is the man that walketh not in the counsel of the ungodly, nor standeth in the way of sinners, nor sitteth in the seat of the scornful.",
           "But his delight is in the law of the LORD; and in his law doth he meditate day and night.",
           "And he shall be like a tree planted by the rivers of water, that bringeth forth his fruit in his season; his leaf also shall not wither; and whatsoever he doeth shall prosper.",
@@ -422,7 +462,7 @@ const BIBLE_DATA = {
           "Therefore the ungodly shall not stand in the judgment, nor sinners in the congregation of the righteous.",
           "For the LORD knoweth the way of the righteous: but the way of the ungodly shall perish."
         ],
-        23: [
+       "Psalm:23": [
           "The LORD is my shepherd; I shall not want.",
           "He maketh me to lie down in green pastures: he leadeth me beside the still waters.",
           "He restoreth my soul: he leadeth me in the paths of righteousness for his name's sake.",
@@ -430,32 +470,26 @@ const BIBLE_DATA = {
           "Thou preparest a table before me in the presence of mine enemies: thou anointest my head with oil; my cup runneth over.",
           "Surely goodness and mercy shall follow me all the days of my life: and I will dwell in the house of the LORD for ever."
         ],
-        91: [
+       "Psalm:91": [
           "He that dwelleth in the secret place of the most High shall abide under the shadow of the Almighty.",
           "I will say of the LORD, He is my refuge and my fortress: my God; in him will I trust.",
           "Surely he shall deliver thee from the snare of the fowler, and from the noisome pestilence.",
           "He shall cover thee with his feathers, and under his wings shalt thou trust: his truth shall be thy shield and buckler."
         ],
-        119: [
+        "Psalm:119": [
           "Blessed are the undefiled in the way, who walk in the law of the LORD.",
           "Blessed are they that keep his testimonies, and that seek him with the whole heart.",
           "They also do no iniquity: they walk in his ways.",
           "Thou hast commanded us to keep thy precepts diligently."
-        ]
-      }
-    },
-    {
-      name: "Proverbs",
-      totalChapters: 31,
-      verses: {
-        1: [
+        ],
+        "Proverbs:1": [
           "The proverbs of Solomon the son of David, king of Israel;",
           "To know wisdom and instruction; to perceive the words of understanding;",
           "To receive the instruction of wisdom, justice, and judgment, and equity;",
           "To give subtilty to the simple, to the young man knowledge and discretion.",
           "A wise man will hear, and will increase learning; and a man of understanding shall attain unto wise counsels:"
         ],
-        3: [
+        "Proverbs:3": [
           "My son, forget not my law; but let thine heart keep my commandments:",
           "For length of days, and long life, and peace, shall they add to thee.",
           "Let not mercy and truth forsake thee: bind them about thy neck; write them upon the table of thine heart:",
@@ -464,37 +498,24 @@ const BIBLE_DATA = {
           "In all thy ways acknowledge him, and he shall direct thy paths.",
           "Be not wise in thine own eyes: fear the LORD, and depart from evil."
         ],
-        4: [
+        "Proverbs:4": [
           "Hear, ye children, the instruction of a father, and attend to know understanding.",
           "For I give you good doctrine, forsake ye not my law.",
           "For I was my father's son, tender and only beloved in the sight of my mother.",
           "He taught me also, and said unto me, Let thine heart retain my words: keep my commandments, and live."
-        ]
-      }
-    },
-    {
-      name: "Isaiah",
-      totalChapters: 66,
-      verses: {
-        40: [
+        ],
+      "Isaiah:40": [
           "Comfort ye, comfort ye my people, saith your God.",
           "Speak ye comfortably to Jerusalem, and cry unto her, that her warfare is accomplished, that her iniquity is pardoned: for she hath received of the LORD'S hand double for all her sins.",
           "The voice of him that crieth in the wilderness, Prepare ye the way of the LORD, make straight in the desert a highway for our God."
         ],
-        53: [
+        "Isaiah:53": [
           "Who hath believed our report? and to whom is the arm of the LORD revealed?",
           "For he shall grow up before him as a tender plant, and as a root out of a dry ground: he hath no form nor comeliness; and when we shall see him, there is no beauty that we should desire him.",
           "He is despised and rejected of men; a man of sorrows, and acquainted with grief: and we hid as it were our faces from him; he was despised, and we esteemed him not."
-        ]
-      }
-    }
-  ],
-  newTestament: [
-    {
-      name: "Matthew",
-      totalChapters: 28,
-      verses: {
-        5: [
+        ],
+     
+        "Matthew:5": [
           "And seeing the multitudes, he went up into a mountain: and when he was set, his disciples came unto him:",
           "And he opened his mouth, and taught them, saying,",
           "Blessed are the poor in spirit: for theirs is the kingdom of heaven.",
@@ -504,61 +525,45 @@ const BIBLE_DATA = {
           "Blessed are the merciful: for they shall obtain mercy.",
           "Blessed are the pure in heart: for they shall see God."
         ],
-        6: [
+       "Matthew:6": [
           "Take heed that ye do not your alms before men, to be seen of them: otherwise ye have no reward of your Father which is in heaven.",
           "Therefore when thou doest thine alms, do not sound a trumpet before thee, as the hypocrites do in the synagogues and in the streets, that they may have glory of men. Verily I say unto you, They have their reward.",
           "But when thou doest alms, let not thy left hand know what thy right hand doeth:",
           "That thine alms may be in secret: and thy Father which seeth in secret himself shall reward thee openly."
         ],
-        28: [
+       "Matthew:28": [
           "In the end of the sabbath, as it began to dawn toward the first day of the week, came Mary Magdalene and the other Mary to see the sepulchre.",
           "And, behold, there was a great earthquake: for the angel of the Lord descended from heaven, and came and rolled back the stone from the door, and sat upon it.",
           "His countenance was like lightning, and his raiment white as snow:"
-        ]
-      }
-    },
-    {
-      name: "Mark",
-      totalChapters: 16,
-      verses: {
-        1: [
+        ],
+      
+       "Mark:1": [
           "The beginning of the gospel of Jesus Christ, the Son of God;",
           "As it is written in the prophets, Behold, I send my messenger before thy face, which shall prepare thy way before thee.",
           "The voice of one crying in the wilderness, Prepare ye the way of the Lord, make his paths straight."
         ],
-        16: [
+        "Mark:16": [
           "And when the sabbath was past, Mary Magdalene, and Mary the mother of James, and Salome, had bought sweet spices, that they might come and anoint him.",
           "And very early in the morning the first day of the week, they came unto the sepulchre at the rising of the sun.",
           "And they said among themselves, Who shall roll us away the stone from the door of the sepulchre?"
-        ]
-      }
-    },
-    {
-      name: "Luke",
-      totalChapters: 24,
-      verses: {
-        2: [
+        ],
+     
+       "Luke:2": [
           "And it came to pass in those days, that there went out a decree from Caesar Augustus that all the world should be taxed.",
           "And all went to be taxed, every one into his own city.",
           "And Joseph also went up from Galilee, out of the city of Nazareth, into Judaea, unto the city of David, which is called Bethlehem;",
           "To be taxed with Mary his espoused wife, being great with child.",
           "And so it was, that, while they were there, the days were accomplished that she should be delivered.",
           "And she brought forth her firstborn son, and wrapped him in swaddling clothes, and laid him in a manger; because there was no room for them in the inn."
-        ]
-      }
-    },
-    {
-      name: "John",
-      totalChapters: 21,
-      verses: {
-        1: [
+        ],
+        "John:1": [
           "In the beginning was the Word, and the Word was with God, and the Word was God.",
           "The same was in the beginning with God.",
           "All things were made by him; and without him was not any thing made that was made.",
           "In him was life; and the life was the light of men.",
           "And the light shineth in darkness; and the darkness comprehended it not."
         ],
-        3: [
+        "John:3": [
           "There was a man of the Pharisees, named Nicodemus, a ruler of the Jews:",
           "The same came to Jesus by night, and said unto him, Rabbi, we know that thou art a teacher come from God: for no man can do these miracles that thou doest, except God be with him.",
           "Jesus answered and said unto him, Verily, verily, I say unto thee, Except a man be born again, he cannot see the kingdom of God.",
@@ -566,88 +571,353 @@ const BIBLE_DATA = {
           "Jesus answered, Verily, verily, I say unto thee, Except a man be born of water and of the Spirit, he cannot enter into the kingdom of God.",
           "That which is born of the flesh is flesh; and that which is born of the Spirit is spirit."
         ],
-        14: [
+        "John:14": [
           "Let not your heart be troubled: ye believe in God, believe also in me.",
           "In my Father's house are many mansions: if it were not so, I would have told you. I go to prepare a place for you.",
           "And if I go and prepare a place for you, I will come again, and receive you unto myself; that where I am, there ye may be also.",
           "And whither I go ye know, and the way ye know."
-        ]
-      }
-    },
-    {
-      name: "Acts",
-      totalChapters: 28,
-      verses: {
-        2: [
+        ],
+     "Acts:2": [
           "And when the day of Pentecost was fully come, they were all with one accord in one place.",
           "And suddenly there came a sound from heaven as of a rushing mighty wind, and it filled all the house where they were sitting.",
           "And there appeared unto them cloven tongues like as of fire, and it sat upon each of them.",
           "And they were all filled with the Holy Ghost, and began to speak with other tongues, as the Spirit gave them utterance."
-        ]
-      }
-    },
-    {
-      name: "Romans",
-      totalChapters: 16,
-      verses: {
-        3: [
+        ], 
+       "Romans:3": [
           "What advantage then hath the Jew? or what profit is there of circumcision?",
           "Much every way: chiefly, because that unto them were committed the oracles of God.",
           "For what if some did not believe? shall their unbelief make the faith of God without effect?",
           "God forbid: yea, let God be true, but every man a liar; as it is written, That thou mightest be justified in thy sayings, and mightest overcome when thou art judged."
         ],
-        8: [
+       "Romans:8": [
           "There is therefore now no condemnation to them which are in Christ Jesus, who walk not after the flesh, but after the Spirit.",
           "For the law of the Spirit of life in Christ Jesus hath made me free from the law of sin and death.",
           "For what the law could not do, in that it was weak through the flesh, God sending his own Son in the likeness of sinful flesh, and for sin, condemned sin in the flesh:",
           "That the righteousness of the law might be fulfilled in us, who walk not after the flesh, but after the Spirit."
         ],
-        12: [
+       "Romans:12": [
           "I beseech you therefore, brethren, by the mercies of God, that ye present your bodies a living sacrifice, holy, acceptable unto God, which is your reasonable service.",
           "And be not conformed to this world: but be ye transformed by the renewing of your mind, that ye may prove what is that good, and acceptable, and perfect, will of God."
-        ]
-      }
-    },
-    {
-      name: "1 Corinthians",
-      totalChapters: 16,
-      verses: {
-        13: [
+        ],
+        "1Corinthians:13": [
           "Though I speak with the tongues of men and of angels, and have not charity, I am become as sounding brass, or a tinkling cymbal.",
           "And though I have the gift of prophecy, and understand all mysteries, and all knowledge; and though I have all faith, so that I could remove mountains, and have not charity, I am nothing.",
           "And though I bestow all my goods to feed the poor, and though I give my body to be burned, and have not charity, it profiteth me nothing.",
           "Charity suffereth long, and is kind; charity envieth not; charity vaunteth not itself, is not puffed up."
-        ]
-      }
-    },
-    {
-      name: "Ephesians",
-      totalChapters: 6,
-      verses: {
-        6: [
+        ],
+        "Ephesians:6": [
           "Children, obey your parents in the Lord: for this is right.",
           "Honour thy father and mother; which is the first commandment with promise;",
           "That it may be well with thee, and thou mayest live long on the earth.",
           "And, ye fathers, provoke not your children to wrath: but bring them up in the nurture and admonition of the Lord."
-        ]
-      }
-    },
-    {
-      name: "Philippians",
-      totalChapters: 4,
-      verses: {
-        4: [
+        ],
+       "Philippians:4": [
           "Rejoice in the Lord always: and again I say, Rejoice.",
           "Let your moderation be known unto all men. The Lord is at hand.",
           "Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God.",
           "And the peace of God, which passeth all understanding, shall keep your hearts and minds through Christ Jesus."
-        ]
-      }
-    },
-    {      name: "1 John",
-      totalChapters: 5,
-      verses: {
-        1: [
+        ],
+        "James:1": [
+          "My brethren, count it all joy when ye fall into divers temptations;",
+          "Knowing this, that the trying of your faith worketh patience.",
+          "But let patience have her perfect work, that ye may be perfect and entire, wanting nothing.",
+          "If any of you lack wisdom, let him ask of God, that giveth to all men liberally, and upbraideth not; and it shall be given him.",
+          "But let him ask in faith, nothing wavering. For he that wavereth is like a wave of the sea driven with the wind and tossed.",
+          "For let not that man think that he shall receive any thing of the Lord.",
+          "A double minded man is unstable in all his ways.",
+          "Let the brother of low degree rejoice in that he is exalted:",
+          "But the rich, in that he is made low: because as the flower of the grass he shall pass away.",
+          "For the sun is no sooner risen with a burning heat, but it withereth the grass, and the flower thereof falleth, and the grace of the fashion of it perisheth: so also shall the the rich man fade away in his ways.",
+          "Blessed is the man that endureth temtation: for when he is tried, he shall receive the crown of life, which the Lord hath promised to them that love him.",
+          "Let no man say when he is tempted, I am tempted of God: for God cannot be tempted with evil, neither tempteth he any man:",
+          "But every man is tempted, when he is drawn away of his own lust, and enticed.",
+          "Then when lust hath conceived, it bringeth forth sin: and sin, when it is finished, bringeth forth death.",
+          "Do not err, my beloved brethren.",
+          "Every good gift and every perfect gift is from above, and cometh down from the Father of lights, with whom is no variableness, neither shadow of turning.",
+          "Of his own will begat he us with the word of truth, that we should be a kind of firstfruits of his creatures.",
+          "Wherefore, my beloved brethren, let every man be swift to hear, slow to speak, slow to wrath:",
+          "For the wrath of man worketh not the righteousness of God.",
+          "Wherefore lay apart all filthiness and superfluity of naughtiness, and receive with meekness the engrafted word, which is able to save your souls.",
+          "But be ye doers of the word, and not hearers only, deceiving your own selves.",
+          "For if any be a hearer of the word, and not a doer, he is like unto a man beholding his natural face in a glass:",
+          "For he beholdeth himself, and goeth his way, and straightway forgetteth what manner of man he was.",
+          "But whoso looketh into the perfect law of liberty, and continueth therein, he being not a forgetful hearer, but a doer of the work, this man shall be blessed in his deed.",
+          "If any man among you seem to be religious, and bridleth not his tongue, but deceiveth his own heart, this man's religion is vain.",
+          "Pure religion and undefiled before God and the Father is this, To visit the fatherless and widows in their affliction, and to keep himself unspotted from the world."
+        ],
+        "James:2": [
+          "My brethren, have not the faith of our Lord Jesus Christ, the Lord of glory, with respect of persons.",
+          "For if there come unto your assembly a man with a gold ring, in goodly apparel, and there come in also a poor man in vile raiment,",
+          "And ye look on him that is clothed with gold, and say, 'Sit thou here in a good place; and say to him that is poor, 'Stand thou there, or sit below my footstool,'",
+          "Then do ye show partiality in your own hearts, and are not judges of the truth.",
+          "Hearken, my beloved brethren: Hath not God chosen the poor of this world rich in faith, and heirs of the kingdom which he hath promised to them that love him?",
+          "But ye have despised the poor man. Do not rich men oppress you, and draw you before the judgment seats?",
+          "Do not they blaspheme that worthy name by the which ye are called?",
+          "If ye fulfil the royal law according to the scripture, Thou shalt love thy neighbour as thyself, ye do well:",
+          "But if ye have respect to persons, ye commit sin, and are convinced of the law as transgressors.",
+          "For whosoever shall keep the whole law, and yet offend in one point, he is guilty of all.",
+          "For he that said, Do not commit adultery, said also, Do not kill. Now if thou commit no adultery, yet if thou kill, thou art become a transgressor of the law.",
+          "So speak ye, and so do, as they that shall be judged by the law of liberty.",
+          "For he shall have judgment without mercy, that hath shewed no mercy; and mercy rejoiceth against judgment.",
+          "What doth it profit, my brethren, though a man say he hath faith, and have not works? can faith save him?",
+          "If a brother or sister be naked, and destitute of daily food,",
+          "And one of you say unto them, Depart in peace, be ye warmed and filled; notwithstanding ye give them not those things which are needful to the body; what doth it profit?",
+          "Even so faith, if it hath not works, is dead, being alone.",
+          "Yea, a man may say, 'Thou hast faith, and I have works:' shew me thy faith without thy works, and I will shew thee my faith by my works.",
+          "Thou believest that there is one God; thou doest well: the devils also believe, and tremble.",
+          "But wilt thou know, O vain man, that faith without works is dead?",
+          "Was not Abraham our father justified by works, when he had offered Isaac his son upon the altar?",
+          "Seest thou how faith wrought with his works, and by works was faith made perfect?",
+          "Ye see then how that by works a man is justified, and not by faith only.",
+          "Likewise also was not Rahab the harlot justified by works, when she had received the messengers, and had sent them out another way?",
+          "For as the body without the spirit is dead, so faith without works is dead also."
+        ],
+        "James:3": [
+          "My brethren, be not many masters, knowing that we shall receive the greater condemnation.",
+          "For in many things we offend all. If any man offend not in word, the same is a perfect man, and able also to bridle the whole body.",
+          "Behold, we put bits in the horses' mouths, that they may obey us; and we turn about their whole body.",
+          "Behold also the ships, which though they be so great, and are driven of fierce winds, yet are they turned about with a very small helm, whithersoever the governor listeth.",
+          "Even so the tongue is a little member, and boasteth great things. Behold, how great a matter a little fire kindleth!",
+          "And the tongue is a fire, a world of iniquity: so is the tongue among our members, that it defileth the whole body, and setteth on fire the course of nature; and it is set on fire of hell.",
+          "For every kind of beasts, and of birds, and of serpents, and of things in the sea, is tamed, and hath been tamed of mankind:",
+          "But the tongue can no man tame; it is an unruly evil, full of deadly poison.",
+          "Therewith bless we God, even the Father; and therewith curse we men, which are made after the similitude of God.",
+          "Out of the same mouth proceedeth blessing and cursing. My brethren, these things ought not so to be.",
+          "Doth a fountain send forth at the same place sweet water and bitter?",
+          "Can the fig tree, my brethren, bear olive berries? either a vine, figs? so can no fountain both yield salt water and fresh.",
+          "Who is a wise man and endued with knowledge among you? let him shew out of a good conversation his works with meekness of wisdom.",
+          "But if ye have bitter envying and strife in your hearts, glory not, and lie not against the truth.",
+          "This wisdom descendeth not from above, but is earthly, sensual, devilish.",
+          "For where envying and strife is, there is confusion and every evil work.",
+          "But the wisdom that is from above is first pure, then peaceable, gentle, and easy to be intreated, full of mercy and good fruits, without partiality, and without hypocrisy.",
+          "And the fruit of righteousness is sown in peace of them that make peace."
+        ],
+        "James:4": [
+          "From whence come wars and fightings among you? come they not hence, even of your lusts that war in your members?",
+          "Ye lust, and have not: ye kill, and desire to have, and cannot obtain: ye fight and war, yet ye have not, because ye ask not.",
+          "Ye ask, and receive not, because ye ask amiss, that ye may consume it upon your lusts.",
+          "Ye adulterers and adulteresses, know ye not that the friendship of the world is enmity with God? whosoever therefore will be a friend of the world is the enemy of God.",
+          "Do ye think that the scripture saith in vain, The spirit that dwelleth in us lusteth to envy?",
+          "But he giveth more grace. Wherefore he saith, God resisteth the proud, but giveth grace unto the humble.",
+          "Submit yourselves therefore to God. Resist the devil, and he will flee from you.",
+          "Draw nigh to God, and he will draw nigh to you. Cleanse your hands, ye sinners; and purify your hearts, ye double minded.",
+          "Be afflicted, and mourn, and weep: let your laughter be turned to mourning, and your joy to heaviness.",
+          "Humble yourselves in the sight of the Lord, and he shall lift you up.",
+          "Speak not evil one of another, brethren. He that speaketh evil of his brother, and judgeth his brother, speaketh evil of the law, and judgeth the law: but if thou judge the law, thou art not a doer of the law, but a judge.",
+          "There is one lawgiver, who is able to save and to destroy: who art thou that judgest another?",
+          "Go to now, ye that say, To day or to morrow we will go into such a city, and continue there a year, and buy and sell, and get gain:",
+          "Whereas ye know not what shall be on the morrow. For what is your life? It is even a vapour, that appeareth for a little time, and then vanisheth away.",
+          "For that ye ought to say, If the Lord will, we shall live, and do this, or that.",
+          "But now ye rejoice in your boastings: all such rejoicing is evil.",
+          "Therefore to him that knoweth to do good, and doeth it not, to him it is sin."
+        ],
+        "James:5": [
+          "Go to now, ye rich men, weep and howl for your miseries that shall come upon you.",
+          "Your riches are corrupted, and your garments are motheaten.",
+          "Your gold and silver is cankered; and the rust of them shall be a witness against you, and shall eat your flesh as it were fire. Ye have heaped treasure together for the last days.",
+          "Behold, the hire of the labourers who have reaped down your fields, which is of you kept back by fraud, crieth: and the cries of them which have reaped are entered into the ears of the Lord of sabaoth.",
+          "Ye have lived in pleasure on the earth, and been wanton; ye have nourished your hearts, as in a day of slaughter.",
+          "Ye have condemned and killed the just; and he doth not resist you.",
+          "Be patient therefore, brethren, unto the coming of the Lord. Behold, the husbandman waiteth for the precious fruit of the earth, and hath long patience for it, until he receive the early and latter rain.",
+          "Be ye also patient; stablish your hearts: for the coming of the Lord draweth nigh.",
+          "Grudge not one against another, brethren, lest ye be condemned: behold, the judge standeth before the door.",
+          "Take, my brethren, the prophets, who have spoken in the name of the Lord, for an example of suffering affliction, and of patience.",
+          "Behold, we count them happy which endure. Ye have heard of the patience of Job, and have seen the end of the Lord; that the Lord is very pitiful, and of tender mercy.",
+          "But above all things, my brethren, swear not, neither by heaven, neither by the earth, neither by any other oath: but let your yea be yea; and your nay, nay; lest ye fall into condemnation.",
+          "Is any among you afflicted? let him pray. Is any merry? let him sing psalms.",
+          "Is any sick among you? let him call for the elders of the church; and let them pray over him, anointing him with oil in the name of the Lord:",
+          "And the prayer of faith shall save the sick, and the Lord shall raise him up; and if he have committed sins, they shall be forgiven him.",
+          "Confess your faults one to another, and pray one for another, that ye may be healed. The effectual fervent prayer of a righteous man availeth much.",
+          "Elias was a man subject to like passions as we are, and he prayed earnestly that it might not rain: and it rained not on the earth by the space of three years and six months.",
+          "And he prayed again, and the heaven gave rain, and the earth brought forth her fruit.",
+          "Brethren, if any of you do err from the truth, and one convert him;",
+          "Let him know, that he which converteth the sinner from the error of his way shall save a soul from death, and shall hide a multitude of sins."
+        ],
+         "1 Peter:1": [
+          "Peter, an apostle of Jesus Christ, to the strangers scattered throughout Pontus, Galatia, Cappadocia, Asia, and Bithynia,",
+          "Elect according to the foreknowledge of God the Father, through sanctification of the Spirit, unto obedience and sprinkling of the blood of Jesus Christ: Grace unto you, and peace, be multiplied.",
+          "Blessed be the God and Father of our Lord Jesus Christ, which according to his abundant mercy hath begotten us again unto a lively hope by the resurrection of Jesus Christ from the dead,",
+          "To an inheritance incorruptible, and undefiled, and that fadeth not away, reserved in heaven for you,",
+          "Who are kept by the power of God through faith unto salvation ready to be revealed in the last time.",
+          "Wherein ye greatly rejoice, though now for a season, if need be, ye are in heaviness through manifold temptations:",
+          "That the trial of your faith, being much more precious than of gold that perisheth, though it be tried with fire, might be found unto praise and honour and glory at the appearing of Jesus Christ:",
+          "Whom having not seen, ye love; in whom, though now ye see him not, yet believing, ye rejoice with joy unspeakable and full of glory:",
+          "Receiving the end of your faith, even the salvation of your souls.",
+          "Of which salvation the prophets have enquired and searched diligently, who prophesied of the grace that should come unto you:",
+          "Searching what, or what manner of time the Spirit of Christ which was in them did signify, when it testified beforehand the sufferings of Christ, and the glory that should follow.",
+          "Unto whom it was revealed, that not unto themselves, but unto us they did minister the things, which are now reported unto you by them that have preached the gospel unto you with the Holy Ghost sent down from heaven; which things the angels desire to look into.",
+          "Wherefore gird up the loins of your mind, be sober, and hope to the end for the grace that is to be brought unto you at the revelation of Jesus Christ;",
+          "As obedient children, not fashioning yourselves according to the former lusts in your ignorance:",
+          "But as he which hath called you is holy, so be ye holy in all manner of conversation;",
+          "Because it is written, Be ye holy; for I am holy.",
+          "And if ye call on the Father, who without respect of persons judgeth according to every  man's work, pass the time of your sojourning here in fear:",
+          "Forasmuch as ye know that ye were not redeemed with corruptible things, as silver and gold, from your vain conversation received by tradition from your fathers;",
+          "But with the precious blood of Christ, as of a lamb without blemish and without spot:",
+          "Who verily was foreordained before the foundation of the world, but was manifest in these last times for you,",
+          "Who by him do believe in God, that raised him up from the dead, and gave him glory; that your faith and hope might be in God.",
+          "Seeing ye have purified your souls in obeying the truth through the Spirit unto unfeigned love of the brethren, see that ye love one another with a pure heart fervently:",
+          "Being born again, not of corruptible seed, but of incorruptible, by the word of God, which liveth and abideth for ever.",
+          "For all flesh is as grass, and all the glory of man is as the flower of grass. The grass withereth, and the flower thereof falleth away:",
+          "But the word of the Lord endureth for ever. And this is the word which by the gospel is preached unto you."
+        ],
+        "1 Peter:2": [
+          "Wherefore laying aside all malice, and all guile, and hypocrisies, and envies, and all evil speakings,",
+          "As newborn babes, desire the sincere milk of the word, that ye may grow thereby:",
+          "If so be ye have tasted that the Lord is gracious.",
+          "To whom coming, as unto a living stone, disallowed indeed of men, but chosen of God, and precious,",
+          "Ye also, as lively stones, are built up a spiritual house, an holy priesthood, to offer up spiritual sacrifices, acceptable to God by Jesus Christ.",
+          "Wherefore also it is contained in the scripture, Behold, I lay in Sion a chief corner stone, elect, precious: and he that believeth on him shall not be confounded.",
+          "Unto you therefore which believe he is precious: but unto them which be disobedient, the stone which the builders disallowed, the same is made the head of the corner,",
+          "And a stone of stumbling, and a rock of offence, even to them which stumble at the word, being disobedient: whereunto also they were appointed.",
+          "But ye are a chosen generation, a royal priesthood, an holy nation, a peculiar people; that ye should shew forth the praises of him who hath called you out of darkness into his marvellous light:",
+          "Which in time past were not a people, but are now the people of God: which had not obtained mercy, but now have obtained mercy.",
+          "Dearly beloved, I beseech you as strangers and pilgrims, abstain from fleshly lusts, which war against the soul;",
+          "Having your conversation honest among the Gentiles: that, whereas they speak against you as evildoers, they may by your good works, which they shall behold, glorify God in the day of visitation.",
+          "Submit yourselves to every ordinance of man for the Lord's sake: whether it be to the king, as supreme;",
+          "Or unto governors, as unto them that are sent by him for the punishment of evildoers, and for the praise of them that do well.",
+          "For so is the will of God, that with well doing ye may put to silence the ignorance of foolish men:",
+          "As free, and not using your liberty for a cloak of maliciousness, but as the servants of God.",
+          "Honour all men. Love the brotherhood. Fear God. Honour the king.",
+          "Servants, be subject to your masters with all fear; not only to the good and gentle, but also to the froward.",
+          "For this is thankworthy, if a man for conscience toward God endure grief, suffering wrongfully.",
+          "For what glory is it, if, when ye be buffeted for your faults, ye shall take it patiently? but if, when ye do well, and suffer for it, ye take it patiently, this is acceptable with God.",
+          "For even hereunto were ye called: because Christ also suffered for us, leaving us an example, that ye should follow his steps:",
+          "Who did no sin, neither was guile found in his mouth:",
+          "Who, when he was reviled, reviled not again; when he suffered, he threatened not; but committed himself to him that judgeth righteously:",
+          "Who his own self bare our sins in his own body on the tree, that we, being dead to sins, should live unto righteousness: by whose stripes ye were healed.",
+          "For ye were as sheep going astray; but are now returned unto the Shepherd and Bishop of your souls."  
+        ],
+        "1 Peter:3": [
+          "Likewise, ye wives, be in subjection to your own husbands; that, if any obey not the word, they also may without the word be won by the conversation of the wives;",
+          "While they behold your chaste conversation coupled with fear.",
+          "Whose adorning let it not be that outward adorning of plaiting the hair, and of wearing of gold, or of putting on of apparel;",
+          "But let it be the hidden man of the heart, in that which is not corruptible, even the ornament of a meek and quiet spirit, which is in the sight of God of great price.",
+          "For after this manner in the old time the holy women also, who trusted in God, adorned themselves in the same manner, being subject to their own husbands;",
+          "As Sarah obeyed Abraham, calling him lord: whose daughters ye are, as long as ye do well, and are not afraid with any amazement.",
+          "Likewise, ye husbands, dwell with them according to knowledge, giving honour unto the wife, as unto the weaker vessel, and as being heirs together of the grace of life; that your prayers be not hindered.",
+          "Finally, be ye all of one mind, having compassion one of another, love as brethren, be pitiful, be courteous:",
+          "Not rendering evil for evil, or railing for railing: but contrariwise blessing; knowing that ye are thereunto called, that ye should inherit a blessing.",
+          "For he that will love life, and see good days, let him refrain his tongue from evil, and his lips that they speak no guile:",
+          "Let him eschew evil, and do good; let him seek peace, and ensue it.",
+          "For the eyes of the Lord are over the righteous, and his ears are open unto their prayers: but the face of the Lord is against them that do evil.",
+          "And who is he that will harm you, if ye be followers of that which is good?",
+          "But and if ye suffer for righteousness' sake, happy are ye: and be not afraid of their terror, neither be troubled;",
+          "But sanctify the Lord God in your hearts: and be ready always to give an answer to every man that asketh you a reason of the hope that is in you with meekness and fear:",
+          "Having a good conscience; that, whereas they speak evil of you, as of evildoers, they may be ashamed that falsely accuse your good conversation in Christ.",
+          "For it is better, if the will of God be so, that ye suffer for well doing, than for evil doing.",
+          "For Christ also hath once suffered for sins, the just for the unjust, that he might bring us to God, being put to death in the flesh, but quickened by the Spirit:",
+          "By which also he went and preached unto the spirits in prison;",
+          "Which sometime were disobedient, when once the longsuffering of God waited in the days of Noah, while the ark was a preparing, wherein few, that is, eight souls were saved by water.",
+          "The like figure whereunto even baptism doth also now save us (not the putting away of the filth of the flesh, but the answer of a good conscience toward God,) by the resurrection of Jesus Christ:",
+          "Who is gone into heaven, and is on the right hand of God; angels and authorities and powers being made subject unto him."
+        ],
+        "1 Peter:4": [
+          "Forasmuch then as Christ hath suffered for us in the flesh, arm yourselves likewise with the same mind: for he that hath suffered in the flesh hath ceased from sin;",
+          "That he no longer should live the rest of his time in the flesh to the lusts of men, but to the will of God.",
+          "For the time past of our life may suffice us to have wrought the will of the Gentiles, when we walked in lasciviousness, lusts, excess of wine, revellings, banquetings, and abominable idolatries:",
+          "Wherein they think it strange that ye run not with them to the same excess of riot, speaking evil of you:",
+          "Who shall give account to him that is ready to judge the quick and the dead.",
+          "For for this cause was the gospel preached also to them that are dead, that they might be judged according to men in the flesh, but live according to God in the spirit.",
+          "But the end of all things is at hand: be ye therefore sober, and watch unto prayer.",
+          "And above all things have fervent charity among yourselves: for charity shall cover the multitude of sins.",
+          "Use hospitality one to another without grudging.",
+          "As every man hath received the gift, even so minister the same one to another, as good stewards of the manifold grace of God.",
+          "If any man speak, let him speak as the oracles of God; if any man minister, let him do it as of the ability which God giveth: that God in all things may be glorified through Jesus Christ, to whom be praise and dominion for ever and ever. Amen.",
+          "Beloved, think it not strange concerning the fiery trial which is to try you, as though some strange thing happened unto you:",
+          "But rejoice, inasmuch as ye are partakers of Christ's sufferings; that, when his glory shall be revealed, ye may be glad also with exceeding joy.",
+          "If ye be reproached for the name of Christ, happy are ye; for the spirit of glory and of God resteth upon you: on their part he is evil spoken of, but on your part he is glorified.",
+          "But let none of you suffer as a murderer, or as a thief, or as an evildoer, or as a busybody in other men's matters.",
+          "Yet if any man suffer as a Christian, let him not be ashamed, but let him glorify God on this behalf.",
+          "For the time is come that judgment must begin at the house of God: and if it begin at us, what shall be the end of them that obey not the gospel of God?",
+          "And if the righteous scarcely be saved, where shall the ungodly and the sinner appear?",
+          "Wherefore let them that suffer according to the will of God commit the keeping of their souls to him in well doing, as unto a faithful Creator",
+        ],
+        "1 Peter:5": [
+          "The elders which are among you I exhort, which I am a witness of the sufferings of Christ, and also a partaker of the glory that shall be revealed: I beseech you, as the elders of the Lord, to shepherd the flock of God among you, not by constraint but willingly; not for filthy lucre but for the good of all.",
+          "Neither as being lords over God's heritage, but being ensamples to the flock.",
+          "And when the chief Shepherd shall appear, ye shall receive a crown of glory that fadeth not away.",
+          "Likewise, ye younger, submit yourselves unto the elder. Yea, all of you be subject one to another, and be clothed with humility: for God resisteth the proud, and giveth grace to the humble.",
+          "Humble yourselves therefore under the mighty hand of God, that he may exalt you in due time:",
+          "Casting all your care upon him; for he careth for you.",
+          "Be sober, be vigilant; because your adversary the devil, as a roaring lion, walketh about, seeking whom he may devour:",
+          "Whom resist stedfast in the faith, knowing that the same afflictions are accomplished in your brethren that are in the world.",
+          "But the God of all grace, who hath called us unto his eternal glory by Christ Jesus, after that ye have suffered a while, make you perfect, stablish, strengthen, settle you.",
+          "To him be glory and dominion for ever and ever. Amen.",
+          "By Silvanus, a faithful brother unto you, as I suppose, I have written briefly, exhorting and testifying that this is the true grace of God wherein ye stand.",
+          "The church that is at Babylon, elected together with you, saluteth you; and so doth Marcus my son.",
+          "Greet ye one another with a kiss of charity. Peace be with you all that are in Christ Jesus. Amen."
+        ],
+        "2 Peter:1": [
+          "Simon Peter, a servant and an apostle of Jesus Christ, to them that have obtained like precious faith with us through the righteousness of God and our Saviour Jesus Christ:",
+          "Grace and peace be multiplied unto you through the knowledge of God, and of Jesus our Lord,",
+          "According as his divine power hath given unto us all things that pertain unto life and godliness, through the knowledge of him that hath called us to glory and virtue:",
+          "Whereby are given unto us exceeding great and precious promises: that by these ye might be partakers of the divine nature, having escaped the corruption that is in the world through lust.",
+          "And beside this, giving all diligence, add to your faith virtue; and to virtue knowledge;",
+          "And to knowledge temperance; and to temperance patience; and to patience godliness;",
+          "And to godliness brotherly kindness; and to brotherly kindness charity.",
+          "For if these things be in you, and abound, they make you that ye shall neither be barren nor unfruitful in the knowledge of our Lord Jesus Christ.",
+          "But he that lacketh these things is blind, and cannot see afar off, and hath forgotten that he was purged from his old sins.",
+          "Wherefore the rather, brethren, give diligence to make your calling and election sure: for if ye do these things, ye shall never fall:",
+          "For so an entrance shall be ministered unto you abundantly into the everlasting kingdom of our Lord and Saviour Jesus Christ.",
+          "Wherefore the rather, brethren, give diligence to make your calling and election sure: for if ye do these things, ye shall never fall:",
+          "For so an entrance shall be ministered unto you abundantly into the everlasting kingdom of our Lord and Saviour Jesus Christ.",
+          "Wherefore I will not be negligent to put you always in remembrance of these things, though ye know them, and are established in the present truth.",
+          "Yea, I think it meet, as long as I am in this tabernacle, to stir you up by putting you in remembrance;",
+          "Knowing that shortly I must put off this my tabernacle, even as our Lord Jesus Christ hath shewed me.",
+          "Moreover I will endeavour that ye may be able after my decease to have these things always in remembrance.",
+          "For we have not followed cunningly devised fables, when we made known unto you the power and coming of our Lord Jesus Christ, but were eyewitnesses of his majesty.",
+          "For he received from God the Father honour and glory, when there came such a voice to him from the excellent glory, This is my beloved Son, in whom I am well pleased.",
+          "And this voice which came from heaven we heard, when we were with him in the holy mount.",
+          "We have also a more sure word of prophecy; whereunto ye do well that ye take heed, as unto a light that shineth in a dark place, until the day dawn, and the day star arise in your hearts:",
+          "Knowing this first, that no prophecy of the scripture is of any private interpretation.",
+          "For the prophecy came not in old time by the will of man: but holy men of God spake as they were moved by the Holy Ghost."
+        ],
+        "2 Peter:2": [
+          "But there were false prophets also among the people, even as there shall be false teachers among you, who privily shall bring in damnable heresies, even denying the Lord that bought them, and bring upon themselves swift destruction.",
+          "And many shall follow their pernicious ways; by reason of whom the way of truth shall be evil spoken of.",
+          "And through covetousness shall they with feigned words make merchandise of you: whose judgment now of a long time lingereth not, and their damnation slumbereth not.",
+          "For if God spared not the angels that sinned, but cast them down to hell, and delivered them into chains of darkness, to be reserved unto judgment;",
+          "And spared not the old world, but saved Noah the eighth person, a preacher of righteousness, bringing in the flood upon the world of the ungodly;",
+          "And turning the cities of Sodom and Gomorrah into ashes condemned them with an overthrow, making them an example unto those that after should live ungodly;",
+          "And delivered just Lot, vexed with the filthy conversation of the wicked:",
+          "(For that righteous man dwelling among them, in seeing and hearing, vexed his righteous soul from day to day with their unlawful deeds;)",
+          "The Lord knoweth how to deliver the godly out of temptations, and to reserve the unjust unto the day of judgment to be punished:",
+          "But chiefly them that walk after the flesh in the lust of uncleanness, and despise government. Presumptuous are they, selfwilled, they are not afraid to speak evil of dignities.",
+          "Whereas angels, which are greater in power and might, bring not railing accusation against them before the Lord.",
+          "But these, as natural brute beasts, made to be taken and destroyed, speak evil of the things that they understand not; and shall utterly perish in their own corruption;",
+          "And shall receive the reward of unrighteousness, as they that count it pleasure to riot in the day time. Spots they are and blemishes, sporting themselves with their own deceivings while they feast with you;",
+          "Having eyes full of adultery, and that cannot cease from sin; beguiling unstable souls: an heart they have exercised with covetous practices; cursed children:",
+          "Which have forsaken the right way, and are gone astray, following the way of Balaam the son of Bosor, who loved the wages of unrighteousness;",
+          "But was rebuked for his iniquity: the dumb ass speaking with man's voice forbad the madness of the prophet.",
+          "These are wells without water, clouds that are carried with a tempest; to whom the mist of darkness is reserved for ever.",
+          "For when they speak great swelling words of vanity, they allure through the lusts of the flesh, through much wantonness, those that were clean escaped from them who live in error.",
+          "While they promise them liberty, they themselves are the servants of corruption: for of whom a man is overcome, of the same is he brought in bondage.",
+          "For if after they have escaped the pollutions of the world through the knowledge of the Lord and Saviour Jesus Christ, they are again entangled therein, and overcome, the latter end is worse with them than the beginning.",
+          "For it had been better for them never to have known the way of righteousness, than after they have known it, to turn from the holy commandment given unto them.",
+          "But it is happened unto them according to the true proverb, The dog is turned to his own vomit again; and the sow that was washed to her wallowing in the mire."
+        ],
+       
+        "2 Peter:3": [
+          "This second epistle, beloved, I now write unto you; in both which I stir up your pure minds by way of remembrance:",
+          "That ye may be mindful of the words which were spoken before by the holy prophets, and of the commandment of us the apostles of the Lord and Saviour:",
+          "Knowing this first, that there shall come in the last days scoffers, walking after their own lusts,",
+          "And saying, Where is the promise of his coming? for since the fathers fell asleep, all things continue as they were from the beginning of the creation.",
+          "For this they willingly are ignorant of, that by the word of God the heavens were of old, and the earth standing out of the water and in the water:",
+          "Whereby the world that then was, being overflowed with water, perished:",
+          "But the heavens and the earth, which are now, by the same word are kept in store, reserved unto fire against the day of judgment and perdition of ungodly men.",
+          "But, beloved, be not ignorant of this one thing, that one day is with the Lord as a thousand years, and a thousand years as one day.",
+          "The Lord is not slack concerning his promise, as some men count slackness; but is longsuffering to us-ward, not willing that any should perish, but that all should come to repentance.",
+          "But the day of the Lord will come as a thief in the night; in the which the heavens shall pass away with a great noise, and the elements shall melt with fervent heat, the earth also and the works that are therein shall be burned up.",
+          "Seeing then that all these things shall be dissolved, what manner of persons ought ye to be in all holy conversation and godliness,",
+          "Looking for and hasting unto the coming of the day of God, wherein the heavens being on fire shall be dissolved, and the elements shall melt with fervent heat?",
+          "Nevertheless we, according to his promise, look for new heavens and a new earth, wherein dwelleth righteousness.",
+          "Wherefore, beloved, seeing that ye look for such things, be diligent that ye may be found of him in peace, without spot, and blameless.",
+          "And account that the longsuffering of our Lord is salvation; even as our beloved brother Paul also according to the wisdom given unto him hath written unto you;",
+          "As also in all his epistles, speaking in them of these things; in which are some things hard to be understood, which they that are unlearned and unstable wrest, as they do also the other scriptures, unto their own destruction.",
+          "Ye therefore, beloved, seeing ye know these things before, beware lest ye also, being led away with the error of the wicked, fall from your own steadfastness.",
+          "But grow in grace, and in the knowledge of our Lord and Saviour Jesus Christ. To him be glory both now and for ever. Amen."
+        ],
+         "1 John:1": [
           "That which was from the beginning, which we have heard, which we have seen with our eyes, which we have looked upon, and our hands have handled, of the Word of life;",
           "For the life was manifested, and we have seen it, and bear witness, and shew unto you that eternal life, which was with the Father, and was manifested unto us;",
           "That which we have seen and heard declare we unto you, that ye also may have fellowship with us: and truly our fellowship is with the Father, and with his Son Jesus Christ.",
@@ -659,7 +929,7 @@ const BIBLE_DATA = {
           "If we confess our sins, he is faithful and just to forgive us our sins, and to cleanse us from all unrighteousness.",
           "If we say that we have not sinned, we make him a liar, and his word is not in us.",
         ],
-        2: [
+        "1 John:2": [
           "My little children, these things write I unto you, that ye sin not. And if any man sin, we have an advocate with the Father, Jesus Christ the righteous:",
           "And he is the propitiation for our sins: and not for ours only, but also for the sins of the whole world.",
           "And hereby we do know that we know him, if we keep his commandments.",
@@ -691,7 +961,7 @@ const BIBLE_DATA = {
           "And now, little children, abide in him; that, when he shall appear, we may have confidence, and not be ashamed before him at his coming.",
           "If ye know that he is righteous, ye know that every one that doeth righteousness is born of him."
         ],
-        3: [
+       "1 John:3": [
           "Behold, what manner of love the Father hath bestowed upon us, that we should be called the sons of God: therefore the world knoweth us not, because it knew him not.",
           "Beloved, now are we the sons of God, and it doth not yet appear what we shall be: but we know that, when he shall appear, we shall be like him; for we shall see him as he is.",
           "And every man that hath this hope in him purifieth himself, even as he is pure.",
@@ -717,12 +987,54 @@ const BIBLE_DATA = {
           "And this is his commandment, That we should believe on the name of his Son Jesus Christ, and love one another, as he gave us commandment.",
           "And he that keepeth his commandments dwelleth in him, and he in him. And hereby we know that he abideth in us, by the Spirit which he hath given us."
         ],
-        4: []
-    }},
-    { name: "2 John",
-      totalChapters: 1,
-      verses: {
-        1: [
+        "1 John:4": [
+          "Beloved, believe not every spirit, but try the spirits whether they are of God: because many false prophets are gone out into the world.",
+          "Hereby know ye the Spirit of God: Every spirit that confesseth that Jesus Christ is come in the flesh is of God:",
+          "And every spirit that confesseth not that Jesus Christ is come in the flesh is not of God: and this is that spirit of antichrist, whereof ye have heard that it should come; and even now already is it in the world.",
+          "Ye are of God, little children, and have overcome them: because greater is he that is in you, than he that is in the world.",
+          "They are of the world: therefore speak they of the world, and the world heareth them.",
+          "We are of God: he that knoweth God heareth us; he that is not of God heareth not us. Hereby know we the spirit of truth, and the spirit of error.",
+          "Beloved, let us love one another: for love is of God; and every one that loveth is born of God, and knoweth God.",
+          "He that loveth not knoweth not God; for God is love.",
+          "In this was manifested the love of God toward us, because that God sent his only begotten Son into the world, that we might live through him.",
+          "Herein is love, not that we loved God, but that he loved us, and sent his Son to be the propitiation for our sins.",
+          "Beloved, if God so loved us, we ought also to love one another.",
+          "No man hath seen God at any time. If we love one another, God dwelleth in us, and his love is perfected in us.",
+          "Hereby know we that we dwell in him, and he in us, because he hath given us of his Spirit.",
+          "And we have seen and do testify that the Father sent the Son to be the Saviour of the world.",
+          "Whosoever shall confess that Jesus is the Son of God, God dwelleth in him, and he in God.",
+          "And we have known and believed the love that God hath to us. God is love; and he that dwelleth in love dwelleth in God, and God in him.",
+          "Herein is our love made perfect, that we may have boldness in the day of judgment: because as he is, so are we in this world.",
+          "There is no fear in love; but perfect love casteth out fear: because fear hath torment. He that feareth is not made perfect in love.",
+          "We love him, because he first loved us.",
+          "If a man say, I love God, and hateth his brother, he is a liar: for he that loveth not his brother whom he hath seen, how can he love God whom he hath not seen?",
+          "And this commandment have we from him, That he who loveth God love his brother also."
+        ],
+        "1 John:5": [
+          "Whosoever believeth that Jesus is the Christ is born of God: and every one that loveth him that begat loveth him also that is begotten of him.",
+          "By this we know that we love the children of God, when we love God, and keep his commandments.",
+          "For this is the love of God, that we keep his commandments: and his commandments are not grievous.",
+          "For whatsoever is born of God overcometh the world: and this is the victory that overcometh the world, even our faith.",
+          "Who is he that overcometh the world, but he that believeth that Jesus is the Son of God?",
+          "This is he that came by water and blood, even Jesus Christ; not by water only, but by water and blood. And it is the Spirit that beareth witness, because the Spirit is truth.",
+          "For there are three that bear record in heaven, the Father, the Word, and the Holy Ghost: and these three are one.",
+          "And there are three that bear witness in earth, the Spirit, and the water, and the blood: and these three agree in one.",
+          "If we receive the witness of men, the witness of God is greater: for this is the witness of God which he hath testified of his Son.",
+          "He that believeth on the Son of God hath the witness in himself: he that believeth not God hath made him a liar; because he believeth not the record that God gave of his Son.",
+          "And this is the record, that God hath given to us eternal life, and this life is in his Son.",
+          "He that hath the Son hath life; and he that hath not the Son of God hath not life.",
+          "These things have I written unto you that believe on the name of the Son of God; that ye may know that ye have eternal life, and that ye may believe on the name of the Son of God.",
+          "And this is the confidence that we have in him, that, if we ask any thing according to his will, he heareth us:",
+          "And if we know that he hear us, whatsoever we ask, we know that we have the petitions that we desired of him.",
+          "If any man see his brother sin a sin which is not unto death, he shall ask, and he shall give him life for them that sin not unto death. There is a sin unto death: I do not say that he shall pray for it.",
+          "All unrighteousness is sin: and there is a sin not unto death.",
+          "We know that whosoever is born of God sinneth not; but he that is begotten of God keepeth himself, and that wicked one toucheth him not.",
+          "We know that we are of God, and the whole world lieth in wickedness.",
+          "And we know that the Son of God is come, and hath given us an understanding, that we may know him that is true, and we are in him that is true, even in his Son Jesus Christ. This is the true God, and eternal life.",
+          "Little children, keep yourselves from idols. Amen."
+        ],
+        
+        "2 John:1": [
           "The elder unto the elect lady and her children, whom I love in the truth; and not I only, but also all they that have known the truth;",
           "For the truth's sake, which dwelleth in us, and shall be with us for ever.",
           "Grace be with you, mercy, and peace, from God the Father, and from the Lord Jesus Christ, the Son of the Father, in truth and love.",
@@ -736,14 +1048,8 @@ const BIBLE_DATA = {
           "For he that biddeth him God speed is partaker of his evil deeds.",
           "Having many things to write unto you, I would not write with paper and ink: but I trust to come unto you, and speak face to face, that our joy may be full.",
           "The children of thy elect sister greet thee. Amen."
-        ]
-      }
-    },
-    {
-      name: "3 John",
-      totalChapters: 1,
-      verses: {
-        1: [
+        ],
+        "3 John:1": [
           "The elder unto the wellbeloved Gaius, whom I love in the truth.",
           "Beloved, I wish above all things that thou mayest prosper and be in health, even as thy soul prospereth.",
           "For I rejoiced greatly, when the brethren came and testified of the truth that is in thee, even as thou walkest in the truth.",
@@ -758,13 +1064,8 @@ const BIBLE_DATA = {
           "Demetrius hath good  report of all men, and of the truth itself: yea, and we also bear record; and ye know that our record is true.",
           "I had many things to write, but I will not with ink and pen write unto thee:",
           "But I trust I shall shortly see thee, and we shall speak face to face. Peace be to thee. Our friends salute thee. Greet the friends by name."
-        ]
-    }
-  },
-    {      name: "Jude",
-      totalChapters: 1,
-      verses: {
-        1: [
+        ],
+        "Jude:1": [
           "Jude, the servant of Jesus Christ, and brother of James, to them that are sanctified by God the Father, and preserved in Jesus Christ, and called:",
           "Mercy unto you, and peace, and love, be multiplied.",
           "Beloved, when I gave all diligence to write unto you of the common salvation, it was needful for me to write unto you, and exhort you that ye should earnestly contend for the faith which was once delivered unto the saints.",
@@ -787,13 +1088,8 @@ const BIBLE_DATA = {
           "And others save with fear, pulling them out of the fire; hating even the garment spotted by the flesh.",
           "Now unto him that is able to keep you from falling, and to present you faultless before the presence of his glory with exceeding joy,",
           "To the only wise God our Saviour, be glory and majesty, dominion and power, both now and ever. Amen."
-        ]
-    }},
-    {
-      name: "Revelation",
-      totalChapters: 22,
-      verses: {
-        1: [
+        ],
+       "Revelation:1": [
           "The Revelation of Jesus Christ, which God gave unto him, to shew unto his servants things which must shortly come to pass; and he sent and signified it by his angel unto his servant John:",
           "Who bare record of the word of God, and of the testimony of Jesus Christ, and of all things that he saw.",
           "Blessed is he that readeth, and they that hear the words of this prophecy, and keep those things which are written therein: for the time is at hand.",
@@ -815,7 +1111,7 @@ const BIBLE_DATA = {
           "Write the things which thou hast seen, and the things which are, and the things which shall be hereafter;",
           "The mystery of the seven stars which thou sawest in my right hand, and the seven golden candlesticks. The seven stars are the angels of the seven churches: and the seven candlesticks which thou sawest are the seven churches."
         ],
-        2: [
+        "Revelation:2": [
           "Unto the angel of the church of Ephesus write; These things saith he that holdeth the seven stars in his right hand, who walketh in the midst of the seven golden candlesticks;",
           "I know thy works, and thy labour, and thy patience, and how thou canst not bear them which are evil: and thou hast tried them which say they are apostles, and are not, and hast found them liars:",
           "And hast borne, and hast patience, and for my name's sake hast laboured, and hast not fainted.",
@@ -847,7 +1143,7 @@ const BIBLE_DATA = {
           "He that hath an ear, let him hear what the Spirit saith unto the churches."
            
         ],
-        3: [
+       "Revelation:3": [
           "And unto the angel of the church in Sardis write; These things saith he that hath the seven Spirits of God, and the seven stars; I know thy works, that thou hast a name that thou livest, and art dead.",
           "Be watchful, and strengthen the things which remain, that are ready to die: for I have not found thy works perfect before God.",
           "Remember therefore how thou hast received and heard, and hold fast, and repent. If therefore thou shalt not watch, I will come on thee as a thief, and thou shalt not know what hour I will come upon thee.",
@@ -870,7 +1166,7 @@ const BIBLE_DATA = {
           "To him that overcometh will I grant to sit with me in my throne, even as I also overcame, and am set down with my Father in his throne.",
           "He that hath an ear, let him hear what the Spirit saith unto the churches."
         ],
-        4: [
+        "Revelation:4": [
           "After this I looked, and, behold, a door was opened in heaven: and the first voice which I heard was as it were of a trumpet talking with me; which said, Come up hither, and I will shew thee things which must be hereafter.",
           "And immediately I was in the spirit: and, behold, a throne was set in heaven, and one sat on the throne.",
           "And he that sat was to look upon like a jasper and a sardine stone: and there was a rainbow round about the throne, in sight like unto an emerald.",
@@ -884,7 +1180,7 @@ const BIBLE_DATA = {
           "Thou art worthy, O Lord, to receive glory and honour and power: for thou hast created all things, and for thy pleasure they are and were created."
         ],
         
-        5: [
+       "Revelation:5": [
           "And I saw in the right hand of him that sat on the throne a book written within and on the backside, sealed with seven seals.",
           "And I saw a strong angel proclaiming with a loud voice, Who is worthy to open the book, and to loose the seals thereof?",
           "And no man in heaven, nor in earth, neither under the earth, was able to open the book, neither to look thereon.",
@@ -900,7 +1196,7 @@ const BIBLE_DATA = {
           "And every creature which is in heaven, and on the earth, and under the earth, and such as are in the sea, and all that are in them, heard I saying, Blessing, and honour, and glory, and power, be unto him that sitteth upon the throne, and unto the Lamb for ever and ever.",
           "And the four beasts said, Amen. And the four and twenty elders fell down and worshipped him that liveth for ever and ever."
         ],
-        6: [
+        "Revelation:6": [
           "And I saw when the Lamb opened one of the seals, and I heard, as it were the noise of thunder, one of the four beasts saying, Come and see.",
           "And I saw, and behold a white horse: and he that sat on him had a bow; and a crown was given unto him: and he went forth conquering, and to conquer.",
           "And when he had opened the second seal, I heard the second beast say, Come and see.",
@@ -920,7 +1216,7 @@ const BIBLE_DATA = {
           "And said to the mountains and rocks, Fall on us, and hide us from the face of him that sitteth on the throne, and from the wrath of the Lamb:",
           "For the great day of his wrath is come; and who shall be able to stand?"
         ],
-        7: [
+        "Revelation:7": [
           "And after these things I saw four angels standing on the four corners of the earth, holding the four winds of the earth, that the wind should not blow on the earth, nor on the sea, nor on any tree.",
           "And I saw another angel ascending from the east, having the seal of the living God: and he cried with a loud voice to the four angels, to whom it was given to hurt the earth and the sea,",
           "Saying, Hurt not the earth, neither the sea, nor the trees, till we have sealed the servants of our God in their foreheads.",
@@ -939,7 +1235,7 @@ const BIBLE_DATA = {
           "They shall hunger no more, neither thirst any more; neither shall the sun light on them, nor any heat.",
           "For the Lamb which is in the midst of the throne shall feed them, and shall lead them unto living fountains of waters: and God shall wipe away all tears from their eyes."
         ],
-        8: [
+       "Revelation:8": [
           "And when he had opened the seventh seal, there was silence in heaven about the space of half an hour.",
           "And I saw the seven angels which stood before God; and to them were given seven trumpets.",
           "And another angel came and stood at the altar, having a golden censer; and there was given unto him much incense, that he should offer it with the prayers of all saints upon the golden altar which was before the throne.",
@@ -954,7 +1250,7 @@ const BIBLE_DATA = {
           "And the fourth angel sounded, and the third part of the sun was smitten, and the third part of the moon, and the third part of the stars; so as the third part of them was darkened, and the day shone not for a third part of it, and the night likewise.",
           "And I beheld, and heard an angel flying through the midst of heaven, saying with a loud voice, Woe, woe, woe, to the inhabiters of the earth by reason of the other voices of the trumpet of the three angels, which are yet to sound!"
         ],
-        9: [
+       "Revelation:9": [
           "And the fifth angel sounded, and I saw a star fall from heaven unto the earth: and to him was given the key of the bottomless pit.",
           "And he opened the bottomless pit; and there arose a smoke out of the pit, as the smoke of a great furnace; and the sun and the air were darkened by reason of the smoke of the pit.",
           "And there came out of the smoke locusts upon the earth: and unto them was given power, as the scorpions of the earth have power.",
@@ -977,7 +1273,7 @@ const BIBLE_DATA = {
           "And the rest of the men which were not killed by these plagues yet repented not of the works of their hands, that they should not worship devils, and idols of gold, and silver, and brass, and stone, and of wood: which neither can see, nor hear, nor walk:",
           "Neither repented they of their murders, nor of their sorceries, nor of their fornication, nor of their thefts."
         ],
-        10: [
+        "Revelation:10": [
           "And I saw another mighty angel come down from heaven, clothed with a cloud: and a rainbow was upon his head, and his face was as it were the sun, and his feet as pillars of fire:",
           "And he had in his hand a little book open: and he set his right foot upon the sea, and his left foot on the earth,",
           "And cried with a loud voice, as when a lion roareth: and when he had cried, seven thunders uttered their voices.",
@@ -990,7 +1286,7 @@ const BIBLE_DATA = {
           "And I took the little book out of the angel's hand, and ate it up; and it was in my mouth sweet as honey: and as soon as I had eaten it, my belly was bitter.",
           "And he said unto me, Thou must prophesy again before many peoples, and nations, and tongues, and kings."
         ],
-        11: [
+        "Revelation:11": [
           "And there was given me a reed like unto a rod: and the angel stood, saying, Rise, and measure the temple of God, and the altar, and them that worship therein.",
           "But the court which is without the temple leave out, and measure it not; for it is given unto the Gentiles: and the holy city shall they tread under foot forty and two months.",
           "And I will give power unto my two witnesses, and they shall prophesy a thousand two hundred and threescore days, clothed in sackcloth.",
@@ -1011,7 +1307,7 @@ const BIBLE_DATA = {
           "And the nations were angry, and thy wrath is come, and the time of the dead, that they should be judged, and that thou shouldest give reward unto thy servants the prophets, and to the saints, and them that fear thy name, small and great; and shouldest destroy them which destroy the earth.",
           "And the temple of God was opened in heaven, and there was seen in his temple the ark of his testament: and there were lightnings, and voices, and thunderings, and an earthquake, and great hail."
         ],
-        12:[
+        "Revelation:12":[
           "And there appeared a great wonder in heaven; a woman clothed with the sun, and the moon under her feet, and upon her head a crown of twelve stars:",
           "And she being with child cried, travailing in birth, and pained to be delivered.",
           "And there appeared another wonder in heaven; and behold a great red dragon, having seven heads and ten horns, and seven crowns upon his heads.",
@@ -1030,7 +1326,7 @@ const BIBLE_DATA = {
           "And the earth helped the woman, and the earth opened her mouth, and swallowed up the flood which the dragon cast out of his mouth.",
           "And the dragon was wroth with the woman, and went to make war with the remnant of her seed, which keep the commandments of God, and have the testimony of Jesus Christ."
         ],
-        13:[
+        "Revelation:13":[
           "And I stood upon the sand of the sea, and saw a beast rise up out of the sea, having seven heads and ten horns, and upon his horns ten crowns, and upon his heads the name of blasphemy.",
           "And the beast which I saw was like unto a leopard, and his feet were as the feet of a bear, and his mouth as the mouth of a lion: and the dragon gave him his power, and his seat, and great authority.",
           "And I saw one of his heads as it were wounded to death; and his deadly wound was healed: and all the world wondered after the beast.",
@@ -1050,7 +1346,7 @@ const BIBLE_DATA = {
           "And that no man might buy or sell, save he that had the mark, or the name of the beast, or the number of his name.",
           "Here is wisdom. Let him that hath understanding count the number of the beast: for it is the number of a man; and his number is Six hundred threescore and six."
         ],
-        14:[
+       "Revelation:14":[
           "And I looked, and, lo, a Lamb stood on the mount Sion, and with him an hundred forty and four thousand, having his Father's name written in their foreheads",
           "And I heard a voice from heaven, as the voice of many waters, and as the voice of a great thunder: and I heard the voice of harpers harping with their harps:",
           "And they sung as it were a new song before the throne, and before the four beasts, and the elders: and no man could learn that song but the hundred and forty and four thousand, which were redeemed from the earth.",
@@ -1072,7 +1368,7 @@ const BIBLE_DATA = {
           "And the angel thrust in his sickle into the earth, and gathered the vine of the earth, and cast it into the great winepress of the wrath of God.",
           "And the winepress was trodden without the city, and blood came out of the winepress, even unto the horse bridles, by the space of a thousand and six hundred furlongs."
         ],
-        15:[
+        "Revelation:15":[
           "And I saw another sign in heaven, great and marvellous, seven angels having the seven last plagues; for in them is filled up the wrath of God.",
           "And I saw as it were a sea of glass mingled with fire: and them that had gotten the victory over the beast, and over his image, and over his mark, and over the number of his name, stand on the sea of glass, having the harps of God.",
           "And they sing the song of Moses the servant of God, and the song of the Lamb, saying, Great and marvellous are thy works, Lord God Almighty; just and true are thy ways, thou King of saints.",
@@ -1082,7 +1378,7 @@ const BIBLE_DATA = {
           "And one of the four beasts gave unto the seven angels seven golden vials full of the wrath of God, who liveth for ever and ever.",
           "And the temple was filled with smoke from the glory of God, and from his power; and no man was able to enter into the temple, till the seven plagues of the seven angels were fulfilled."
         ],
-        16:[
+        "Revelation:16":[
           "And I heard a great voice out of the temple saying to the seven angels, Go your ways, and pour out the vials of the wrath of God upon the earth.",
           "And the first went, and poured out his vial upon the earth; and there fell a noisome and grievous sore upon  the men which had the mark of the beast, and upon them which worshipped his image.",
           "And the second angel poured out his vial upon the sea; and it became as the blood of a dead man: and every living soul died in the sea.",
@@ -1105,7 +1401,7 @@ const BIBLE_DATA = {
           "And every island fled away, and the mountains were not found.",
           "And great hail came down from heaven upon men,  every stone about the weight of a talent: and men blasphemed God because of the plague of the hail; for the plague thereof was exceeding great."
         ],
-        17:[
+      "Revelation:17":[
           "And there came one of the seven angels which had the seven vials, and talked with me, saying unto me, Come hither; I will shew unto thee the judgment  of the great whore that sitteth upon many waters:",
           "With whom the kings of the earth have committed fornication, and the inhabitants of the earth have been made drunk with the wine of her fornication.",
           "So he carried me away in the spirit into the wilderness: and I saw a woman sit upon a scarlet beast, full of names of blasphemy, having seven heads and ten horns.", 
@@ -1125,7 +1421,7 @@ const BIBLE_DATA = {
           "For God hath put in their hearts to fulfil his will, and to agree, and give their kingdom unto the beast, until the words of God shall be fulfilled.",
           "And the woman which thou sawest is that great city, which reigneth over the kings of the earth."
         ],
-        18: [
+        "Revelation:18": [
           "And after these things I saw another angel come down from heaven, having great power; and the earth was lightened with his glory.",
           "And he cried mightily with a strong voice, saying, Babylon the great is fallen, is fallen, and is become the habitation of devils, and the hold of every foul spirit, and a cage of every unclean and hateful bird.",
           "For all nations have drunk of the wine of the wrath of her fornication, and the kings of the earth have committed fornication with her, and the merchants of the earth are waxed rich through the abundance of her delicacies.",
@@ -1151,7 +1447,7 @@ const BIBLE_DATA = {
           "And the light of a candle shall shine no more at all in thee; and the voice of the bridegroom and of the bride shall be heard no more at all in thee: for thy merchants were the great men of the earth; for by thy sorceries were all nations deceived.",
           "And in her was found the blood of prophets, and of saints, and of all that were slain upon the earth."
         ],
-        19: [
+        "Revelation:19": [
           "And after these things I heard a great voice of much people in heaven, saying, Alleluia; Salvation, and glory, and honour, and power, unto the Lord our God:",
           "For true and righteous are his judgments: for he hath judged the great whore, which did corrupt the earth with her fornication, and hath avenged the blood of his servants at her hand.",
           "And again they said, Alleluia. And her smoke rose up for ever and ever.",
@@ -1174,7 +1470,7 @@ const BIBLE_DATA = {
           "And the beast was taken, and with him the false prophet that wrought miracles before him, with which he deceived them that had received the mark of the beast, and them that worshipped his image. These both were cast alive into a lake of fire burning with brimstone.",
           "And the remnant were slain with the sword of him that sat upon the horse, which sword proceeded out of his mouth: and all the fowls were filled with their flesh."
         ],
-        20: [
+        "Revelation:20": [
           "And I saw an angel come down from heaven, having the key of the bottomless pit and a great chain in his hand.",
           "And he laid hold on the dragon, that old serpent, which is the Devil, and Satan, and bound him a thousand years,",
           "And cast him into the bottomless pit, and shut him up, and set a seal upon him, that he should deceive the nations no more, till the thousand years should be fulfilled: and after that he must be loosed a little season.",
@@ -1191,7 +1487,7 @@ const BIBLE_DATA = {
           "And death and hell were cast into the lake of fire. This is the second death.",
           "And whosoever was not found written in the book of life was cast into the lake of fire."
         ],
-        21: [
+       "Revelation:21": [
           "And I saw a new heaven and a new earth: for the first heaven and the first earth were passed away; and there was no more sea.",
           "And I John saw the holy city, new Jerusalem, coming down from God out of heaven, prepared as a bride adorned for her husband.",
           "And I heard a great voice out of heaven saying, Behold, the tabernacle of God is with men, and he will dwell with them, and they shall be his people, and God himself shall be with them, and be their God.",
@@ -1220,7 +1516,7 @@ const BIBLE_DATA = {
           "And they shall bring the glory and honour of the nations into it.",
           "And there shall in no wise enter into it any thing that defileth, neither whatsoever worketh abomination, or maketh a lie: but they which are written in the Lamb's book of life."
         ],
-        22: [
+       "Revelation:22": [
           "And he shewed me a pure river of water of life, clear as crystal, proceeding out of the throne of God and of the Lamb.",
           "In the midst of the street of it, and on either side of the river, was there the tree of life, which bare twelve manner of fruits, and yielded her fruit every month: and the leaves of the tree were for the healing of the nations.",
           "And there shall be no more curse: but the throne of God and of the Lamb shall be in it; and his servants shall serve him:",
@@ -1243,707 +1539,898 @@ const BIBLE_DATA = {
           "He which testifieth these things saith, Surely I come quickly. Amen Even so, come, Lord Jesus.",
           "The grace of our Lord Jesus Christ be with you all. Amen."
 
-        ]
-      }
-    }
+        ],
+       "default": [
+    "And God said, Let there be light: and there was light.",
+    "And God saw the light, that it was good: and God divided the light from the darkness."
   ]
+      };
+
+
+let bibleState = {
+  currentTestament: 'old',
+  selectedBook: null,
+  selectedChapter: null,
+  verses: [], // All verses in current chapter
+  currentVerseIndex: 0, // Current verse being typed
+  currentVerse: '',
+  typedText: '',
+  startTime: null,
+  timerInterval: null,
+  timeLeft: 60,
+  duration: 60,
+  isRunning: false,
+  mode: 'typing', // 'typing' or 'audio'
+  chapterStats: [], // Stats for each verse in chapter
+  stats: {
+    wpm: 0,
+    accuracy: 100,
+    correctChars: 0,
+    incorrectChars: 0
+  }
 };
 
-// Enhanced Bible Practice JavaScript with Fixes
-
-// State variables
-let currentBibleBook = null;
-let currentChapter = 1;
-let currentVerseIndex = 0;
-let currentVerseText = '';
-let bibleTyped = '';
-let bibleStartTime = null;
-let currentTestament = 'old';
-let bibleTimerDuration = 60;
-let bibleTimeLeft = 60;
-let bibleTimerInterval = null;
-
-// Chapter tracking for stats
-let chapterStats = {
-  totalWords: 0,
-  totalChars: 0,
-  correctChars: 0,
-  totalTime: 0,
-  versesCompleted: 0
-};
-
-// Initialize Bible page
-function loadBiblePage() {
-  updateBibleStats();
-  loadBibleBooks(currentTestament);
+// Initialize Bible Practice Page
+window.loadBiblePage = function() {
+  renderBooksGrid();
   setupBibleEventListeners();
-}
+};
 
+// Setup Event Listeners
 function setupBibleEventListeners() {
   // Testament tabs
   document.querySelectorAll('.bible-testament-tab').forEach(tab => {
     tab.addEventListener('click', function() {
       document.querySelectorAll('.bible-testament-tab').forEach(t => t.classList.remove('active'));
       this.classList.add('active');
-      currentTestament = this.dataset.testament;
-      loadBibleBooks(currentTestament);
+      bibleState.currentTestament = this.dataset.testament;
+      renderBooksGrid();
     });
   });
-  
+
+  // Mode toggle (will be added to practice card)
+  const modeToggle = document.getElementById('bible-mode-toggle');
+  if (modeToggle) {
+    modeToggle.addEventListener('change', function() {
+      bibleState.mode = this.checked ? 'audio' : 'typing';
+      updateModeDisplay();
+    });
+  }
+
   // Timer select
   const timerSelect = document.getElementById('bible-timer-select');
-  if (timerSelect && !timerSelect.dataset.listenerAdded) {
-    timerSelect.dataset.listenerAdded = 'true';
-    timerSelect.addEventListener('change', (e) => {
-      bibleTimerDuration = parseInt(e.target.value);
-      bibleTimeLeft = bibleTimerDuration;
-      
-      const countdownEl = document.getElementById('bible-countdown');
-      if (bibleTimerDuration === 0) {
-        countdownEl.textContent = '∞';
-        countdownEl.className = '';
-      } else {
-        countdownEl.textContent = bibleTimerDuration + 's';
-        countdownEl.className = '';
-      }
+  if (timerSelect) {
+    timerSelect.addEventListener('change', function() {
+      bibleState.duration = parseInt(this.value) || 60;
+      bibleState.timeLeft = bibleState.duration;
+      updateCountdownDisplay();
     });
   }
-  
+
+  // Input handler
+  const input = document.getElementById('bible-input');
+  if (input) {
+    input.addEventListener('input', handleBibleInput);
+    input.addEventListener('paste', e => e.preventDefault());
+  }
+
   // Back button
   const backBtn = document.getElementById('back-to-books');
-  if (backBtn && !backBtn.dataset.listenerAdded) {
-    backBtn.dataset.listenerAdded = 'true';
+  if (backBtn) {
     backBtn.addEventListener('click', () => {
-      document.getElementById('bible-books-grid').style.display = 'grid';
       document.getElementById('bible-practice-card').style.display = 'none';
-      stopBibleTimer();
-      bibleTyped = '';
-      document.getElementById('bible-input').value = '';
-      resetChapterStats();
+      document.getElementById('bible-chapters-card').style.display = 'none';
+      document.getElementById('bible-books-grid').style.display = 'grid';
+      resetBibleTest();
     });
   }
-  
-  // Bible input
-  const bibleInput = document.getElementById('bible-input');
-  if (bibleInput && !bibleInput.dataset.listenerAdded) {
-    bibleInput.dataset.listenerAdded = 'true';
-    bibleInput.addEventListener('input', handleBibleInput);
-    bibleInput.addEventListener('paste', e => e.preventDefault());
+
+  // Back to chapters button
+  const backToChaptersBtn = document.getElementById('back-to-chapters');
+  if (backToChaptersBtn) {
+    backToChaptersBtn.addEventListener('click', () => {
+      document.getElementById('bible-practice-card').style.display = 'none';
+      showChaptersGrid(bibleState.selectedBook);
+    });
   }
 }
 
-// Enhanced startBibleTimer with visual feedback
-function startBibleTimer() {
-  // Clear any existing timer
-  if (bibleTimerInterval) {
-    clearInterval(bibleTimerInterval);
-  }
+// Render Books Grid
+function renderBooksGrid() {
+  const grid = document.getElementById('bible-books-grid');
+  if (!grid) return;
+
+  const books = BIBLE_BOOKS[bibleState.currentTestament] || [];
   
-  // If timer is disabled (0), don't start
-  if (bibleTimerDuration === 0) {
-    document.getElementById('bible-countdown').textContent = '∞';
-    document.getElementById('bible-countdown').className = '';
-    return;
-  }
-  
-  bibleTimeLeft = bibleTimerDuration;
-  const countdownEl = document.getElementById('bible-countdown');
-  countdownEl.textContent = bibleTimeLeft + 's';
-  countdownEl.className = ''; // Reset classes
-  
-  bibleTimerInterval = setInterval(() => {
-    bibleTimeLeft--;
-    
-    if (bibleTimeLeft <= 0) {
-      clearInterval(bibleTimerInterval);
-      bibleTimerInterval = null;
-      countdownEl.textContent = '0s';
-      countdownEl.className = 'danger';
-      
-      // Disable input
-      document.getElementById('bible-input').disabled = true;
-      
-      // Show times up modal
-      showTimesUpModal();
-    } else {
-      countdownEl.textContent = bibleTimeLeft + 's';
-      
-      // Update visual feedback based on time remaining
-      if (bibleTimeLeft <= 10) {
-        countdownEl.className = 'danger';
-      } else if (bibleTimeLeft <= 30) {
-        countdownEl.className = 'warning';
-      } else {
-        countdownEl.className = '';
-      }
-    }
-  }, 1000);
-}
-// Show times up modal
-function showTimesUpModal() {
-  const overlay = document.createElement('div');
-  overlay.className = 'bible-times-up-overlay';
-  overlay.innerHTML = `
-    <div class="bible-times-up-modal">
-      <h3>⏰ Time's Up!</h3>
-      <p>Complete this verse or move to the next one to continue practicing.</p>
-      <div style="display: flex; gap: 12px; justify-content: center;">
-        <button class="btn btn-secondary" onclick="this.closest('.bible-times-up-overlay').remove()">
-          Review Verse
-        </button>
-        <button class="btn" onclick="this.closest('.bible-times-up-overlay').remove(); nextVerse();">
-          Next Verse →
-        </button>
+  grid.innerHTML = books.map(book => `
+    <div class="bible-book-card" onclick="showChaptersGrid('${book.name}')">
+      <h3 class="bible-book-name">${book.name}</h3>
+      <div class="bible-book-meta">
+        <span>📖 ${book.chapters} ${book.chapters === 1 ? 'Chapter' : 'Chapters'}</span>
+        <span>KJV</span>
       </div>
     </div>
+  `).join('');
+}
+
+// Show Chapters Grid (NEW)
+window.showChaptersGrid = function(bookName) {
+  const book = [...BIBLE_BOOKS.old, ...BIBLE_BOOKS.new].find(b => b.name === bookName);
+  if (!book) return;
+
+  bibleState.selectedBook = bookName;
+
+  // Hide books grid
+  document.getElementById('bible-books-grid').style.display = 'none';
+
+  // Create or show chapters card
+  let chaptersCard = document.getElementById('bible-chapters-card');
+  if (!chaptersCard) {
+    chaptersCard = document.createElement('div');
+    chaptersCard.id = 'bible-chapters-card';
+    chaptersCard.className = 'bible-chapters-card';
+    document.getElementById('bible-full-page').appendChild(chaptersCard);
+  }
+
+  // Render chapters
+  let chaptersHTML = `
+    <div class="chapters-header">
+      <button class="btn btn-secondary btn-small" onclick="backToBooksFromChapters()">
+        ← Back to Books
+      </button>
+      <div>
+        <h2 class="chapters-title">${bookName}</h2>
+        <p class="chapters-subtitle">Select a chapter to practice</p>
+      </div>
+    </div>
+    <div class="chapters-grid">
   `;
-  document.body.appendChild(overlay);
-  
-  // Remove overlay when clicking outside modal
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) {
-      overlay.remove();
-    }
-  });
-}
 
-
-// Update Bible stats from localStorage
-function updateBibleStats() {
-  const statsKey = 'bible_stats_global';
-  const stats = JSON.parse(localStorage.getItem(statsKey) || '{"totalVerses": 0}');
-  
-  document.getElementById('total-verses-typed').textContent = stats.totalVerses || 0;
-}
-
-// Load books for testament
-function loadBibleBooks(testament) {
-  const booksGrid = document.getElementById('bible-books-grid');
-  const books = testament === 'old' ? BIBLE_DATA.oldTestament : BIBLE_DATA.newTestament;
-  
-  let html = '';
-  books.forEach(book => {
-    const availableChapters = Object.keys(book.verses).length;
-    html += `
-      <div class="bible-book-card" onclick="openBibleBook('${testament}', '${book.name}')">
-        <h4 class="bible-book-name">${book.name}</h4>
-        <div class="bible-book-meta">
-          <span>${availableChapters} of ${book.totalChapters} chapters</span>
-        </div>
+  for (let i = 1; i <= book.chapters; i++) {
+    // Get verse count for this chapter (in production, fetch from API)
+    const verseKey = `${bookName}:${i}`;
+    const verses = SAMPLE_VERSES[verseKey] || SAMPLE_VERSES.default;
+    const verseCount = verses.length;
+    
+    chaptersHTML += `
+      <div class="chapter-card" onclick="startChapterPractice('${bookName}', ${i})">
+        <div class="chapter-number">Chapter ${i}</div>
+        <div class="chapter-verses">${verseCount} ${verseCount === 1 ? 'verse' : 'verses'}</div>
       </div>
     `;
-  });
-  
-  booksGrid.innerHTML = html;
-}
+  }
 
-// Open a Bible book
-window.openBibleBook = function(testament, bookName) {
-  const books = testament === 'old' ? BIBLE_DATA.oldTestament : BIBLE_DATA.newTestament;
-  currentBibleBook = books.find(b => b.name === bookName);
-  
-  if (!currentBibleBook) return;
-  
-  // Get first available chapter
-  const availableChapters = Object.keys(currentBibleBook.verses).sort((a, b) => parseInt(a) - parseInt(b));
-  currentChapter = parseInt(availableChapters[0]);
-  currentVerseIndex = 0;
-  
-  // Reset chapter stats
-  resetChapterStats();
-  
-  // Hide books, show practice
-  document.getElementById('bible-books-grid').style.display = 'none';
-  document.getElementById('bible-practice-card').style.display = 'block';
-  
-  // Update book name display
-  updateChapterVerseDisplay();
-  
-  // Load first verse
-  loadCurrentVerse();
+  chaptersHTML += `</div>`;
+  chaptersCard.innerHTML = chaptersHTML;
+  chaptersCard.style.display = 'block';
 };
 
-// Reset chapter stats
-function resetChapterStats() {
-  chapterStats = {
-    totalWords: 0,
-    totalChars: 0,
-    correctChars: 0,
-    totalTime: 0,
-    versesCompleted: 0
-  };
-}
-// Update the chapter/verse display
-function updateChapterVerseDisplay() {
-  const availableChapters = Object.keys(currentBibleBook.verses).sort((a, b) => parseInt(a) - parseInt(b));
-  const currentVerses = currentBibleBook.verses[currentChapter];
-  const totalVerses = currentVerses ? currentVerses.length : 0;
-  
-  const displayText = `${currentBibleBook.name} ${currentChapter}:${currentVerseIndex + 1} of ${totalVerses}`;
-  
+// Back to Books from Chapters
+window.backToBooksFromChapters = function() {
+  document.getElementById('bible-chapters-card').style.display = 'none';
+  document.getElementById('bible-books-grid').style.display = 'grid';
+  bibleState.selectedBook = null;
+};
+
+// Start Chapter Practice (NEW)
+window.startChapterPractice = function(bookName, chapter) {
+  bibleState.selectedBook = bookName;
+  bibleState.selectedChapter = chapter;
+  bibleState.currentVerseIndex = 0;
+  bibleState.chapterStats = [];
+
+  // Get all verses for this chapter (in production, fetch from API)
+  const verseKey = `${bookName}:${chapter}`;
+  bibleState.verses = SAMPLE_VERSES[verseKey] || SAMPLE_VERSES.default;
+  bibleState.currentVerse = bibleState.verses[0];
+
+  // Hide chapters grid
+  document.getElementById('bible-chapters-card').style.display = 'none';
+
+  // Show practice card
   const practiceCard = document.getElementById('bible-practice-card');
-  let chapterDisplay = practiceCard.querySelector('.bible-chapter-display');
-  
-  if (!chapterDisplay) {
-    chapterDisplay = document.createElement('div');
-    chapterDisplay.className = 'bible-chapter-display';
-    
-    const verseDisplay = document.getElementById('bible-verse-display');
-    verseDisplay.parentNode.insertBefore(chapterDisplay, verseDisplay);
-  }
-  
-  chapterDisplay.innerHTML = `
-    <div style="display: flex; justify-content: center; align-items: center; gap: 16px;">
-      <button onclick="previousVerse()" class="btn btn-secondary btn-small" ${currentVerseIndex === 0 ? 'disabled' : ''}>← Previous</button>
-      <span>${displayText}</span>
-      <button onclick="nextVerse()" class="btn btn-secondary btn-small" ${currentVerseIndex >= totalVerses - 1 ? 'disabled' : ''}>Next →</button>
-    </div>
-    <div style="margin-top: 12px;">
-      <button onclick="changeChapter(-1)" class="btn btn-secondary btn-small" ${!canGoPreviousChapter() ? 'disabled' : ''}>← Previous Chapter</button>
-      <button onclick="changeChapter(1)" class="btn btn-secondary btn-small" ${!canGoNextChapter() ? 'disabled' : ''}>Next Chapter →</button>
-    </div>
-  `;
-}
+  practiceCard.style.display = 'block';
 
-// Navigation functions
-window.previousVerse = function() {
-  if (currentVerseIndex > 0) {
-    currentVerseIndex--;
-    loadCurrentVerse();
-  }
-};
+  // Update header
+  updatePracticeHeader();
 
-window.nextVerse = function() {
-  const verses = currentBibleBook.verses[currentChapter];
-  if (verses && currentVerseIndex < verses.length - 1) {
-    currentVerseIndex++;
-    loadCurrentVerse();
-  }
-};
-
-window.changeChapter = function(direction) {
-  const availableChapters = Object.keys(currentBibleBook.verses).map(Number).sort((a, b) => a - b);
-  const currentIndex = availableChapters.indexOf(currentChapter);
-  
-  if (direction === -1 && currentIndex > 0) {
-    // Show chapter summary before going back
-    if (chapterStats.versesCompleted > 0) {
-      showChapterSummary(() => {
-        currentChapter = availableChapters[currentIndex - 1];
-        currentVerseIndex = 0;
-        resetChapterStats();
-        loadCurrentVerse();
-      });
-    } else {
-      currentChapter = availableChapters[currentIndex - 1];
-      currentVerseIndex = 0;
-      resetChapterStats();
-      loadCurrentVerse();
-    }
-  } else if (direction === 1 && currentIndex < availableChapters.length - 1) {
-    // Show chapter summary before moving forward
-    if (chapterStats.versesCompleted > 0) {
-      showChapterSummary(() => {
-        currentChapter = availableChapters[currentIndex + 1];
-        currentVerseIndex = 0;
-        resetChapterStats();
-        loadCurrentVerse();
-      });
-    } else {
-      currentChapter = availableChapters[currentIndex + 1];
-      currentVerseIndex = 0;
-      resetChapterStats();
-      loadCurrentVerse();
-    }
-  }
-};
-
-function canGoPreviousChapter() {
-  const availableChapters = Object.keys(currentBibleBook.verses).map(Number).sort((a, b) => a - b);
-  const currentIndex = availableChapters.indexOf(currentChapter);
-  return currentIndex > 0;
-}
-
-function canGoNextChapter() {
-  const availableChapters = Object.keys(currentBibleBook.verses).map(Number).sort((a, b) => a - b);
-  const currentIndex = availableChapters.indexOf(currentChapter);
-  return currentIndex < availableChapters.length - 1;
-}
-
-// Load current verse
-function loadCurrentVerse() {
-  const verses = currentBibleBook.verses[currentChapter];
-  
-  if (!verses || currentVerseIndex >= verses.length) {
-    alert('Verse not available.');
-    return;
-  }
-  
-  currentVerseText = verses[currentVerseIndex];
-  bibleTyped = '';
-  bibleStartTime = null;
-  
-  updateChapterVerseDisplay();
+  resetBibleTest();
   renderBibleVerse();
   
-  const input = document.getElementById('bible-input');
-  input.value = '';
-  input.disabled = false;
-  input.focus();
-  
-  // Reset stats display
-  document.getElementById('bible-time').textContent = '0s';
-  document.getElementById('bible-wpm').textContent = '0';
-  document.getElementById('bible-accuracy').textContent = '100%';
+  // FIX 1: Autofocus on input
+  setTimeout(() => {
+    const input = document.getElementById('bible-input');
+    if (input) {
+      input.focus();
+    }
+  }, 100);
+};
 
-  // Reset and display timer
-  stopBibleTimer();
-  bibleTimeLeft = bibleTimerDuration;
-  const countdownEl = document.getElementById('bible-countdown');
-  
-  if (bibleTimerDuration === 0) {
-    countdownEl.textContent = '∞';
-    countdownEl.className = '';
-  } else {
-    countdownEl.textContent = bibleTimerDuration + 's';
-    countdownEl.className = '';
+// Update Practice Header
+function updatePracticeHeader() {
+  const headerText = document.querySelector('.bible-practice-header-text');
+  if (headerText) {
+    const verseNum = bibleState.currentVerseIndex + 1;
+    const totalVerses = bibleState.verses.length;
+    headerText.innerHTML = `
+      <h3 style="margin: 0; font-size: 1.5rem; color: var(--text);">
+        ${bibleState.selectedBook} ${bibleState.selectedChapter}:${verseNum}
+      </h3>
+      <p style="margin: 4px 0 0; color: var(--muted); font-size: 0.875rem;">
+        Verse ${verseNum} of ${totalVerses} • King James Version
+      </p>
+    `;
   }
 }
-// FIX #1: Render verse with proper word wrapping (no word breaks)
-function renderBibleVerse() {
-  const display = document.getElementById('verse-text');
-  
-  // Split text into words to prevent mid-word line breaks
-  const words = currentVerseText.split(' ');
-  let html = '';
-  let charIndex = 0;
-  
-  words.forEach((word, wordIdx) => {
-    // Add space wrapper to keep words together
-    html += '<span class="word-wrapper" style="display: inline-block; white-space: nowrap;">';
-    
-    // Render each character in the word
-    for (let i = 0; i < word.length; i++) {
-      const char = word[i];
-      const typedChar = bibleTyped[charIndex];
-      
-      let charClass = 'char';
-      
-      if (charIndex === bibleTyped.length) {
-        charClass += ' current';
-      } else if (typedChar !== undefined) {
-        if (typedChar === char) {
-          charClass += ' correct';
-        } else {
-          charClass += ' incorrect';
-        }
-      }
-      
-      html += `<span class="${charClass}">${escapeHtml(char)}</span>`;
-      charIndex++;
-    }
-    
-    html += '</span>';
-    
-    // Add space between words (except last word)
-    if (wordIdx < words.length - 1) {
-      const spaceTypedChar = bibleTyped[charIndex];
-      let spaceClass = 'char';
-      
-      if (charIndex === bibleTyped.length) {
-        spaceClass += ' current';
-      } else if (spaceTypedChar !== undefined) {
-        if (spaceTypedChar === ' ') {
-          spaceClass += ' correct';
-        } else {
-          spaceClass += ' incorrect';
-        }
-      }
-      
-      html += `<span class="${spaceClass}">&nbsp;</span>`;
-      charIndex++;
-    }
-  });
-  
-  display.innerHTML = html;
-}
 
-// Handle bible input
+// Handle Bible Input
 function handleBibleInput(e) {
-  // Start timer on first keystroke
-  if (!bibleStartTime) {
-    bibleStartTime = Date.now();
+  if (!bibleState.isRunning && e.target.value.length > 0) {
     startBibleTimer();
   }
-  
-  bibleTyped = e.target.value;
+
+  bibleState.typedText = e.target.value;
   renderBibleVerse();
+  calculateBibleStats();
+}
+
+// Start Timer
+function startBibleTimer() {
+  if (bibleState.isRunning) return;
   
-  // Calculate stats
-  const elapsed = (Date.now() - bibleStartTime) / 1000;
-  const wordsTyped = bibleTyped.length / 5;
-  const wpm = elapsed > 0 ? Math.round((wordsTyped / elapsed) * 60) : 0;
+  bibleState.isRunning = true;
+  bibleState.startTime = Date.now();
   
-  let correct = 0;
-  for (let i = 0; i < bibleTyped.length; i++) {
-    if (bibleTyped[i] === currentVerseText[i]) correct++;
-  }
-  const accuracy = bibleTyped.length > 0 ? Math.round((correct / bibleTyped.length) * 100) : 100;
-  
-  // Update display
-  document.getElementById('bible-time').textContent = Math.floor(elapsed) + 's';
-  document.getElementById('bible-wpm').textContent = wpm;
-  document.getElementById('bible-accuracy').textContent = accuracy + '%';
-  
-  // Check completion
-  if (bibleTyped.length >= currentVerseText.length) {
-    const finalAccuracy = Math.round((correct / currentVerseText.length) * 100);
-    completeBibleVerse(wpm, finalAccuracy, elapsed);
+  bibleState.timerInterval = setInterval(() => {
+    if (bibleState.duration === 0) {
+      // No timer mode
+      updateLiveTimer();
+    } else {
+      // Countdown mode
+      bibleState.timeLeft--;
+      updateCountdownDisplay();
+      
+      if (bibleState.timeLeft <= 0) {
+        finishBibleTest(true); // true = time's up
+      }
+    }
+    
+    calculateBibleStats();
+  }, 1000);
+}
+
+// Update Live Timer (for no timer mode)
+function updateLiveTimer() {
+  const elapsed = Math.floor((Date.now() - bibleState.startTime) / 1000);
+  const countdownEl = document.getElementById('bible-countdown');
+  if (countdownEl && bibleState.duration === 0) {
+    countdownEl.textContent = elapsed + 's';
   }
 }
 
-// FIX #3: Complete verse with chapter stats tracking
-function completeBibleVerse(wpm, accuracy, elapsed) {
-  // Stop timer
-  stopBibleTimer();
+// Update Countdown Display
+function updateCountdownDisplay() {
+  const countdownEl = document.getElementById('bible-countdown');
+  if (!countdownEl) return;
+
+  if (bibleState.duration === 0) {
+    countdownEl.textContent = '∞';
+    countdownEl.className = '';
+    return;
+  }
+
+  countdownEl.textContent = bibleState.timeLeft + 's';
+  countdownEl.classList.remove('warning', 'danger');
   
-  // Disable input
-  document.getElementById('bible-input').disabled = true;
+  if (bibleState.timeLeft <= 10) {
+    countdownEl.classList.add('danger');
+  } else if (bibleState.timeLeft <= 30) {
+    countdownEl.classList.add('warning');
+  }
+}
+
+// Render Bible Verse
+function renderBibleVerse() {
+  const display = document.getElementById('verse-text');
+  if (!display) return;
+
+  // FIX 4: In audio mode, hide text completely until time is up or completed
+  const verseDisplayContainer = document.querySelector('.bible-verse-display');
+  if (bibleState.mode === 'audio' && bibleState.isRunning) {
+    if (verseDisplayContainer) {
+      verseDisplayContainer.style.display = 'none';
+    }
+    return;
+  } else {
+    if (verseDisplayContainer) {
+      verseDisplayContainer.style.display = 'block';
+    }
+  }
+
+  let html = '';
+  const verse = bibleState.currentVerse;
+  const typed = bibleState.typedText;
+
+  for (let i = 0; i < verse.length; i++) {
+    const char = verse[i];
+    const typedChar = typed[i];
+
+    let className = 'char';
+    
+    if (i === typed.length) {
+      className += ' current';
+    } else if (typedChar !== undefined) {
+      className += typedChar === char ? ' correct' : ' incorrect';
+    }
+
+    html += `<span class="${className}">${char === ' ' ? '&nbsp;' : char}</span>`;
+  }
+
+  display.innerHTML = html;
+
+  // Check if complete
+  if (typed.length >= verse.length && bibleState.isRunning) {
+    finishBibleTest(false); // false = completed
+  }
+}
+
+// Calculate Stats
+function calculateBibleStats() {
+  const verse = bibleState.currentVerse;
+  const typed = bibleState.typedText;
   
-  // Update chapter stats
-  const wordCount = currentVerseText.split(' ').length;
-  chapterStats.totalWords += wordCount;
-  chapterStats.totalChars += currentVerseText.length;
-  chapterStats.correctChars += Math.round((accuracy / 100) * currentVerseText.length);
-  chapterStats.totalTime += elapsed;
-  chapterStats.versesCompleted++;
+  let correct = 0;
+  let incorrect = 0;
+
+  for (let i = 0; i < typed.length; i++) {
+    if (typed[i] === verse[i]) {
+      correct++;
+    } else {
+      incorrect++;
+    }
+  }
+
+  const accuracy = typed.length > 0 ? Math.round((correct / typed.length) * 100) : 100;
   
-  // Save verse completion to localStorage
-  const statsKey = 'bible_stats_global';
-  const stats = JSON.parse(localStorage.getItem(statsKey) || '{"totalVerses": 0}');
-  stats.totalVerses = (stats.totalVerses || 0) + 1;
-  localStorage.setItem(statsKey, JSON.stringify(stats));
-  
+  // Calculate WPM
+  const elapsed = bibleState.startTime ? (Date.now() - bibleState.startTime) / 1000 : 1;
+  const minutes = elapsed / 60;
+  const wpm = minutes > 0 ? Math.round((typed.length / 5) / minutes) : 0;
+
+  bibleState.stats = {
+    wpm: wpm,
+    accuracy: accuracy,
+    correctChars: correct,
+    incorrectChars: incorrect
+  };
+
   // Update display
-  updateBibleStats();
+  document.getElementById('bible-wpm').textContent = wpm;
+  document.getElementById('bible-accuracy').textContent = accuracy + '%';
+}
+
+// Finish Test
+function finishBibleTest(timedOut) {
+  clearInterval(bibleState.timerInterval);
+  bibleState.isRunning = false;
   
-  // Show completion toast
+  const input = document.getElementById('bible-input');
+  if (input) input.disabled = true;
+
+  // Save stats for this verse
+  bibleState.chapterStats.push({
+    verse: bibleState.currentVerseIndex + 1,
+    wpm: bibleState.stats.wpm,
+    accuracy: bibleState.stats.accuracy,
+    completed: !timedOut
+  });
+
+  if (timedOut) {
+    showTimesUpModal();
+  } else {
+    // FIX 2: Auto-proceed to next verse
+    const nextVerseIndex = bibleState.currentVerseIndex + 1;
+    
+    if (nextVerseIndex < bibleState.verses.length) {
+      // More verses in chapter - show toast and auto-proceed
+      showVerseCompletedToast();
+      
+      setTimeout(() => {
+        bibleState.currentVerseIndex = nextVerseIndex;
+        bibleState.currentVerse = bibleState.verses[nextVerseIndex];
+        updatePracticeHeader();
+        resetBibleTest();
+        
+        // Autofocus on next verse
+        const input = document.getElementById('bible-input');
+        if (input) {
+          input.focus();
+        }
+      }, 2000); // 2 second delay to see completion message
+    } else {
+      // FIX 3: Chapter completed - show summary modal
+      setTimeout(() => {
+        showChapterSummaryModal();
+      }, 1000);
+    }
+  }
+}
+
+// Show Verse Completed Toast (for auto-proceed)
+function showVerseCompletedToast() {
   const toast = document.createElement('div');
   toast.className = 'bible-completion-toast';
-  toast.textContent = `✝️ Verse completed! ${wpm} WPM • ${accuracy}%`;
+  toast.innerHTML = `
+    ✅ Verse completed! ${bibleState.stats.wpm} WPM • ${bibleState.stats.accuracy}% Accuracy
+    <br><span style="font-size: 0.875rem; opacity: 0.9;">Next verse loading...</span>
+  `;
   document.body.appendChild(toast);
   
   setTimeout(() => {
-    toast.style.opacity = '0';
-    setTimeout(() => toast.remove(), 300);
-  }, 2700);
+    toast.remove();
+  }, 2000);
+}
+
+// Show Time's Up Modal (WITH RETRY BUTTON)
+function showTimesUpModal() {
+  // FIX 4: Show verse text in audio mode after time is up
+  if (bibleState.mode === 'audio') {
+    const verseDisplay = document.querySelector('.bible-verse-display');
+    if (verseDisplay) {
+      verseDisplay.style.display = 'block';
+      renderBibleVerse();
+    }
+  }
   
-  // Check if chapter is complete
-  const verses = currentBibleBook.verses[currentChapter];
-  if (currentVerseIndex < verses.length - 1) {
-    // Auto-load next verse after 2 seconds
-    setTimeout(() => {
-      currentVerseIndex++;
-      loadCurrentVerse();
-    }, 2000);
+  const modal = document.createElement('div');
+  modal.className = 'bible-times-up-overlay';
+  modal.innerHTML = `
+    <div class="bible-times-up-modal">
+      <h3>⏰ Time's Up!</h3>
+      <p>You typed ${bibleState.typedText.length} of ${bibleState.currentVerse.length} characters</p>
+      <div class="times-up-stats">
+        <div class="times-up-stat">
+          <div class="stat-value">${bibleState.stats.wpm}</div>
+          <div class="stat-label">WPM</div>
+        </div>
+        <div class="times-up-stat">
+          <div class="stat-value">${bibleState.stats.accuracy}%</div>
+          <div class="stat-label">Accuracy</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 24px;">
+        <button class="btn" onclick="retryBibleVerse()">🔄 Retry Verse</button>
+        <button class="btn btn-secondary" onclick="skipToNextVerse()">Skip to Next →</button>
+        <button class="btn btn-secondary" onclick="backToBooksFromPractice()">← Back to Chapters</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+// FIX 6: Skip to next verse
+window.skipToNextVerse = function() {
+  closeTimesUpModal();
+  
+  const nextVerseIndex = bibleState.currentVerseIndex + 1;
+  
+  if (nextVerseIndex < bibleState.verses.length) {
+    bibleState.currentVerseIndex = nextVerseIndex;
+    bibleState.currentVerse = bibleState.verses[nextVerseIndex];
+    updatePracticeHeader();
+    resetBibleTest();
+    
+    const input = document.getElementById('bible-input');
+    if (input) {
+      input.focus();
+    }
   } else {
-    // FIX #2 & #3: Chapter completed - show summary and auto-advance
-    setTimeout(() => {
-      completeChapter();
-    }, 2000);
+    // Last verse - show chapter summary
+    showChapterSummaryModal();
+  }
+};
+
+// Retry Verse (NEW)
+window.retryBibleVerse = function() {
+  closeTimesUpModal();
+  resetBibleTest();
+  
+  // FIX 1: Autofocus on input after retry
+  setTimeout(() => {
+    const input = document.getElementById('bible-input');
+    if (input) {
+      input.disabled = false;
+      input.focus();
+    }
+  }, 100);
+};
+
+// Close Time's Up Modal
+window.closeTimesUpModal = function() {
+  const modal = document.querySelector('.bible-times-up-overlay');
+  if (modal) modal.remove();
+};
+
+// Back to Books from Practice
+window.backToBooksFromPractice = function() {
+  closeTimesUpModal();
+  document.getElementById('bible-practice-card').style.display = 'none';
+  document.getElementById('bible-books-grid').style.display = 'grid';
+  resetBibleTest();
+};
+
+// Show Completion Toast
+function showCompletionToast() {
+  const toast = document.createElement('div');
+  toast.className = 'bible-completion-toast';
+  toast.innerHTML = `
+    ✅ Verse completed! ${bibleState.stats.wpm} WPM • ${bibleState.stats.accuracy}% Accuracy
+  `;
+  document.body.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.remove();
+    showNextVerseOptions();
+  }, 3000);
+}
+
+// Show Next Verse Options
+function showNextVerseOptions() {
+  if (confirm('Great job! Practice another verse from this chapter?')) {
+    retryBibleVerse();
+  } else {
+    showChaptersGrid(bibleState.selectedBook);
   }
 }
 
-// FIX #2 & #3: Complete chapter and show summary
-function completeChapter() {
-  showChapterSummary(() => {
-    // Check if there's a next chapter
-    const availableChapters = Object.keys(currentBibleBook.verses).map(Number).sort((a, b) => a - b);
-    const currentIndex = availableChapters.indexOf(currentChapter);
-    
-    if (currentIndex < availableChapters.length - 1) {
-      // Move to next chapter
-      currentChapter = availableChapters[currentIndex + 1];
-      currentVerseIndex = 0;
-      resetChapterStats();
-      loadCurrentVerse();
-    } else {
-      // Book completed
-      const bookToast = document.createElement('div');
-      bookToast.className = 'bible-completion-toast';
-      bookToast.textContent = `📖 ${currentBibleBook.name} completed! Amazing work!`;
-      document.body.appendChild(bookToast);
-      
-      setTimeout(() => {
-        bookToast.style.opacity = '0';
-        setTimeout(() => bookToast.remove(), 300);
-      }, 4000);
-      
-      // Go back to books after 3 seconds
-      setTimeout(() => {
-        document.getElementById('bible-books-grid').style.display = 'grid';
-        document.getElementById('bible-practice-card').style.display = 'none';
-      }, 5000);
-    }
-  });
-}
+// FIX 3: Show Chapter Summary Modal
+function showChapterSummaryModal() {
+  // Calculate overall stats
+  const completedVerses = bibleState.chapterStats.filter(v => v.completed).length;
+  const totalVerses = bibleState.verses.length;
+  const avgWPM = Math.round(
+    bibleState.chapterStats.reduce((sum, v) => sum + v.wpm, 0) / bibleState.chapterStats.length
+  );
+  const avgAccuracy = Math.round(
+    bibleState.chapterStats.reduce((sum, v) => sum + v.accuracy, 0) / bibleState.chapterStats.length
+  );
 
-// FIX #3: Show chapter summary modal
-function showChapterSummary(onClose) {
-  // Calculate overall chapter stats
-  const overallWPM = chapterStats.totalTime > 0 
-    ? Math.round((chapterStats.totalWords / chapterStats.totalTime) * 60) 
-    : 0;
-  const overallAccuracy = chapterStats.totalChars > 0 
-    ? Math.round((chapterStats.correctChars / chapterStats.totalChars) * 100) 
-    : 100;
-  
-  const overlay = document.createElement('div');
-  overlay.className = 'bible-times-up-overlay';
-  overlay.innerHTML = `
+  const modal = document.createElement('div');
+  modal.className = 'bible-times-up-overlay';
+  modal.innerHTML = `
     <div class="bible-chapter-summary-modal">
       <div class="chapter-summary-icon">🎉</div>
-      <h3>Chapter ${currentChapter} Completed!</h3>
-      <p class="chapter-summary-book">${currentBibleBook.name}</p>
+      <h3>Chapter Completed!</h3>
+      <p class="chapter-summary-book">${bibleState.selectedBook} ${bibleState.selectedChapter}</p>
       
       <div class="chapter-summary-stats">
         <div class="chapter-summary-stat">
-          <div class="stat-icon">⚡</div>
+          <div class="stat-icon">📝</div>
           <div class="stat-content">
-            <div class="stat-value">${overallWPM}</div>
-            <div class="stat-label">Overall WPM</div>
+            <div class="stat-value">${completedVerses}/${totalVerses}</div>
+            <div class="stat-label">Verses</div>
           </div>
         </div>
+        
+        <div class="chapter-summary-stat">
+          <div class="stat-icon">⚡</div>
+          <div class="stat-content">
+            <div class="stat-value">${avgWPM}</div>
+            <div class="stat-label">Avg WPM</div>
+          </div>
+        </div>
+        
         <div class="chapter-summary-stat">
           <div class="stat-icon">🎯</div>
           <div class="stat-content">
-            <div class="stat-value">${overallAccuracy}%</div>
-            <div class="stat-label">Overall Accuracy</div>
-          </div>
-        </div>
-        <div class="chapter-summary-stat">
-          <div class="stat-icon">📝</div>
-          <div class="stat-content">
-            <div class="stat-value">${chapterStats.versesCompleted}</div>
-            <div class="stat-label">Verses Completed</div>
+            <div class="stat-value">${avgAccuracy}%</div>
+            <div class="stat-label">Accuracy</div>
           </div>
         </div>
       </div>
       
       <p class="chapter-summary-message">
-        You typed ${chapterStats.totalWords} words with ${overallAccuracy}% accuracy!
+        ${completedVerses === totalVerses 
+          ? 'Perfect! You completed all verses in this chapter!' 
+          : 'Great progress! Keep practicing to complete all verses.'}
       </p>
       
-      <button class="btn" onclick="this.closest('.bible-times-up-overlay').remove();" style="width: 200px; margin: 0 auto;">
-        Continue →
-      </button>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-  
-  // Handle close
-  overlay.querySelector('.btn').addEventListener('click', () => {
-    overlay.remove();
-    if (onClose) onClose();
-  });
-  
-  // Remove overlay when clicking outside modal
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) {
-      overlay.remove();
-      if (onClose) onClose();
-    }
-  });
-}
-
-// Start countdown timer
-function startBibleTimer() {
-  if (bibleTimerInterval) {
-    clearInterval(bibleTimerInterval);
-  }
-  
-  if (bibleTimerDuration === 0) {
-    document.getElementById('bible-countdown').textContent = '∞';
-    document.getElementById('bible-countdown').className = '';
-    return;
-  }
-  
-  bibleTimeLeft = bibleTimerDuration;
-  const countdownEl = document.getElementById('bible-countdown');
-  countdownEl.textContent = bibleTimeLeft + 's';
-  countdownEl.className = '';
-  
-  bibleTimerInterval = setInterval(() => {
-    bibleTimeLeft--;
-    
-    if (bibleTimeLeft <= 0) {
-      clearInterval(bibleTimerInterval);
-      bibleTimerInterval = null;
-      countdownEl.textContent = '0s';
-      countdownEl.className = 'danger';
-      
-      document.getElementById('bible-input').disabled = true;
-      showTimesUpModal();
-    } else {
-      countdownEl.textContent = bibleTimeLeft + 's';
-      
-      if (bibleTimeLeft <= 10) {
-        countdownEl.className = 'danger';
-      } else if (bibleTimeLeft <= 30) {
-        countdownEl.className = 'warning';
-      } else {
-        countdownEl.className = '';
-      }
-    }
-  }, 1000);
-}
-
-// Show times up modal
-function showTimesUpModal() {
-  const overlay = document.createElement('div');
-  overlay.className = 'bible-times-up-overlay';
-  overlay.innerHTML = `
-    <div class="bible-times-up-modal">
-      <h3>⏰ Time's Up!</h3>
-      <p>Complete this verse or move to the next one to continue practicing.</p>
-      <div style="display: flex; gap: 12px; justify-content: center;">
-        <button class="btn btn-secondary" onclick="this.closest('.bible-times-up-overlay').remove()">
-          Review Verse
-        </button>
-        <button class="btn" onclick="this.closest('.bible-times-up-overlay').remove(); nextVerse();">
-          Next Verse →
-        </button>
+      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <button class="btn" onclick="retryChapter()">🔄 Practice Again</button>
+        <button class="btn btn-secondary" onclick="nextChapter()">Next Chapter →</button>
+        <button class="btn btn-secondary" onclick="closeChapterSummary()">← Back to Chapters</button>
       </div>
     </div>
   `;
-  document.body.appendChild(overlay);
+  document.body.appendChild(modal);
   
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) {
-      overlay.remove();
-    }
-  });
+  // Save chapter progress
+  saveChapterProgress();
 }
 
-// Stop timer
-function stopBibleTimer() {
-  if (bibleTimerInterval) {
-    clearInterval(bibleTimerInterval);
-    bibleTimerInterval = null;
+// Retry entire chapter
+window.retryChapter = function() {
+  closeChapterSummary();
+  bibleState.currentVerseIndex = 0;
+  bibleState.currentVerse = bibleState.verses[0];
+  bibleState.chapterStats = [];
+  updatePracticeHeader();
+  resetBibleTest();
+  
+  const input = document.getElementById('bible-input');
+  if (input) {
+    input.focus();
+  }
+};
+
+// Go to next chapter
+window.nextChapter = function() {
+  closeChapterSummary();
+  const book = [...BIBLE_BOOKS.old, ...BIBLE_BOOKS.new].find(b => b.name === bibleState.selectedBook);
+  
+  if (book && bibleState.selectedChapter < book.chapters) {
+    startChapterPractice(bibleState.selectedBook, bibleState.selectedChapter + 1);
+  } else {
+    // Last chapter - go back to chapters grid
+    showChaptersGrid(bibleState.selectedBook);
+  }
+};
+
+// Close chapter summary
+window.closeChapterSummary = function() {
+  const modal = document.querySelector('.bible-times-up-overlay');
+  if (modal) modal.remove();
+  showChaptersGrid(bibleState.selectedBook);
+};
+
+// Save chapter progress
+function saveChapterProgress() {
+  if (!window.currentUser) return;
+
+  const progress = {
+    book: bibleState.selectedBook,
+    chapter: bibleState.selectedChapter,
+    verses: bibleState.chapterStats,
+    avgWPM: Math.round(
+      bibleState.chapterStats.reduce((sum, v) => sum + v.wpm, 0) / bibleState.chapterStats.length
+    ),
+    avgAccuracy: Math.round(
+      bibleState.chapterStats.reduce((sum, v) => sum + v.accuracy, 0) / bibleState.chapterStats.length
+    ),
+    timestamp: Date.now()
+  };
+
+  const key = `bible_progress_${window.currentUser.uid}`;
+  const existing = JSON.parse(localStorage.getItem(key) || '[]');
+  existing.unshift(progress);
+  
+  if (existing.length > 50) {
+    existing.length = 50;
+  }
+  
+  localStorage.setItem(key, JSON.stringify(existing));
+  updateVersesTypedCount();
+}
+
+// Reset Test
+function resetBibleTest() {
+  clearInterval(bibleState.timerInterval);
+  bibleState.timerInterval = null;
+  bibleState.isRunning = false;
+  bibleState.typedText = '';
+  bibleState.timeLeft = bibleState.duration;
+  bibleState.startTime = null;
+  bibleState.stats = {
+    wpm: 0,
+    accuracy: 100,
+    correctChars: 0,
+    incorrectChars: 0
+  };
+
+  const input = document.getElementById('bible-input');
+  if (input) {
+    input.value = '';
+    input.disabled = false;
+  }
+
+  updateCountdownDisplay();
+  document.getElementById('bible-wpm').textContent = '0';
+  document.getElementById('bible-accuracy').textContent = '100%';
+  
+  // Show verse display in typing mode, hide in audio mode before starting
+  const verseDisplay = document.querySelector('.bible-verse-display');
+  if (verseDisplay) {
+    if (bibleState.mode === 'audio') {
+      verseDisplay.style.display = 'block'; // Show initially
+    } else {
+      verseDisplay.style.display = 'block';
+    }
+  }
+  
+  renderBibleVerse();
+}
+
+// Audio Mode Functions (NEW)
+window.toggleAudioMode = function() {
+  const toggle = document.getElementById('bible-mode-toggle');
+  bibleState.mode = toggle.checked ? 'audio' : 'typing';
+  updateModeDisplay();
+};
+
+function updateModeDisplay() {
+  const verseDisplay = document.querySelector('.bible-verse-display');
+  const audioControls = document.getElementById('bible-audio-controls');
+  
+  if (bibleState.mode === 'audio') {
+    // Show audio controls
+    if (audioControls) audioControls.style.display = 'block';
+    
+    // COMPLETELY HIDE verse display in audio mode
+    if (verseDisplay) {
+      verseDisplay.style.display = 'none';
+    }
+  } else {
+    // Hide audio controls, show verse
+    if (audioControls) audioControls.style.display = 'none';
+    if (verseDisplay) {
+      verseDisplay.style.display = 'block';
+    }
+    renderBibleVerse();
   }
 }
 
-// Helper function
-function escapeHtml(text) {
-  const map = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;'
-  };
-  return text.replace(/[&<>"']/g, m => map[m]);
+// Play Audio (Text-to-Speech)
+window.playBibleAudio = function() {
+  if (!('speechSynthesis' in window)) {
+    alert('Text-to-speech is not supported in your browser.');
+    return;
+  }
+
+  // Cancel any ongoing speech
+  window.speechSynthesis.cancel();
+
+  // Split verse into sentences and speak them with pauses
+  speakVerseWithPauses(bibleState.currentVerse);
+};
+
+// Speak verse sentence by sentence with natural pauses
+function speakVerseWithPauses(text) {
+  // Split text into sentences (by periods, question marks, exclamation marks)
+  const sentences = text.match(/[^.!?]+[.!?]+["']?/g) || [text];
+  
+  const playBtn = document.getElementById('play-bible-audio');
+  if (playBtn) {
+    playBtn.textContent = '🔊 Playing...';
+    playBtn.disabled = true;
+  }
+
+  let currentSentenceIndex = 0;
+
+  function speakNextSentence() {
+    if (currentSentenceIndex >= sentences.length) {
+      // All sentences spoken
+      if (playBtn) {
+        playBtn.textContent = '▶️ Play Audio';
+        playBtn.disabled = false;
+      }
+      return;
+    }
+
+    const sentence = sentences[currentSentenceIndex].trim();
+    const speechText = convertTextForSpeechWithPauses(sentence);
+    
+    const utterance = new SpeechSynthesisUtterance(speechText);
+    utterance.rate = 0.70; // Slightly slower for better comprehension
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+
+    utterance.onend = () => {
+      currentSentenceIndex++;
+      
+      // Pause between sentences (1.5 seconds)
+      setTimeout(() => {
+        speakNextSentence();
+      }, 1500);
+    };
+
+    utterance.onerror = (error) => {
+      console.error('Speech error:', error);
+      if (playBtn) {
+        playBtn.textContent = '▶️ Play Audio';
+        playBtn.disabled = false;
+      }
+    };
+
+    window.speechSynthesis.speak(utterance);
+  }
+
+  // Start speaking
+  speakNextSentence();
 }
 
-// Export for use in main file
-window.loadBiblePage = loadBiblePage;
+// Convert text to include spoken punctuation marks with pauses
+function convertTextForSpeechWithPauses(text) {
+  let speechText = text;
+  
+  // Add pauses and speak punctuation
+  // Period - longer pause
+  speechText = speechText.replace(/\./g, ' , period , , ');
+  
+  // Comma - short pause
+  speechText = speechText.replace(/,/g, ' , comma , ');
+  
+  // Semicolon - medium pause
+  speechText = speechText.replace(/;/g, ' , semicolon , , ');
+  
+  // Colon - medium pause
+  speechText = speechText.replace(/:/g, ' , colon , , ');
+  
+  // Question mark - longer pause with emphasis
+  speechText = speechText.replace(/\?/g, ' , , question mark , , ');
+  
+  // Exclamation mark - longer pause with emphasis
+  speechText = speechText.replace(/!/g, ' , , exclamation mark , , ');
+  
+  // Quotation marks - slight pause
+  speechText = speechText.replace(/"/g, ' quotation mark ');
+  
+  // Apostrophe in contractions - no pause, just announce
+  speechText = speechText.replace(/'/g, ' apostrophe ');
+  
+  // Parentheses - slight pause
+  speechText = speechText.replace(/\(/g, ' , open parenthesis ');
+  speechText = speechText.replace(/\)/g, ' close parenthesis , ');
+  
+  // Brackets - slight pause
+  speechText = speechText.replace(/\[/g, ' , open bracket ');
+  speechText = speechText.replace(/\]/g, ' close bracket , ');
+  
+  // Dashes - medium pause
+  speechText = speechText.replace(/—/g, ' , em dash , ');
+  speechText = speechText.replace(/–/g, ' , en dash , ');
+  speechText = speechText.replace(/-/g, ' dash ');
+  
+  // Clean up multiple spaces and commas (commas create pauses in TTS)
+  speechText = speechText.replace(/\s+/g, ' ').trim();
+  
+  return speechText;
+}
+
+// Stop Audio
+window.stopBibleAudio = function() {
+  window.speechSynthesis.cancel();
+  const playBtn = document.getElementById('play-bible-audio');
+  if (playBtn) {
+    playBtn.textContent = '▶️ Play Audio';
+    playBtn.disabled = false;
+  }
+};
+
+// Update Verses Typed Count
+function updateVersesTypedCount() {
+  if (!window.currentUser) return;
+
+  const key = `bible_progress_${window.currentUser.uid}`;
+  const progress = JSON.parse(localStorage.getItem(key) || '[]');
+  
+  // Count total verses from all chapters
+  let totalVerses = 0;
+  progress.forEach(chapter => {
+    if (chapter.verses) {
+      totalVerses += chapter.verses.length;
+    }
+  });
+  
+  const totalEl = document.getElementById('total-verses-typed');
+  if (totalEl) {
+    totalEl.textContent = totalVerses;
+  }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+  if (document.getElementById('bible-full-page')) {
+    // Will be called when user navigates to Bible tab
+    console.log('Bible practice system loaded');
+  }
+});
