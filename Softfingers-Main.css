@@ -594,11 +594,47 @@
       font-size: 1rem;
     }
 
-    /* Utility Classes */
-    /* Utility Classes */
-.hidden { display: none; }  /* Remove !important */
+ /* Utility Classes */
+.hidden { 
+  display: none !important; 
+}
 
-/* Add these specific overrides to handle visibility */
+/* Full page sections - explicit display rules */
+#achievements-full-page,
+#competition-full-page,
+#lessons-full-page,
+#bible-full-page,
+#hymns-full-page,
+#history-full-page {
+  display: none;
+}
+
+/* Show full pages when NOT hidden */
+#achievements-full-page:not(.hidden) {
+  display: block !important;
+}
+
+#competition-full-page:not(.hidden) {
+  display: block !important;
+}
+
+#lessons-full-page:not(.hidden) {
+  display: block !important;
+}
+
+#bible-full-page:not(.hidden) {
+  display: block !important;
+}
+
+#hymns-full-page:not(.hidden) {
+  display: block !important;
+}
+
+#history-full-page:not(.hidden) {
+  display: block !important;
+}
+
+/* Grid and cards - only when visible */
 .grid:not(.hidden) { 
   display: grid !important; 
 }
@@ -615,38 +651,6 @@
   display: block !important;
 }
 
-/* Ensure loaders work correctly */
-.loader-container.hidden {
-  display: none !important;
-}
-
-#last-test-results.hidden {
-  display: none !important;
-}
-
-#results-loader-container.hidden {
-  display: none !important;
-}
-
-/* Full page sections */
-#achievements-full-page,
-#competition-full-page,
-#lessons-full-page,
-#bible-full-page,
-#hymns-full-page {
-  width: 100%;
-  min-height: calc(100vh - 73px);
-  padding: 32px 0;
-}
-
-/* Simple hiding - just use display none */
-#achievements-full-page.hidden,
-#competition-full-page.hidden,
-#lessons-full-page.hidden,
-#bible-full-page.hidden,
-#hymns-full-page.hidden {
-  display: none;
-}
 
 /* Dashboard section */
 #section-dashboard {
@@ -1034,13 +1038,13 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
-  margin-bottom: 32px;
+  margin-bottom: 11px;
 }
 
 .performance-card {
   background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
   border-radius: 16px;
-  padding: 28px;
+  padding: 7px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(159, 124, 255, 0.1);
   transition: all 0.3s ease;
@@ -1152,7 +1156,7 @@
 .performance-stat-item {
   background: white;
   border-radius: 12px;
-  padding: 20px;
+  padding: 5px;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -1339,4 +1343,28 @@ body:not(.dashboard-active) .card:has(#recent-table) {
 
 body:not(.dashboard-active) .card:has(#leaderboard-table) {
   display: none !important;
+}
+/* Ensure main dashboard elements are visible by default */
+body.dashboard-active .typing-card,
+body.dashboard-active .sidebar,
+body.dashboard-active #section-dashboard {
+  display: block !important;
+}
+
+body.dashboard-active .grid {
+  display: grid !important;
+}
+
+body.dashboard-active #section-dashboard .grid {
+  display: grid !important;
+}
+
+/* Explicitly show typing input and passage container */
+body.dashboard-active .typing-input:not(.loading),
+body.dashboard-active .passage-container:not(.loading) {
+  display: block !important;
+}
+
+body.dashboard-active .stats-grid {
+  display: grid !important;
 }
