@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <title>SoftFingers Pro - Professional Typing Platform</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="canonical" href="https://softfingers-typing.com/main.html">
+  <link rel="canonical" href="https://softingers-typing.com/main.html">
   <!-- Firebase compat SDKs -->
   <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="lessons.css">
   <link rel="stylesheet" href="Bible.css">
   <link rel="stylesheet" href="hymns.css">
+  <link rel="stylesheet" href="history.css">
   <link rel="stylesheet" href="certificate.css">
 </head>
 <body>
@@ -140,6 +141,7 @@
         <div class="nav-tab" data-feature="audio">Audio Challenge</div>
         <div class="nav-tab" data-feature="bible">Bible Practice</div>
         <div class="nav-tab" data-feature="hymns">Hymns Practice</div>
+        <div class="nav-tab" data-feature="history">History Practice</div>
       </div>
     </div>
   </nav>
@@ -621,75 +623,131 @@
         <div id="lessons-list-container" class="lessons-list-container"></div>
       </div>
 
-      <!-- Bible Practice Full Page -->
-      <div id="bible-full-page" class="hidden">
-        <div class="bible-header">
-          <div>
-            <h2 class="bible-page-title">📖 Holy Bible Practice</h2>
-            <p class="bible-page-subtitle">Type verses from the King James Version (KJV)</p>
-          </div>
-          <div class="bible-stats-summary">
-            <div class="stat-pill">
-              <span class="stat-pill-value" id="total-verses-typed">0</span>
-              <span class="stat-pill-label">Verses Typed</span>
-            </div>
-          </div>
+  <!-- Enhanced Bible Practice HTML Section -->
+<div id="bible-full-page" class="hidden">
+  <div class="bible-content-container">
+    <!-- Header -->
+    <div class="bible-header">
+      <div class="bible-header-content">
+        <h2 class="bible-page-title">📖 Holy Bible Practice</h2>
+        <p class="bible-page-subtitle">Type verses from the King James Version (KJV)</p>
+      </div>
+      <div class="bible-stats-summary">
+        <div class="stat-pill">
+          <span class="stat-pill-value" id="total-verses-typed">0</span>
+          <span class="stat-pill-label">Verses Typed</span>
         </div>
+      </div>
+    </div>
 
-        <div class="bible-testament-tabs">
-          <div class="bible-testament-tab active" data-testament="old">Old Testament</div>
-          <div class="bible-testament-tab" data-testament="new">New Testament</div>
-        </div>
+    <!-- Testament Tabs -->
+    <div class="bible-testament-tabs">
+      <div class="bible-testament-tab active" data-testament="old">Old Testament</div>
+      <div class="bible-testament-tab" data-testament="new">New Testament</div>
+    </div>
 
-        <div class="bible-books-grid" id="bible-books-grid">
-          <!-- Books will be populated by JavaScript -->
-        </div>
+    <!-- Books Grid -->
+    <div class="bible-books-grid" id="bible-books-grid">
+      <!-- Books will be populated by JavaScript -->
+    </div>
 
-        <div class="bible-practice-card" id="bible-practice-card" style="display: none;">
-          <button class="btn btn-secondary" id="back-to-books">← Back</button>
-          
-          <div style="display: flex; justify-content: space-between; align-items: center; margin: 16px 0;">
-            <div>
-              <label class="form-label">Set Time (seconds)</label>
-              <select id="bible-timer-select" class="form-input" style="width: 150px;">
-                <option value="30">30 seconds</option>
-                <option value="60" selected>60 seconds</option>
-                <option value="90">90 seconds</option>
-                <option value="120">2 minutes</option>
-                <option value="180">3 minutes</option>
-                <option value="300">5 minutes</option>
-                <option value="0">No timer</option>
-              </select>
-            </div>
-            <div style="text-align: center;">
-              <div style="font-size: 0.75rem; color: var(--muted); margin-bottom: 4px;">TIME LEFT</div>
-              <div id="bible-countdown" style="font-size: 2rem; font-weight: 700; color: var(--accent-solid);">60s</div>
-            </div>
-          </div>
-          
-          <div class="bible-verse-display" id="bible-verse-display">
-            <div class="verse-text" id="verse-text"></div>
-          </div>
-          
-          <textarea id="bible-input" class="bible-input" placeholder="Start typing..." disabled></textarea>
-          
-          <div class="bible-stats">
-            <div class="bible-stat-card">
-              <div class="stat-label">Time</div>
-              <div class="stat-value" id="bible-time">0s</div>
-            </div>
-            <div class="bible-stat-card">
-              <div class="stat-label">WPM</div>
-              <div class="stat-value" id="bible-wpm">0</div>
-            </div>
-            <div class="bible-stat-card">
-              <div class="stat-label">Accuracy</div>
-              <div class="stat-value" id="bible-accuracy">100%</div>
-            </div>
-          </div>
+    <!-- Chapters Card (NEW - Hidden by default) -->
+    <div class="bible-chapters-card" id="bible-chapters-card" style="display: none;">
+      <!-- Chapters will be populated by JavaScript -->
+    </div>
+
+    <!-- Practice Card -->
+    <div class="bible-practice-card" id="bible-practice-card" style="display: none;">
+      <!-- Header with back buttons -->
+      <div class="bible-practice-header">
+        <button class="btn btn-secondary btn-small" id="back-to-chapters">
+          ← Chapters
+        </button>
+        <div class="bible-practice-header-text">
+          <h3 style="margin: 0; font-size: 1.5rem; color: var(--text);">Select a book</h3>
+          <p style="margin: 4px 0 0; color: var(--muted); font-size: 0.875rem;">King James Version</p>
         </div>
       </div>
 
+      <!-- Mode Toggle (NEW - Read and Type Mode) -->
+      <div class="bible-mode-selector">
+        <label class="mode-toggle-label">
+          <span class="mode-label-text">📝 Typing Mode</span>
+          <label class="switch">
+            <input type="checkbox" id="bible-mode-toggle" onchange="toggleAudioMode()">
+            <span class="slider"></span>
+          </label>
+          <span class="mode-label-text">🎧 Listen & Type</span>
+        </label>
+      </div>
+
+      <!-- Timer and Stats Section -->
+      <div class="bible-timer-controls">
+        <div class="bible-timer-select-wrapper">
+          <label class="form-label">Set Time (seconds)</label>
+          <select id="bible-timer-select" class="form-input">
+            <option value="30">30 seconds</option>
+            <option value="60" selected>60 seconds</option>
+            <option value="90">90 seconds</option>
+            <option value="120">2 minutes</option>
+            <option value="180">3 minutes</option>
+            <option value="300">5 minutes</option>
+            <option value="0">No timer</option>
+          </select>
+        </div>
+        
+        <div class="bible-countdown-display">
+          <div class="bible-countdown-label">TIME LEFT</div>
+          <div id="bible-countdown">60s</div>
+        </div>
+      </div>
+
+      <!-- Audio Controls (NEW - Hidden by default) -->
+      <div class="bible-audio-controls" id="bible-audio-controls" style="display: none;">
+        <div style="text-align: center; margin-bottom: 16px;">
+          <h4 style="margin: 0 0 8px; color: var(--text);">🎧 Audio Transcription Mode</h4>
+          <p class="text-small text-muted">Listen to the verse, then type what you hear</p>
+        </div>
+        <div class="audio-buttons">
+          <button class="btn" id="play-bible-audio" onclick="playBibleAudio()">
+            ▶️ Play Audio
+          </button>
+          <button class="btn btn-secondary" onclick="stopBibleAudio()">
+            ⏹️ Stop
+          </button>
+        </div>
+      </div>
+
+      <!-- Verse Display -->
+      <div class="bible-verse-display" id="bible-verse-display">
+        <div class="verse-text" id="verse-text">
+          <!-- Verse will be populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Input -->
+      <textarea 
+        id="bible-input" 
+        class="bible-input" 
+        placeholder="Start typing the verse..."
+        autocomplete="off"
+        spellcheck="false"
+      ></textarea>
+
+      <!-- Stats (Removed Time, Kept WPM and Accuracy) -->
+      <div class="bible-stats">
+        <div class="bible-stat-card">
+          <div class="stat-label">WPM</div>
+          <div class="stat-value" id="bible-wpm">0</div>
+        </div>
+        <div class="bible-stat-card">
+          <div class="stat-label">Accuracy</div>
+          <div class="stat-value" id="bible-accuracy">100%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
       <!-- Hymns Practice Full Page -->
       <div id="hymns-full-page" class="hidden">
         <div class="hymns-header">
@@ -783,6 +841,178 @@
           </div>
         </div>
       </div>
+       <!-- History Practice Full Page -->
+      <div id="history-full-page" class="hidden">
+        <div class="history-header">
+          <div>
+            <h2 class="history-page-title">📜 History Practice</h2>
+            <p class="history-page-subtitle">Learn history while improving your typing skills</p>
+          </div>
+          <div class="history-stats-summary">
+            <div class="stat-pill">
+              <span class="stat-pill-value" id="total-history-practiced">0</span>
+              <span class="stat-pill-label">Stories Completed</span>
+            </div>
+            <button class="btn btn-secondary btn-small" id="back-to-categories" style="display: none;" onclick="backToHistoryCategories()">
+              ← Back to Categories
+            </button>
+          </div>
+        </div>
+
+        <!-- Categories Grid -->
+        <div class="history-list-grid" id="history-list-grid">
+          <!-- Categories will be populated by JavaScript -->
+        </div>
+
+        <!-- Stories Grid (Hidden by default) -->
+        <div class="history-stories-grid" id="history-stories-grid">
+          <!-- Stories will be populated by JavaScript -->
+        </div>
+
+        <!-- Practice Card (Hidden by default) -->
+        <div class="history-practice-card" id="history-practice-card">
+          <div class="history-practice-header">
+            <div class="history-story-image-preview" id="history-story-image"></div>
+            <div class="history-story-info">
+              <h3 id="history-story-title">Story Title</h3>
+              <p id="history-story-year">Year</p>
+            </div>
+            <button class="btn btn-secondary" onclick="backToHistoryStories()">
+              ← Back to Stories
+            </button>
+          </div>
+
+          <!-- Timer Controls -->
+          <div class="history-timer-controls">
+            <div class="history-timer-select-wrapper">
+              <label class="form-label">Set Time (seconds)</label>
+              <select id="history-timer-select" class="form-input">
+                <option value="60">60 seconds</option>
+                <option value="90" selected>90 seconds</option>
+                <option value="120">2 minutes</option>
+                <option value="180">3 minutes</option>
+                <option value="300">5 minutes</option>
+                <option value="0">No timer</option>
+              </select>
+            </div>
+            
+            <div class="history-countdown-display">
+              <div class="history-countdown-label">TIME LEFT</div>
+              <div id="history-countdown">90s</div>
+            </div>
+          </div>
+
+          <!-- Story Text Display -->
+          <div class="history-story-display" id="history-story-display">
+            <div id="history-story-text">
+              <!-- Story text will be populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Input -->
+          <textarea 
+            id="history-input" 
+            class="history-input" 
+            placeholder="Start typing the historical text..."
+            autocomplete="off"
+            spellcheck="false"
+            disabled
+          ></textarea>
+
+          <!-- Stats and Retry Button -->
+          <div class="history-stats">
+            <div class="history-stat-card">
+              <div class="stat-label">WPM</div>
+              <div class="stat-value" id="history-wpm">0</div>
+            </div>
+            <div class="history-stat-card">
+              <div class="stat-label">Accuracy</div>
+              <div class="stat-value" id="history-accuracy">100%</div>
+            </div>
+            <div class="history-stat-card">
+              <div class="stat-label">Progress</div>
+              <div class="stat-value" id="history-progress">0%</div>
+            </div>
+          </div>
+
+          <!-- Retry Button -->
+          <div style="text-align: center; margin-top: 24px;">
+            <button class="btn btn-secondary" id="history-retry-btn" onclick="retryHistoryPractice()">
+              🔄 Retry This Story
+            </button>
+          </div>
+        </div>
+
+
+        <!-- History Completion Modal -->
+        <div id="history-completion-modal" class="modal hidden">
+          <div class="modal-overlay" onclick="closeHistoryCompletionModal()"></div>
+          <div class="modal-content modal-completion">
+            <div class="modal-header">
+              <h3 class="modal-title" id="completion-modal-title">🎉 Story Completed!</h3>
+              <button class="modal-close" onclick="closeHistoryCompletionModal()">×</button>
+            </div>
+            <div class="modal-body">
+              <div class="completion-stats-grid">
+                <div class="completion-stat-card highlight">
+                  <div class="completion-stat-icon">⚡</div>
+                  <div class="completion-stat-content">
+                    <div class="completion-stat-label">Speed</div>
+                    <div class="completion-stat-value" id="completion-wpm">0</div>
+                    <div class="completion-stat-unit">WPM</div>
+                  </div>
+                </div>
+                <div class="completion-stat-card highlight">
+                  <div class="completion-stat-icon">🎯</div>
+                  <div class="completion-stat-content">
+                    <div class="completion-stat-label">Accuracy</div>
+                    <div class="completion-stat-value" id="completion-accuracy">0%</div>
+                    <div class="completion-stat-unit">Precision</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="completion-details">
+                <div class="completion-detail-item">
+                  <span class="completion-detail-icon">📖</span>
+                  <span class="completion-detail-label">Story:</span>
+                  <span class="completion-detail-value" id="completion-story-title">Story Name</span>
+                </div>
+                <div class="completion-detail-item">
+                  <span class="completion-detail-icon">📅</span>
+                  <span class="completion-detail-label">Period:</span>
+                  <span class="completion-detail-value" id="completion-story-year">Year</span>
+                </div>
+                <div class="completion-detail-item">
+                  <span class="completion-detail-icon">⏱️</span>
+                  <span class="completion-detail-label">Time Taken:</span>
+                  <span class="completion-detail-value" id="completion-time">0s</span>
+                </div>
+                <div class="completion-detail-item">
+                  <span class="completion-detail-icon">📊</span>
+                  <span class="completion-detail-label">Progress:</span>
+                  <span class="completion-detail-value" id="completion-progress-text">100%</span>
+                </div>
+              </div>
+
+              <div class="completion-message" id="completion-message">
+                Great work learning history through typing!
+              </div>
+
+              <div class="completion-actions">
+                <button class="btn" onclick="retryHistoryFromModal()">
+                  🔄 Retry Story
+                </button>
+                <button class="btn btn-secondary" onclick="backToHistoryStoriesFromModal()">
+                  📚 Choose Another Story
+                </button>
+                <button class="btn btn-secondary" onclick="closeHistoryCompletionModal()">
+                  ✓ Done
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
       <!-- Modals -->
       <div id="create-competition-modal" class="modal hidden">
@@ -986,8 +1216,8 @@
   <script src="JS/game-engine.js"></script>
   <script src="JS/games-lessons.js"></script>
   <script src="JS/quotes.js"></script>
-  <script src="JS/admin.js"></script>
   <script src="JS/random-words.js"></script>
+  <script src="JS/history-practice.js"></script>
 
 </body>
 </html>
