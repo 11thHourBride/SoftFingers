@@ -812,3 +812,596 @@
     font-size: 2rem;
   }
 }
+/* Enhanced Bible Practice Styles */
+/* Add these to your Bible.css file or merge with existing styles */
+
+/* Chapters Card (NEW) */
+.bible-chapters-card {
+  background: white;
+  border: 2px solid rgba(255, 215, 0, 0.2);
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.chapters-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid rgba(255, 215, 0, 0.2);
+}
+
+.chapters-title {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.chapters-subtitle {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.chapters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+}
+
+.chapter-card {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 165, 0, 0.05));
+  border: 2px solid rgba(255, 215, 0, 0.2);
+  border-radius: 12px;
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.chapter-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.2);
+  border-color: #FFD700;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.1));
+}
+
+.chapter-number {
+  font-size: 1.125rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 4px;
+}
+
+/* FIX 5: Chapter verse count */
+.chapter-verses {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Practice Header */
+.bible-practice-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid rgba(255, 215, 0, 0.2);
+}
+
+.bible-practice-header-text {
+  flex: 1;
+}
+
+/* Mode Selector (NEW - Toggle Switch) */
+.bible-mode-selector {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 165, 0, 0.05));
+  border-radius: 12px;
+  border: 2px solid rgba(255, 215, 0, 0.2);
+  display: flex;
+  justify-content: center;
+}
+
+.mode-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+}
+
+.mode-label-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  transition: all 0.3s ease;
+}
+
+/* Toggle Switch Styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #51cf66, #37b24d);
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input:checked + .slider {
+  background: linear-gradient(135deg, #9f7cff, #6b4eff);
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+/* Highlight active mode text */
+.mode-toggle-label input:not(:checked) ~ .mode-label-text:first-of-type {
+  background: linear-gradient(135deg, #51cf66, #37b24d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+.mode-toggle-label input:checked ~ .mode-label-text:last-of-type {
+  background: linear-gradient(135deg, #9f7cff, #6b4eff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+/* Audio Controls (NEW) */
+.bible-audio-controls {
+  margin-bottom: 24px;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(159, 124, 255, 0.05), rgba(107, 78, 255, 0.05));
+  border-radius: 12px;
+  border: 2px solid rgba(159, 124, 255, 0.3);
+}
+
+.audio-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Updated Stats Grid (Only 2 items now) */
+.bible-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+/* Enhanced Countdown Display */
+.bible-countdown-display {
+  text-align: center;
+  flex: 1;
+  padding: 24px;
+  background: white;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  min-width: 180px;
+}
+
+.bible-countdown-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+}
+
+#bible-countdown {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: var(--accent-solid);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, var(--accent-solid), #6b4eff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+#bible-countdown.warning {
+  background: linear-gradient(135deg, #ffc107, #ff9800);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: pulse-warning 1s ease-in-out infinite;
+}
+
+#bible-countdown.danger {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: pulse-danger 0.5s ease-in-out infinite;
+}
+
+@keyframes pulse-warning {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes pulse-danger {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+/* Time's Up Modal - Enhanced with Retry Button */
+.bible-times-up-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+  backdrop-filter: blur(8px);
+}
+
+.bible-times-up-modal {
+  background: white;
+  padding: 48px;
+  border-radius: 24px;
+  text-align: center;
+  max-width: 600px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+  animation: scaleIn 0.3s ease;
+  border: 3px solid rgba(255, 107, 107, 0.3);
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.bible-times-up-modal h3 {
+  margin: 0 0 16px;
+  font-size: 2.25rem;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+}
+
+.bible-times-up-modal p {
+  margin: 0 0 24px;
+  color: var(--muted);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+/* Times Up Stats */
+.times-up-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.05), rgba(238, 90, 111, 0.05));
+  border-radius: 16px;
+  border: 2px solid rgba(255, 107, 107, 0.2);
+}
+
+.times-up-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.times-up-stat .stat-value {
+  font-size: 2.5rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+
+.times-up-stat .stat-label {
+  font-size: 0.875rem;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* FIX 3: Chapter Summary Modal */
+.bible-chapter-summary-modal {
+  background: white;
+  padding: 48px;
+  border-radius: 24px;
+  text-align: center;
+  max-width: 700px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+  animation: scaleIn 0.3s ease;
+  border: 3px solid rgba(255, 215, 0, 0.3);
+}
+
+.chapter-summary-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+  animation: bounce 0.6s ease;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.bible-chapter-summary-modal h3 {
+  margin: 0 0 8px;
+  font-size: 2.25rem;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+}
+
+.chapter-summary-book {
+  font-size: 1.125rem;
+  color: var(--muted);
+  margin: 0 0 32px;
+  font-weight: 600;
+}
+
+.chapter-summary-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.chapter-summary-stat {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 165, 0, 0.05));
+  border: 2px solid rgba(255, 215, 0, 0.2);
+  border-radius: 16px;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s ease;
+}
+
+.chapter-summary-stat:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.2);
+}
+
+.chapter-summary-stat .stat-icon {
+  font-size: 2rem;
+}
+
+.chapter-summary-stat .stat-content {
+  text-align: center;
+}
+
+.chapter-summary-stat .stat-value {
+  font-size: 2.5rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.chapter-summary-stat .stat-label {
+  font-size: 0.875rem;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.chapter-summary-message {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  margin: 0 0 32px;
+  line-height: 1.6;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 165, 0, 0.05));
+  border-radius: 12px;
+  border: 2px solid rgba(255, 215, 0, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .chapters-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+  
+  .bible-practice-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .bible-chapters-card {
+    padding: 24px;
+  }
+  
+  .chapters-title {
+    font-size: 1.5rem;
+  }
+  
+  .chapters-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
+  }
+  
+  .chapter-card {
+    padding: 20px 12px;
+  }
+  
+  .bible-mode-selector {
+    padding: 16px;
+  }
+  
+  .mode-toggle-label {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+  
+  .mode-label-text {
+    font-size: 0.875rem;
+  }
+  
+  .bible-timer-controls {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .bible-countdown-display {
+    width: 100%;
+  }
+  
+  #bible-countdown {
+    font-size: 3rem;
+  }
+  
+  .bible-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .bible-times-up-modal {
+    padding: 32px 24px;
+    margin: 20px;
+  }
+  
+  .bible-times-up-modal h3 {
+    font-size: 1.75rem;
+  }
+  
+  .audio-buttons {
+    flex-direction: column;
+  }
+  
+  .audio-buttons button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .chapters-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  }
+  
+  .chapter-number {
+    font-size: 0.875rem;
+  }
+  
+  .bible-countdown-label {
+    font-size: 0.625rem;
+  }
+  
+  #bible-countdown {
+    font-size: 2.5rem;
+  }
+  
+  .switch {
+    width: 50px;
+    height: 28px;
+  }
+  
+  .slider:before {
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(22px);
+  }
+}
