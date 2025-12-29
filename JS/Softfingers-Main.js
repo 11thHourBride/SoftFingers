@@ -2693,6 +2693,7 @@ navTabs.forEach(tab => {
       const performanceStats = document.getElementById('dashboard-performance-stats');
       const recentTestsCard = document.querySelector('.card:has(#recent-table)');
       const leaderboardCard = document.querySelector('.card:has(#leaderboard-table)');
+      const historyFullPage = document.getElementById('history-full-page');
       
       if (feature !== 'dashboard' && feature !== 'competition' && feature !== 'lessons') {
         const competitionMode = localStorage.getItem('competitionMode');
@@ -2713,7 +2714,6 @@ navTabs.forEach(tab => {
       }
       
       if (feature === 'dashboard') {
-        // ✅ ONLY add dashboard-active class for dashboard
         document.body.classList.add('dashboard-active');
         if (dashboardSection) dashboardSection.style.display = 'block';
         if (typingCard) typingCard.style.display = 'block';
@@ -2732,13 +2732,16 @@ navTabs.forEach(tab => {
         if (lessonsFullPage) lessonsFullPage.classList.add('hidden');
         if (bibleFullPage) bibleFullPage.classList.add('hidden');
         if (hymnsFullPage) hymnsFullPage.classList.add('hidden');
+        if (historyFullPage) {
+          historyFullPage.classList.add('hidden');
+          historyFullPage.style.display = 'none';
+        }
         sections.forEach(section => section.classList.add('hidden'));
         const competitionMode = localStorage.getItem('competitionMode');
         const activeCompId = localStorage.getItem('activeCompetition');
         if (competitionMode === 'active' && activeCompId) showCompetitionIndicator(activeCompId);
         focusTypingInput();
       } else if (feature === 'achievements') {
-        // ✅ Remove dashboard-active class for other pages
         document.body.classList.remove('dashboard-active');
         if (dashboardSection) dashboardSection.style.display = 'none';
         if (performanceStats) performanceStats.style.display = 'none';
@@ -2752,6 +2755,10 @@ navTabs.forEach(tab => {
         if (lessonsFullPage) lessonsFullPage.classList.add('hidden');
         if (bibleFullPage) bibleFullPage.classList.add('hidden');
         if (hymnsFullPage) hymnsFullPage.classList.add('hidden');
+        if (historyFullPage) {
+          historyFullPage.classList.add('hidden');
+          historyFullPage.style.display = 'none';
+        }
         if (currentUser) {
           renderAchievements();
         } else {
@@ -2759,7 +2766,6 @@ navTabs.forEach(tab => {
           if (container) container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px;"><p class="text-muted">Sign in to track your achievements and unlock badges!</p></div>';
         }
       } else if (feature === 'competition') {
-        // ✅ Remove dashboard-active class
         document.body.classList.remove('dashboard-active');
         if (dashboardSection) dashboardSection.style.display = 'none';
         if (performanceStats) performanceStats.style.display = 'none';
@@ -2773,13 +2779,16 @@ navTabs.forEach(tab => {
         if (lessonsFullPage) lessonsFullPage.classList.add('hidden');
         if (bibleFullPage) bibleFullPage.classList.add('hidden');
         if (hymnsFullPage) hymnsFullPage.classList.add('hidden');
+        if (historyFullPage) {
+          historyFullPage.classList.add('hidden');
+          historyFullPage.style.display = 'none';
+        }
         if (currentUser) {
           loadCompetitions();
         } else {
           document.getElementById('my-competitions-list').innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px;"><p class="text-muted">Sign in to create and join competitions!</p></div>';
         }
       } else if (feature === 'lessons') {
-        // ✅ Remove dashboard-active class
         document.body.classList.remove('dashboard-active');
         if (dashboardSection) dashboardSection.style.display = 'none';
         if (performanceStats) performanceStats.style.display = 'none';
@@ -2793,6 +2802,10 @@ navTabs.forEach(tab => {
           competitionFullPage.classList.add('hidden');
           if (bibleFullPage) bibleFullPage.classList.add('hidden');
           if (hymnsFullPage) hymnsFullPage.classList.add('hidden');
+          if (historyFullPage) {
+            historyFullPage.classList.add('hidden');
+            historyFullPage.style.display = 'none';
+          }
           if (currentUser) {
             loadLessonsPage();
           } else {
@@ -2800,7 +2813,6 @@ navTabs.forEach(tab => {
           }
         }
       } else if (feature === 'bible') {
-        // ✅ Remove dashboard-active class
         document.body.classList.remove('dashboard-active');
         if (dashboardSection) dashboardSection.style.display = 'none';
         if (performanceStats) performanceStats.style.display = 'none';
@@ -2814,10 +2826,13 @@ navTabs.forEach(tab => {
           competitionFullPage.classList.add('hidden');
           if (lessonsFullPage) lessonsFullPage.classList.add('hidden');
           if (hymnsFullPage) hymnsFullPage.classList.add('hidden');
+          if (historyFullPage) {
+            historyFullPage.classList.add('hidden');
+            historyFullPage.style.display = 'none';
+          }
           loadBiblePage();
         }
       } else if (feature === 'hymns') {
-        // ✅ Remove dashboard-active class
         document.body.classList.remove('dashboard-active');
         if (dashboardSection) dashboardSection.style.display = 'none';
         if (performanceStats) performanceStats.style.display = 'none';
@@ -2831,10 +2846,38 @@ navTabs.forEach(tab => {
           competitionFullPage.classList.add('hidden');
           if (lessonsFullPage) lessonsFullPage.classList.add('hidden');
           if (bibleFullPage) bibleFullPage.classList.add('hidden');
+          if (historyFullPage) {
+            historyFullPage.classList.add('hidden');
+            historyFullPage.style.display = 'none';
+          }
           loadHymnsPage();
         }
+      } else if (feature === 'history') {
+        document.body.classList.remove('dashboard-active');
+        
+        if (dashboardSection) dashboardSection.style.display = 'none';
+        if (performanceStats) performanceStats.style.display = 'none';
+        if (recentTestsCard) recentTestsCard.style.display = 'none';
+        if (leaderboardCard) leaderboardCard.style.display = 'none';
+        if (typingCard) typingCard.style.display = 'none';
+        if (sidebar) sidebar.style.display = 'none';
+        
+        achievementsFullPage.classList.add('hidden');
+        competitionFullPage.classList.add('hidden');
+        if (lessonsFullPage) lessonsFullPage.classList.add('hidden');
+        if (bibleFullPage) bibleFullPage.classList.add('hidden');
+        if (hymnsFullPage) hymnsFullPage.classList.add('hidden');
+        sections.forEach(section => section.classList.add('hidden'));
+        
+        if (historyFullPage) {
+          historyFullPage.classList.remove('hidden');
+          historyFullPage.style.display = 'block';
+          
+          if (typeof loadHistoryPage === 'function') {
+            loadHistoryPage();
+          }
+        }
       } else {
-        // ✅ Remove dashboard-active class for any other feature
         document.body.classList.remove('dashboard-active');
         if (dashboardSection) dashboardSection.style.display = 'block';
         if (typingCard) typingCard.style.display = 'block';
@@ -2847,6 +2890,10 @@ navTabs.forEach(tab => {
         if (lessonsFullPage) lessonsFullPage.classList.add('hidden');
         if (bibleFullPage) bibleFullPage.classList.add('hidden');
         if (hymnsFullPage) hymnsFullPage.classList.add('hidden');
+        if (historyFullPage) {
+          historyFullPage.classList.add('hidden');
+          historyFullPage.style.display = 'none';
+        }
         sections.forEach(section => {
           if (section.id === `section-${feature}`) {
             section.classList.remove('hidden');
@@ -4711,6 +4758,8 @@ console.log('Modal inline style:', modal.style.cssText);
   if (lessonsFullPage) lessonsFullPage.classList.add('hidden');
   if (bibleFullPage) bibleFullPage.classList.add('hidden');
   if (hymnsFullPage) hymnsFullPage.classList.add('hidden');
+   const historyFullPage = document.getElementById('history-full-page');
+  if (historyFullPage) historyFullPage.classList.add('hidden');
  // Hide loaders on initial page load
   if (passageContainer) passageContainer.classList.remove('loading');
   if (typingInput) typingInput.classList.remove('loading');
