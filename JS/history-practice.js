@@ -1465,55 +1465,98 @@ function renderHistoryText() {
   const storyText = document.getElementById('history-story-text');
   const storyDisplay = document.getElementById('history-story-display');
   const input = document.getElementById('history-input');
-  const currentTyped = typed + input.value;
   
-  // Calculate how many characters to show (show current position + context)
-  const currentPosition = currentTyped.length;
-  const charsPerLine = 80; // Approximate characters per line
-  const currentLine = Math.floor(currentPosition / charsPerLine);
-  const startPosition = Math.max(0, (currentLine - 1) * charsPerLine); // Show previous line for context
-  const endPosition = Math.min(text.length, startPosition + (charsPerLine * 3)); // Show 3 lines
+  const words = text.split(" ");
+  const currentWord = input.value; // What's being typed right now
+  const completedTyped = typed; // What's already been typed
+  const fullTyped = completedTyped + currentWord; // Combine them
+  const typedWords = fullTyped.trimEnd().split(" ");
+
+  // Calculate current word index
+  let currentWordIndex = typed.split(" ").filter(w => w !== '').length;
   
-  let html = '';
-  
-  // Add indicator if there's hidden text before
-  if (startPosition > 0) {
-    html += '<div style="text-align: center; color: var(--muted); font-size: 0.875rem; margin-bottom: 8px;">... previous text completed ...</div>';
+  if (typed === '' && currentWord === '') {
+    currentWordIndex = 0;
   }
+
+  // Calculate words per row based on container width
+  const style = window.getComputedStyle(storyText);
+  const containerWidth = storyText.clientWidth;
+  const fontSize = parseInt(style.fontSize, 10);
+  const charWidth = fontSize * 0.6;
+  const avgWordLength = 6;
+  const WORDS_PER_ROW = Math.max(1, Math.floor(containerWidth / (avgWordLength * charWidth)));
+
+  // Calculate which row the current word is on
+  const currentRow = Math.floor(currentWordIndex / WORDS_PER_ROW);
   
-  for (let i = startPosition; i < endPosition; i++) {
-    const char = text[i];
-    const typedChar = currentTyped[i];
-    
-    if (i === currentTyped.length) {
-      html += `<span class="char current">${char === ' ' ? '&nbsp;' : char}</span>`;
-    } else if (typedChar !== undefined) {
-      if (typedChar === char) {
-        html += `<span class="char correct">${char === ' ' ? '&nbsp;' : char}</span>`;
-      } else {
-        html += `<span class="char incorrect">${char === ' ' ? '&nbsp;' : char}</span>`;
+  // Start displaying from the current row
+  const displayStartRow = Math.max(0, currentRow);
+  const pageStartIndex = displayStartRow * WORDS_PER_ROW;
+
+  // Show 2 rows worth of words
+  const visibleWords = words.slice(pageStartIndex, pageStartIndex + WORDS_PER_ROW * 2);
+
+  let html = "";
+  for (let r = 0; r < visibleWords.length; r += WORDS_PER_ROW) {
+    const rowWords = visibleWords.slice(r, r + WORDS_PER_ROW);
+
+    const rowHtml = rowWords.map((word, wi) => {
+      const absoluteIndex = pageStartIndex + r + wi;
+      const typedWord = typedWords[absoluteIndex] || "";
+      let chars = "";
+      
+      // Word-level comparison
+      const isCurrentWord = absoluteIndex === currentWordIndex;
+      const wordComplete = typedWord.length > 0 && !isCurrentWord;
+      const wordCorrect = wordComplete && typedWord === word;
+      const wordIncorrect = wordComplete && typedWord !== word;
+
+      // Render each character
+      for (let i = 0; i < word.length; i++) {
+        const typedChar = typedWord[i];
+
+        if (typedChar === undefined) {
+          chars += `<span>${escapeHtml(word[i])}</span>`;
+        } else if (isCurrentWord) {
+          // Currently typing - show live feedback
+          if (typedChar === word[i]) {
+            chars += `<span class="correct">${escapeHtml(word[i])}</span>`;
+          } else {
+            chars += `<span class="incorrect">${escapeHtml(word[i])}</span>`;
+          }
+        } else if (wordCorrect) {
+          chars += `<span class="correct">${escapeHtml(word[i])}</span>`;
+        } else if (wordIncorrect) {
+          chars += `<span class="incorrect">${escapeHtml(word[i])}</span>`;
+        }
       }
-    } else {
-      html += `<span class="char">${char === ' ' ? '&nbsp;' : char}</span>`;
-    }
+
+      let wordClass = "word";
+      if (absoluteIndex === currentWordIndex) {
+        wordClass += " active-word";
+      }
+
+      return `<span class="${wordClass}">${chars} </span>`;
+    }).join("");
+    
+    html += `<div class="row">${rowHtml}</div>`;
   }
-  
-  // Add indicator if there's more text after
-  if (endPosition < text.length) {
-    const remainingChars = text.length - endPosition;
-    html += `<div style="text-align: center; color: var(--muted); font-size: 0.875rem; margin-top: 8px;">... ${remainingChars} characters remaining ...</div>`;
-  }
-  
+
   storyText.innerHTML = html;
   
-  // Auto-scroll to top to keep current typing position visible
+  // Auto-scroll to top to keep current line visible
   if (storyDisplay) {
     storyDisplay.scrollTop = 0;
   }
   
   // Calculate progress
-  const progress = Math.round((currentTyped.length / text.length) * 100);
+  const progress = Math.round((fullTyped.length / text.length) * 100);
   document.getElementById('history-progress').textContent = progress + '%';
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 // History input handler
 document.addEventListener('DOMContentLoaded', () => {
@@ -1591,7 +1634,50 @@ function startHistoryTimer() {
     }, 1000);
   }
 }
-
+function retryHistoryPractice() {
+  if (!window.currentHistoryStory) return;
+  
+  // Clear any existing timer first
+  if (window.historyTimerInterval) {
+    clearInterval(window.historyTimerInterval);
+    window.historyTimerInterval = null;
+  }
+  
+  // Reset all state
+  window.currentHistoryStory.typed = '';
+  window.currentHistoryStory.startTime = null;
+  window.currentHistoryStory.timerRunning = false;
+  
+  const input = document.getElementById('history-input');
+  const timerSelect = document.getElementById('history-timer-select');
+  const countdown = document.getElementById('history-countdown');
+  
+  // Reset input
+  if (input) {
+    input.value = '';
+    input.disabled = false;
+    input.focus();
+  }
+  
+  // Reset timer display
+  const selectedDuration = parseInt(timerSelect.value);
+  window.currentHistoryStory.duration = selectedDuration;
+  window.currentHistoryStory.timeLeft = selectedDuration;
+  
+  if (selectedDuration > 0) {
+    countdown.textContent = selectedDuration + 's';
+  } else {
+    countdown.textContent = '--';
+  }
+  
+  // Reset stats
+  document.getElementById('history-wpm').textContent = '0';
+  document.getElementById('history-accuracy').textContent = '100%';
+  document.getElementById('history-progress').textContent = '0%';
+  
+  // Re-render the text
+  renderHistoryText();
+}
 // Update history stats
 function updateHistoryStats() {
   if (!window.currentHistoryStory || !window.currentHistoryStory.startTime) return;
