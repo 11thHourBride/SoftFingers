@@ -361,6 +361,532 @@ const HISTORY_DATA = {
         image: "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=800&q=80",
         text: "Isaac Newton's formulation of the law of universal gravitation unified celestial and terrestrial mechanics under a single mathematical framework. His work explained not only why apples fall from trees but also why planets orbit the sun. Published in his masterwork 'Principia Mathematica,' Newton's laws of motion and gravitation remained unchallenged for over two centuries and still accurately predict the motion of most objects we encounter daily."
       },
+      {
+      id: "heliocentric_model",
+      title: "Heliocentric Model of the Solar System",
+      year: "1543",
+      image: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&q=80",
+      text: "Nicolaus Copernicus proposed that the Earth and other planets orbit the Sun rather than the Earth being the center of the universe. This heliocentric model challenged long-standing geocentric beliefs and laid the foundation for modern astronomy. It transformed humanity's understanding of the cosmos and initiated the Scientific Revolution."
+    },
+    {
+      id: "theory_of_relativity",
+      title: "Theory of Relativity",
+      year: "1905",
+      image: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&q=80",
+      text: "Albert Einstein introduced the special and later general theory of relativity, redefining concepts of space, time, mass, and gravity. His work showed that time and space are relative to the observer and that gravity is the curvature of spacetime. These theories underpin modern physics, GPS technology, and cosmology."
+    },
+    {
+      id: "germ_theory",
+      title: "Germ Theory of Disease",
+      year: "1860s",
+      image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",
+      text: "Developed through the work of scientists such as Louis Pasteur and Robert Koch, germ theory established that microorganisms cause many diseases. This discovery revolutionized medicine by leading to sterilization practices, vaccines, and improved hygiene. It dramatically reduced mortality rates worldwide."
+    },
+    {
+      id: "electromagnetic_induction",
+      title: "Electromagnetic Induction",
+      year: "1831",
+      image: "https://images.unsplash.com/photo-1581091870627-3c1b8c1f4d5b?w=800&q=80",
+      text: "Michael Faraday discovered that a changing magnetic field can induce an electric current in a conductor. This principle forms the basis of electric generators, transformers, and modern power systems. Faraday's discovery made large-scale electricity production possible."
+    },
+    {
+      id: "vaccination",
+      title: "Discovery of Vaccination",
+      year: "1796",
+      image: "https://images.unsplash.com/photo-1584036561584-b03c19da874c?w=800&q=80",
+      text: "Edward Jenner demonstrated that exposure to cowpox could protect against smallpox. This groundbreaking experiment led to the development of vaccines, one of the most effective public health interventions in history. Vaccination has eradicated smallpox and saved millions of lives globally."
+    },
+    {
+      id: "periodic_table",
+      title: "Periodic Table of Elements",
+      year: "1869",
+      image: "https://images.unsplash.com/photo-1581093588401-22d36b0d7c57?w=800&q=80",
+      text: "Dmitri Mendeleev organized chemical elements into a table based on atomic properties, revealing periodic patterns. His table accurately predicted the existence and properties of undiscovered elements. The periodic table remains a cornerstone of chemistry and materials science."
+    },
+    {
+      id: "plate_tectonics",
+      title: "Theory of Plate Tectonics",
+      year: "1960s",
+      image: "https://images.unsplash.com/photo-1529921879218-f99546d03a9d?w=800&q=80",
+      text: "The theory of plate tectonics explains the movement of Earth's lithospheric plates and the occurrence of earthquakes, volcanoes, and mountain formation. It unified earlier ideas such as continental drift into a comprehensive geological framework. This theory reshaped Earth science and geophysics."
+    },
+    {
+      id: "oxygen_discovery",
+      title: "Discovery of Oxygen",
+      year: "1774",
+      image: "https://images.unsplash.com/photo-1582719478185-2f15f7b82a8a?w=800&q=80",
+      text: "Joseph Priestley and Carl Wilhelm Scheele independently identified oxygen as a distinct chemical element. Antoine Lavoisier later named it and explained its role in combustion and respiration. This discovery overturned the phlogiston theory and laid the foundation of modern chemistry."
+    },
+    {
+      id: "radioactivity",
+      title: "Discovery of Radioactivity",
+      year: "1896",
+      image: "https://images.unsplash.com/photo-1581091870636-2c98b9e3fcd5?w=800&q=80",
+      text: "Henri Becquerel discovered that uranium emitted spontaneous radiation without external energy input. Marie and Pierre Curie expanded this work, identifying new radioactive elements. This discovery transformed atomic physics and led to nuclear energy and medical imaging."
+    },
+    {
+      id: "quantum_mechanics",
+      title: "Quantum Mechanics",
+      year: "1900",
+      image: "https://images.unsplash.com/photo-1532094349884-1f8c6f1a9a4d?w=800&q=80",
+      text: "Initiated by Max Planck and developed by scientists such as Niels Bohr, Werner Heisenberg, and Erwin Schrödinger, quantum mechanics describes the behavior of matter and energy at atomic scales. It revolutionized physics and underpins modern electronics and computing."
+    },
+    {
+      id: "evolution_by_natural_selection",
+      title: "Theory of Evolution by Natural Selection",
+      year: "1859",
+      image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80",
+      text: "Charles Darwin proposed that species evolve over time through natural selection, where traits that enhance survival and reproduction become more common. This theory unified biology and provided a scientific explanation for the diversity of life on Earth."
+    },
+    {
+      id: "xray_discovery",
+      title: "Discovery of X-rays",
+      year: "1895",
+      image: "https://images.unsplash.com/photo-1581090700227-1e37b190418e?w=800&q=80",
+      text: "Wilhelm Conrad Röntgen discovered X-rays while experimenting with cathode rays. He observed that invisible radiation could pass through solid objects and produce images of bones. X-rays revolutionized medicine, security, and material science."
+    },
+    {
+      id: "electron_discovery",
+      title: "Discovery of the Electron",
+      year: "1897",
+      image: "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=800&q=80",
+      text: "J. J. Thomson identified the electron as a subatomic particle while studying cathode rays. This discovery revealed that atoms were divisible and contained smaller components. It marked the birth of modern atomic physics."
+    },
+    {
+      id: "big_bang_theory",
+      title: "Big Bang Theory",
+      year: "1927",
+      image: "https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?w=800&q=80",
+      text: "Proposed by Georges Lemaître, the Big Bang Theory states that the universe began as a hot, dense point and has been expanding ever since. Later observations, such as cosmic microwave background radiation, strongly supported this model. It is the prevailing explanation for the origin of the universe."
+    },
+    {
+      id: "insulin_discovery",
+      title: "Discovery of Insulin",
+      year: "1921",
+      image: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=800&q=80",
+      text: "Frederick Banting and Charles Best isolated insulin and demonstrated its ability to regulate blood sugar. This discovery transformed diabetes from a fatal disease into a manageable condition. Insulin remains one of the most important medical breakthroughs."
+    },
+    {
+  id: "wheel_invention",
+  title: "Invention of the Wheel",
+  year: "c. 3500 BC",
+  image: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80",
+  text: "The invention of the wheel in ancient Mesopotamia marked a foundational breakthrough in engineering and transportation. Initially used for pottery, it was later adapted for carts and chariots. The wheel enabled efficient movement of goods and people, shaping early civilizations and technological development."
+},
+{
+  id: "agriculture",
+  title: "Development of Agriculture",
+  year: "c. 10,000 BC",
+  image: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=800&q=80",
+  text: "Early humans transitioned from hunter-gatherer societies to settled farming communities through the domestication of plants and animals. This agricultural revolution allowed population growth, food surpluses, and the rise of complex societies. It laid the groundwork for civilization, science, and technology."
+},
+{
+  id: "writing_systems",
+  title: "Invention of Writing Systems",
+  year: "c. 3200 BC",
+  image: "https://images.unsplash.com/photo-1549893074-0b8a9a73a6dd?w=800&q=80",
+  text: "The earliest writing systems, such as cuneiform in Mesopotamia and hieroglyphs in Egypt, were developed to record economic transactions and laws. Writing enabled knowledge preservation, scientific record-keeping, and administration. It transformed communication and intellectual progress."
+},
+{
+  id: "calendar_systems",
+  title: "Development of Calendar Systems",
+  year: "c. 3000 BC",
+  image: "https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?w=800&q=80",
+  text: "Ancient civilizations such as the Egyptians and Babylonians developed calendars based on solar and lunar cycles. These systems allowed accurate tracking of seasons, agricultural planning, and religious observances. Calendars were essential to astronomy and timekeeping."
+},
+{
+  id: "geometry",
+  title: "Foundations of Geometry",
+  year: "c. 300 BC",
+  image: "https://images.unsplash.com/photo-1518131678679-7f04c39a3b7a?w=800&q=80",
+  text: "Greek mathematicians, particularly Euclid, formalized geometry as a logical and deductive science. Euclid's 'Elements' systematized geometric principles and proofs. This work influenced mathematics, engineering, and architecture for over two millennia."
+},
+{
+  id: "medicine_hippocratic",
+  title: "Hippocratic Medicine",
+  year: "c. 400 BC",
+  image: "https://images.unsplash.com/photo-1584036561584-4f19c8b6f92b?w=800&q=80",
+  text: "Hippocrates and his followers proposed that diseases had natural causes rather than supernatural origins. This approach emphasized observation, diagnosis, and ethical practice. The Hippocratic tradition became the foundation of Western medicine."
+},
+{
+  id: "astronomy_babylonian",
+  title: "Babylonian Astronomy",
+  year: "c. 700 BC",
+  image: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&q=80",
+  text: "Babylonian astronomers systematically recorded planetary movements and eclipses. Their mathematical methods enabled accurate predictions of celestial events. This work significantly influenced Greek and later Islamic astronomy."
+},
+{
+  id: "zero_concept",
+  title: "Concept of Zero",
+  year: "c. AD 500",
+  image: "https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=800&q=80",
+  text: "Indian mathematicians developed zero as both a numeral and a mathematical concept. This innovation revolutionized arithmetic and algebra by enabling place-value notation. The concept of zero later spread to the Islamic world and Europe, transforming mathematics globally."
+},
+
+ 
+  {
+    "id": "mesopotamian_writing",
+    "title": "Cuneiform Writing",
+    "year": "c. 3200 BC",
+    "image": "https://images.unsplash.com/photo-1549893074-0b8a9a73a6dd?w=800&q=80",
+    "text": "The Sumerians developed cuneiform, the earliest known writing system, using wedge-shaped symbols pressed into clay tablets. It was used for record-keeping, astronomy, mathematics, and law. Cuneiform enabled the preservation and transmission of scientific knowledge."
+  },
+  {
+    "id": "sexagesimal_system",
+    "title": "Sexagesimal Number System",
+    "year": "c. 3000 BC",
+    "image": "https://images.unsplash.com/photo-1509223197845-458d87318791?w=800&q=80",
+    "text": "Mesopotamians developed a base-60 numerical system, which is still used today in measuring time and angles. This system allowed advanced calculations in astronomy and engineering. It remains embedded in modern mathematics and science."
+  },
+  {
+    "id": "egyptian_medicine",
+    "title": "Systematic Medical Practice",
+    "year": "c. 2600 BC",
+    "image": "https://images.unsplash.com/photo-1584036561584-4f19c8b6f92b?w=800&q=80",
+    "text": "Ancient Egyptian physicians practiced structured medicine based on observation and diagnosis. Medical papyri describe surgeries, treatments, and pharmacology. Their methods influenced later Greek and Roman medical traditions."
+  },
+  {
+    "id": "pyramidal_engineering",
+    "title": "Monumental Stone Engineering",
+    "year": "c. 2600 BC",
+    "image": "https://images.unsplash.com/photo-1503177119275-0aa32fc6e7f7?w=800&q=80",
+    "text": "Egyptians mastered large-scale stone construction, exemplified by the pyramids. Their precise measurements, alignment, and structural techniques demonstrate advanced knowledge of geometry and engineering."
+  },
+  {
+    "id": "formal_geometry",
+    "title": "Formal Geometry",
+    "year": "c. 300 BC",
+    "image": "https://images.unsplash.com/photo-1518131678679-7f04c39a3b7a?w=800&q=80",
+    "text": "Greek mathematicians, particularly Euclid, established geometry as a deductive science. Logical proofs replaced empirical methods and shaped mathematics for centuries."
+  },
+  {
+    "id": "atomic_theory",
+    "title": "Early Atomic Theory",
+    "year": "c. 400 BC",
+    "image": "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=800&q=80",
+    "text": "Democritus proposed that matter consists of indivisible particles called atoms, an early philosophical foundation for atomic science."
+  },
+  {
+    "id": "zero_indian",
+    "title": "Zero and Place-Value System",
+    "year": "c. AD 500",
+    "image": "https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=800&q=80",
+    "text": "Indian mathematicians formalized zero as both a number and a placeholder, enabling efficient arithmetic and algebra."
+  },
+  {
+    "id": "ayurveda",
+    "title": "Ayurvedic Medicine",
+    "year": "c. 1500 BC",
+    "image": "https://images.unsplash.com/photo-1584036561584-b03c19da874c?w=800&q=80",
+    "text": "Ayurveda emphasized diagnosis, surgery, and herbal medicine, forming one of the earliest structured medical systems."
+  },
+  {
+    "id": "paper_invention",
+    "title": "Invention of Paper",
+    "year": "AD 105",
+    "image": "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80",
+    "text": "Cai Lun refined papermaking, revolutionizing record-keeping, education, and scientific documentation."
+  },
+  {
+    "id": "seismograph",
+    "title": "Early Seismograph",
+    "year": "AD 132",
+    "image": "https://images.unsplash.com/photo-1529921879218-f99546d03a9d?w=800&q=80",
+    "text": "Zhang Heng invented a mechanical device to detect distant earthquakes, an early application of physics."
+  },
+  {
+    "id": "algebra",
+    "title": "Foundations of Algebra",
+    "year": "c. AD 820",
+    "image": "https://images.unsplash.com/photo-1509223197845-458d87318791?w=800&q=80",
+    "text": "Al-Khwarizmi formalized algebraic methods, profoundly influencing mathematics and science."
+  },
+  {
+    "id": "optics_ibn_alhaytham",
+    "title": "Foundations of Optics",
+    "year": "c. AD 1020",
+    "image": "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&q=80",
+    "text": "Ibn al-Haytham established experimental optics and corrected ancient theories of vision."
+  },
+
+  /* ===== African Civilizations ===== */
+
+  {
+    "id": "nubian_astronomy",
+    "title": "Nubian and Egyptian Stellar Astronomy",
+    "year": "c. 2000 BC",
+    "image": "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&q=80",
+    "text": "African civilizations along the Nile developed advanced stellar observations used for calendars, agriculture, and temple alignment. Their astronomical knowledge influenced later Greek and Islamic astronomy."
+  },
+  {
+    "id": "timbuktu_scholarship",
+    "title": "Timbuktu Mathematical and Astronomical Manuscripts",
+    "year": "c. AD 1300",
+    "image": "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=800&q=80",
+    "text": "Scholars in Timbuktu produced thousands of manuscripts on mathematics, astronomy, medicine, and law. These works demonstrate advanced scientific scholarship in medieval West Africa."
+  },
+  {
+    "id": "iron_smelting_africa",
+    "title": "Independent Iron Smelting",
+    "year": "c. 1000 BC",
+    "image": "https://images.unsplash.com/photo-1581090700227-1e37b190418e?w=800&q=80",
+    "text": "Sub-Saharan African societies independently developed iron-smelting techniques. This technological innovation transformed agriculture, warfare, and toolmaking."
+  },
+
+  /* ===== Mesoamerican Civilizations ===== */
+
+  {
+    "id": "maya_calendar",
+    "title": "Mayan Calendar System",
+    "year": "c. 300 AD",
+    "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80",
+    "text": "The Maya developed highly accurate calendar systems based on astronomical cycles. Their calculations of solar years rival modern precision."
+  },
+  {
+    "id": "maya_zero",
+    "title": "Independent Concept of Zero",
+    "year": "c. 400 AD",
+    "image": "https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=800&q=80",
+    "text": "Mayan mathematicians independently developed the concept of zero, enabling complex calculations and calendar systems."
+  },
+  {
+    "id": "aztec_agriculture",
+    "title": "Chinampa Agricultural System",
+    "year": "c. 1300 AD",
+    "image": "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=800&q=80",
+    "text": "The Aztecs engineered chinampas, artificial farming islands that maximized crop yields and ecological sustainability."
+  },
+
+  /* ===== Medieval European Discoveries ===== */
+
+  {
+    "id": "mechanical_clock",
+    "title": "Mechanical Clock",
+    "year": "c. 1300 AD",
+    "image": "https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?w=800&q=80",
+    "text": "Medieval Europeans developed mechanical clocks, revolutionizing timekeeping, scientific observation, and daily life."
+  },
+  {
+    "id": "spectacles",
+    "title": "Invention of Spectacles",
+    "year": "c. 1286 AD",
+    "image": "https://images.unsplash.com/photo-1584036561584-1f3bdbb6d48d?w=800&q=80",
+    "text": "The invention of eyeglasses in medieval Europe applied optical principles to improve vision and extend scholarly productivity."
+  },
+  {
+    "id": "printing_press_precursor",
+    "title": "Movable-Type Printing Precursors",
+    "year": "c. 1400 AD",
+    "image": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800&q=80",
+    "text": "European experiments with movable type set the stage for mass printing, accelerating scientific communication and literacy."
+  },
+  
+  {
+    "id": "ancient_egyptian_anatomy",
+    "title": "Anatomical Knowledge from Mummification",
+    "year": "c. 2500 BC",
+    "image": "https://images.unsplash.com/photo-1584036561584-4f19c8b6f92b?w=800&q=80",
+    "text": "Through mummification practices, ancient Egyptians developed detailed anatomical knowledge of organs and bodily systems. This understanding informed surgical procedures and medical texts such as the Edwin Smith Papyrus, representing an early scientific approach to human anatomy."
+  },
+  {
+    "id": "ethiopian_terracing",
+    "title": "Highland Agricultural Terracing",
+    "year": "c. 500 BC",
+    "image": "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=800&q=80",
+    "text": "Ancient Ethiopian societies engineered stone terracing systems to prevent soil erosion and manage water in mountainous regions. These innovations demonstrate applied environmental science and sustainable agriculture."
+  },
+  {
+    "id": "great_zimbabwe_architecture",
+    "title": "Dry-Stone Architectural Engineering",
+    "year": "c. AD 1100",
+    "image": "https://images.unsplash.com/photo-1503177119275-0aa32fc6e7f7?w=800&q=80",
+    "text": "Builders of Great Zimbabwe constructed massive stone structures without mortar, using precise stacking techniques. This achievement reflects advanced understanding of structural engineering and material science."
+  },
+  {
+    "id": "maya_astronomy",
+    "title": "Mayan Planetary Astronomy",
+    "year": "c. 600 AD",
+    "image": "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&q=80",
+    "text": "Mayan astronomers accurately tracked the motions of Venus, Mars, and eclipses. Their observations were recorded in codices and used for calendars, agriculture, and ritual planning, demonstrating advanced observational astronomy."
+  },
+  {
+    "id": "inca_road_engineering",
+    "title": "Inca Road and Bridge Engineering",
+    "year": "c. AD 1400",
+    "image": "https://images.unsplash.com/photo-1529921879218-f99546d03a9d?w=800&q=80",
+    "text": "The Inca built an extensive road network with suspension bridges across the Andes. These constructions required precise surveying, material science, and an understanding of load distribution."
+  },
+  {
+    "id": "quipu_system",
+    "title": "Quipu Numerical Recording System",
+    "year": "c. AD 1400",
+    "image": "https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=800&q=80",
+    "text": "The Inca used quipus—knotted cords—to record numerical data and possibly narrative information. This system reflects a sophisticated approach to data storage, accounting, and administration."
+  },
+  {
+    "id": "medieval_hospitals",
+    "title": "Institutional Hospitals in Medieval Europe",
+    "year": "c. AD 1100",
+    "image": "https://images.unsplash.com/photo-1584036561584-b03c19da874c?w=800&q=80",
+    "text": "Medieval Europe developed permanent hospitals attached to monasteries and cities. These institutions formalized patient care, record-keeping, and medical training, advancing healthcare organization."
+  },
+  {
+    "id": "windmill_technology",
+    "title": "Horizontal-Axis Windmills",
+    "year": "c. AD 1200",
+    "image": "https://images.unsplash.com/photo-1509395062183-67c5ad6faff9?w=800&q=80",
+    "text": "European engineers developed windmills for grinding grain and pumping water. These machines represent early renewable energy technology and mechanical engineering."
+  },
+  {
+    "id": "magnetic_compass_europe",
+    "title": "Adoption of the Magnetic Compass",
+    "year": "c. AD 1200",
+    "image": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80",
+    "text": "Medieval Europeans adopted and refined the magnetic compass for navigation. This innovation transformed seafaring, cartography, and geographic science, enabling long-distance exploration."
+  },
+  {
+    "id": "universities_medieval",
+    "title": "Rise of Medieval Universities",
+    "year": "c. AD 1150",
+    "image": "https://images.unsplash.com/photo-1544717305-996b815c338c?w=800&q=80",
+    "text": "Institutions such as Bologna, Paris, and Oxford formalized higher education. Universities standardized curricula in medicine, astronomy, mathematics, and natural philosophy, accelerating scientific development."
+  },
+  
+  {
+    "id": "heliocentric_copernicus",
+    "title": "Heliocentric Theory of the Solar System",
+    "year": "1543",
+    "image": "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&q=80",
+    "text": "Nicolaus Copernicus proposed that the Earth and planets orbit the Sun rather than the Earth being the center of the universe. Published in 'De revolutionibus orbium coelestium', this model fundamentally altered astronomy and initiated the Scientific Revolution."
+  },
+  {
+    "id": "telescope_astronomy",
+    "title": "Astronomical Use of the Telescope",
+    "year": "1609",
+    "image": "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=800&q=80",
+    "text": "Galileo Galilei refined the telescope and used it for systematic astronomical observations. He discovered the moons of Jupiter, phases of Venus, and lunar mountains, providing strong evidence for the heliocentric model."
+  },
+  {
+    "id": "laws_of_planetary_motion",
+    "title": "Laws of Planetary Motion",
+    "year": "1609–1619",
+    "image": "https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?w=800&q=80",
+    "text": "Johannes Kepler formulated three laws describing planetary motion, demonstrating that planets move in elliptical orbits with predictable mathematical relationships. These laws transformed astronomy into a precise, predictive science."
+  },
+  {
+    "id": "circulation_of_blood",
+    "title": "Discovery of the Circulation of Blood",
+    "year": "1628",
+    "image": "https://images.unsplash.com/photo-1584036561584-b03c19da874c?w=800&q=80",
+    "text": "William Harvey demonstrated that blood circulates continuously through the body, pumped by the heart. This discovery overturned ancient medical theories and established experimental physiology as a scientific discipline."
+  },
+  {
+    "id": "microscopy_cells",
+    "title": "Microscopic Observation of Cells",
+    "year": "1665",
+    "image": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",
+    "text": "Robert Hooke used a compound microscope to observe cork and coined the term 'cell'. His work revealed an unseen microscopic world and laid the foundation for cell biology."
+  },
+  {
+    "id": "microorganisms_leeuwenhoek",
+    "title": "Discovery of Microorganisms",
+    "year": "1674",
+    "image": "https://images.unsplash.com/photo-1581090700227-1e37b190418e?w=800&q=80",
+    "text": "Antonie van Leeuwenhoek observed bacteria, protozoa, and sperm cells using powerful single-lens microscopes. His discoveries opened the field of microbiology and transformed biological science."
+  },
+  {
+    "id": "scientific_method_bacon",
+    "title": "Formalization of the Scientific Method",
+    "year": "1620",
+    "image": "https://images.unsplash.com/photo-1544717305-996b815c338c?w=800&q=80",
+    "text": "Francis Bacon articulated an empirical, inductive approach to scientific inquiry emphasizing observation, experimentation, and evidence. This framework became the foundation of modern scientific practice."
+  },
+  {
+    "id": "analytical_geometry",
+    "title": "Analytical Geometry",
+    "year": "1637",
+    "image": "https://images.unsplash.com/photo-1509223197845-458d87318791?w=800&q=80",
+    "text": "René Descartes unified algebra and geometry by introducing coordinate systems. Analytical geometry enabled mathematical modeling of physical phenomena and became essential to physics and engineering."
+  },
+  {
+    "id": "gas_pressure_boyle",
+    "title": "Boyle’s Law of Gas Pressure",
+    "year": "1662",
+    "image": "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=800&q=80",
+    "text": "Robert Boyle demonstrated that the pressure of a gas is inversely proportional to its volume at constant temperature. This law established quantitative chemistry and laid groundwork for thermodynamics."
+  },
+  {
+    "id": "probability_theory",
+    "title": "Foundations of Probability Theory",
+    "year": "1654",
+    "image": "https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=800&q=80",
+    "text": "Blaise Pascal and Pierre de Fermat developed the mathematical theory of probability while solving problems related to games of chance. Probability theory later became essential to statistics, science, and economics."
+  },
+  {
+    "id": "barometer",
+    "title": "Invention of the Barometer",
+    "year": "1643",
+    "image": "https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?w=800&q=80",
+    "text": "Evangelista Torricelli invented the barometer, demonstrating atmospheric pressure and the existence of a vacuum. This discovery founded meteorology and experimental fluid physics."
+  },
+  {
+    "id": "vaccination_precursor",
+    "title": "Early Smallpox Inoculation",
+    "year": "c. 1650",
+    "image": "https://images.unsplash.com/photo-1584036561584-1f3bdbb6d48d?w=800&q=80",
+    "text": "Practices of variolation, introduced to Europe from Africa and Asia, involved deliberate exposure to smallpox material to induce immunity. These methods laid the groundwork for modern vaccination."
+  },
+  
+  {
+    "id": "taxonomy_linnaeus",
+    "title": "Biological Classification System (Taxonomy)",
+    "year": "1735",
+    "image": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80",
+    "text": "Carl Linnaeus introduced a standardized system for classifying living organisms using binomial nomenclature. This framework brought order to biological diversity and remains the foundation of modern taxonomy."
+  },
+  {
+    "id": "electricity_lightning",
+    "title": "Electrical Nature of Lightning",
+    "year": "1752",
+    "image": "https://images.unsplash.com/photo-1509395062183-67c5ad6faff9?w=800&q=80",
+    "text": "Benjamin Franklin demonstrated that lightning is a form of electricity through his famous kite experiment. This discovery advanced the scientific understanding of electricity and led to practical inventions such as the lightning rod."
+  },
+  {
+    "id": "steam_engine_watt",
+    "title": "Improved Steam Engine",
+    "year": "1769",
+    "image": "https://images.unsplash.com/photo-1581090700227-1e37b190418e?w=800&q=80",
+    "text": "James Watt significantly improved the efficiency of the steam engine, making it viable for widespread industrial use. This innovation powered the Industrial Revolution and transformed manufacturing, transportation, and economics."
+  },
+  {
+    "id": "oxygen_modern_chemistry",
+    "title": "Chemical Theory of Combustion",
+    "year": "1777",
+    "image": "https://images.unsplash.com/photo-1582719478185-2f15f7b82a8a?w=800&q=80",
+    "text": "Antoine Lavoisier identified oxygen’s role in combustion and respiration, overturning the phlogiston theory. His work established modern chemical nomenclature and conservation of mass."
+  },
+  {
+    "id": "vaccination_jenner",
+    "title": "Smallpox Vaccination",
+    "year": "1796",
+    "image": "https://images.unsplash.com/photo-1584036561584-b03c19da874c?w=800&q=80",
+    "text": "Edward Jenner demonstrated that exposure to cowpox could protect against smallpox. This marked the beginning of immunology and led to the eventual eradication of smallpox."
+  },
+  {
+    "id": "cell_theory",
+    "title": "Cell Theory",
+    "year": "1838–1839",
+    "image": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",
+    "text": "Matthias Schleiden and Theodor Schwann established that all living organisms are composed of cells. Cell theory became a central principle of biology and medicine."
+  },
+  {
+    "id": "thermodynamics",
+    "title": "Laws of Thermodynamics",
+    "year": "1850s",
+    "image": "https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?w=800&q=80",
+    "text": "Scientists such as Rudolf Clausius and Lord Kelvin formulated the laws governing heat, energy, and entropy. Thermodynamics became fundamental to physics, chemistry, and engineering."
+  },
+ 
       
     ]
   },
