@@ -1,536 +1,857 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>SoftFingers - Professional Typing Assessment Platform</title>
-  <meta name="description" content="Professional typing assessment and skill development platform. Improve typing speed and accuracy with comprehensive analytics and structured learning paths.">
-  <meta name="keywords" content="typing assessment, professional typing, WPM test, typing certification, keyboard proficiency, typing analytics">
-  <meta name="author" content="SoftFingers">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Softfingers — Master the Keys</title>
+<meta name="description" content="Softfingers is a professional typing training platform with structured lessons, real-time competitions, Bible and history practice, and detailed analytics.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Sora:wght@300;400;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
 
-  <!-- Social sharing -->
+ <!-- Social sharing -->
   <meta property="og:title" content="SoftFingers - Professional Typing Assessment Platform">
-  <meta property="og:description" content="Advance your typing skills with professional-grade assessments and analytics.">
+  <meta property="og:description" content="Softfingers is a professional typing training platform with structured lessons, real-time competitions, Bible and history practice, and detailed analytics.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://softfingers-typing.web.app/">
+<style>
+/* ── Reset & Variables ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+:root {
+  --bg:       #07080e;
+  --bg2:      #0d0f1a;
+  --bg3:      #131525;
+  --border:   #1e2135;
+  --text:     #e8eaf2;
+  --text2:    #848aaa;
+  --text3:    #3d4460;
+  --accent:   #00e5c8;
+  --accent2:  #ff9f43;
+  --accent3:  #6c63ff;
+  --danger:   #ff5f7e;
+  --success:  #00d68f;
+  --font-ui:  'Sora', sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+  --font-disp:'Playfair Display', serif;
+  --radius:   14px;
+  --radius-sm:8px;
+  --glow:     0 0 40px rgba(0,229,200,.12);
+  --glow2:    0 0 40px rgba(255,159,67,.12);
+}
+[data-theme="light"] {
+  --bg:#f4f5fb; --bg2:#ffffff; --bg3:#eceef8; --border:#d0d4e8;
+  --text:#1a1d2e; --text2:#4a5068; --text3:#9098b8;
+  --accent:#00b3a0; --accent2:#e07800; --accent3:#5048cc;
+  --glow:0 0 40px rgba(0,179,160,.1);
+}
+[data-theme="ocean"] {
+  --bg:#020d1a; --bg2:#041428; --bg3:#071e38; --border:#0f3560;
+  --text:#c8e6ff; --text2:#6ea8d8; --text3:#2e6090;
+  --accent:#00cfff; --accent2:#ff7e00; --accent3:#7c3aed;
+  --glow:0 0 40px rgba(0,207,255,.15);
+}
+[data-theme="ember"] {
+  --bg:#0f0806; --bg2:#1a0f0a; --bg3:#251510; --border:#3d2218;
+  --text:#f5e8d8; --text2:#b8907a; --text3:#6b4535;
+  --accent:#ff6b35; --accent2:#ffd166; --accent3:#c77dff;
+  --glow:0 0 40px rgba(255,107,53,.15);
+}
+[data-theme="forest"] {
+  --bg:#050d08; --bg2:#0b1810; --bg3:#112218; --border:#1a3825;
+  --text:#d8f0e0; --text2:#7aab88; --text3:#3a6645;
+  --accent:#39d96a; --accent2:#ffd166; --accent3:#6c63ff;
+  --glow:0 0 40px rgba(57,217,106,.12);
+}
 
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      line-height: 1.6;
-      color: #2d3748;
-      background: #ffffff;
-    }
+html { scroll-behavior: smooth; }
 
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
+body {
+  font-family: var(--font-ui);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+  /* Ensure body is always visible */
+  opacity: 1;
+  transition: background .3s, color .3s;
+}
 
-    /* Header */
-    header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 2rem 0;
-      position: relative;
-      overflow: hidden;
-    }
+/* ── Grid noise texture ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.012'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
 
-    header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-      opacity: 0.3;
-    }
+/* ── Utility ── */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 28px; position: relative; z-index: 1; }
+.accent  { color: var(--accent); }
+.accent2 { color: var(--accent2); }
+.accent3 { color: var(--accent3); }
+.mono    { font-family: var(--font-mono); }
 
-    .header-content {
-      position: relative;
-      z-index: 2;
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 2rem;
-      align-items: center;
-    }
+/* ── Theme Switcher ── */
+.theme-switcher { position: relative; display: flex; align-items: center; }
+.theme-switcher-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  color: var(--text2);
+  font-family: var(--font-ui);
+  font-size: .78rem; font-weight: 700;
+  cursor: pointer; transition: all .2s;
+}
+.theme-switcher-btn:hover { border-color: var(--accent); color: var(--accent); }
+.theme-switcher-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); transition: background .3s; }
+.theme-dropdown {
+  position: absolute; top: calc(100% + 8px); right: 0;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 8px;
+  display: none; flex-direction: column; gap: 4px;
+  min-width: 150px; box-shadow: 0 16px 40px rgba(0,0,0,.5); z-index: 9999;
+}
+.theme-dropdown.open { display: flex; }
+.theme-option {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: var(--radius-sm);
+  cursor: pointer; font-size: .82rem; font-weight: 600;
+  color: var(--text2); transition: all .15s; border: 1px solid transparent;
+}
+.theme-option:hover { background: var(--bg3); color: var(--text); }
+.theme-option.active { background: rgba(0,229,200,.08); border-color: rgba(0,229,200,.2); color: var(--accent); }
+.theme-option-swatch { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(255,255,255,.1); }
 
-    .logo-section {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  height: 64px;
+  background: rgba(7,8,14,.88);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  transition: background .3s;
+}
+[data-theme="light"] nav { background: rgba(244,245,251,.9); }
 
-    .logo {
-      width: 60px;
-      height: 60px;
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
+.nav-inner {
+  max-width: 1200px; margin: 0 auto; padding: 0 28px;
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo {
+  font-size: 1.3rem; font-weight: 800; letter-spacing: -.5px;
+  display: flex; align-items: center; gap: 8px;
+  text-decoration: none; color: var(--text);
+}
+.nav-logo span { color: var(--accent); }
+.nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
+.nav-links a { color: var(--text2); text-decoration: none; font-size: .88rem; font-weight: 600; transition: color .2s; }
+.nav-links a:hover { color: var(--accent); }
+.btn-launch {
+  background: var(--accent); color: #07080e;
+  border: none; border-radius: var(--radius-sm);
+  padding: 9px 22px; font-family: var(--font-ui);
+  font-size: .88rem; font-weight: 800;
+  cursor: pointer; text-decoration: none;
+  transition: all .2s; white-space: nowrap;
+}
+.btn-launch:hover { background: #00ffdf; box-shadow: 0 0 24px rgba(0,229,200,.4); transform: translateY(-1px); }
+.nav-toggle {
+  display: none; background: none; border: none;
+  color: var(--text); font-size: 1.4rem; cursor: pointer; padding: 6px;
+}
 
-    .logo svg {
-      width: 32px;
-      height: 32px;
-      fill: white;
-    }
+/* ── HERO ── */
+.hero {
+  min-height: 100vh; display: flex; align-items: center;
+  padding-top: 64px; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: -100px;
+  background:
+    radial-gradient(ellipse 70% 60% at 20% 40%, rgba(0,229,200,.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 60%, rgba(108,99,255,.06) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 50% 10%, rgba(255,159,67,.04) 0%, transparent 60%);
+  animation: gradientShift 12s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes gradientShift {
+  from { transform: scale(1) translate(0,0); }
+  to   { transform: scale(1.1) translate(-2%, 2%); }
+}
+.hero-content { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; padding: 60px 0; }
 
-    .brand-text h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-      letter-spacing: -0.02em;
-    }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(0,229,200,.08); border: 1px solid rgba(0,229,200,.2);
+  border-radius: 20px; padding: 5px 14px;
+  font-size: .78rem; font-weight: 700; color: var(--accent);
+  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px;
+}
+.hero-eyebrow span { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.7)} }
 
-    .brand-text .tagline {
-      font-size: 1.1rem;
-      opacity: 0.9;
-      font-weight: 400;
-    }
+.hero-title {
+  font-family: var(--font-disp); font-size: clamp(2.6rem, 5vw, 4.2rem);
+  font-weight: 700; line-height: 1.1; color: var(--text); margin-bottom: 20px;
+}
+.hero-title em {
+  font-style: italic;
+  background: linear-gradient(135deg, var(--accent), var(--accent3));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-desc { font-size: 1.05rem; color: var(--text2); line-height: 1.8; max-width: 480px; margin-bottom: 36px; }
 
-    .hero-stats {
-      display: flex;
-      gap: 2rem;
-      justify-self: end;
-    }
+.hero-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--accent); color: #07080e;
+  border-radius: var(--radius-sm); padding: 14px 28px;
+  font-family: var(--font-ui); font-size: 1rem; font-weight: 800;
+  cursor: pointer; text-decoration: none; transition: all .2s;
+  border: none; white-space: nowrap;
+}
+.btn-primary:hover { background: #00ffdf; box-shadow: 0 0 32px rgba(0,229,200,.35); transform: translateY(-2px); }
+.btn-outline {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: transparent; color: var(--text2);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 13px 22px; font-family: var(--font-ui); font-size: .95rem; font-weight: 600;
+  cursor: pointer; text-decoration: none; transition: all .2s;
+}
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,229,200,.04); }
 
-    .stat {
-      text-align: center;
-    }
+.hero-stats { display: flex; gap: 28px; margin-top: 40px; }
+.hstat { border-left: 2px solid var(--border); padding-left: 16px; }
+.hstat-num { font-family: var(--font-mono); font-size: 1.6rem; font-weight: 700; color: var(--accent); line-height: 1; }
+.hstat-lbl { font-size: .72rem; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
 
-    .stat-number {
-      display: block;
-      font-size: 2rem;
-      font-weight: 700;
-      line-height: 1;
-    }
+/* Hero demo card */
+.hero-demo { position: relative; }
+.demo-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,.5), var(--glow);
+}
+.demo-bar { background: var(--bg3); border-bottom: 1px solid var(--border); padding: 10px 16px; display: flex; align-items: center; gap: 7px; }
+.demo-dot { width: 10px; height: 10px; border-radius: 50%; }
+.demo-dot:nth-child(1) { background: #ff5f57; }
+.demo-dot:nth-child(2) { background: #febc2e; }
+.demo-dot:nth-child(3) { background: #28c840; }
+.demo-title { margin-left: 8px; font-size: .75rem; color: var(--text3); font-family: var(--font-mono); }
+.demo-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border-bottom: 1px solid var(--border); }
+.demo-stat { background: var(--bg2); padding: 12px 16px; text-align: center; }
+.demo-stat-val { font-family: var(--font-mono); font-size: 1.3rem; font-weight: 700; color: var(--accent); }
+.demo-stat-lbl { font-size: .65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); margin-top: 2px; }
+.demo-text { padding: 20px 22px 8px; font-family: var(--font-mono); font-size: .9rem; line-height: 1.9; color: var(--text3); min-height: 80px; }
+.ch-correct { color: var(--success); }
+.ch-wrong   { color: var(--danger); text-decoration: underline; }
+.ch-cursor  { color: var(--bg); background: var(--accent); border-radius: 2px; animation: blink .75s step-end infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.demo-input-row { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: var(--bg3); border-top: 1px solid var(--border); }
+.demo-input-box { flex: 1; background: transparent; border: none; font-family: var(--font-mono); font-size: .88rem; color: var(--text); outline: none; }
+.demo-progress { height: 3px; background: var(--bg3); }
+.demo-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent3)); transition: width 1.2s cubic-bezier(.4,0,.2,1); }
 
-    .stat-label {
-      font-size: 0.875rem;
-      opacity: 0.8;
-      margin-top: 0.25rem;
-    }
+/* Floating badges */
+.badge-float {
+  position: absolute; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 8px 14px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: .8rem; font-weight: 700; box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  animation: floatBadge 3s ease-in-out infinite;
+}
+.badge-float:nth-child(2) { animation-delay: 1s; animation-direction: reverse; }
+@keyframes floatBadge { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.badge-float-1 { top: -12px; right: -16px; border-color: rgba(0,214,143,.3); color: var(--success); }
+.badge-float-2 { bottom: 40px; left: -20px; border-color: rgba(255,159,67,.3); color: var(--accent2); }
 
-    /* Main Content */
-    main {
-      padding: 4rem 0;
-    }
+/* ── SECTION COMMON ── */
+section { padding: 100px 0; position: relative; z-index: 1; }
+.section-eyebrow { font-size: .72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+.section-title { font-size: clamp(1.8rem, 3.5vw, 2.6rem); font-weight: 800; color: var(--text); margin-bottom: 16px; line-height: 1.15; }
+.section-desc { font-size: 1rem; color: var(--text2); max-width: 600px; line-height: 1.8; }
 
-    .section {
-      margin-bottom: 4rem;
-    }
+/* ── STATS BAND ── */
+.stats-band { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 48px 0; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); }
+.stat-block { background: var(--bg2); padding: 24px 32px; text-align: center; }
+.stat-block-num { font-family: var(--font-mono); font-size: 2.4rem; font-weight: 700; color: var(--accent); line-height: 1; }
+.stat-block-lbl { font-size: .78rem; color: var(--text2); margin-top: 8px; }
 
-    .section-header {
-      text-align: center;
-      margin-bottom: 3rem;
-    }
+/* ── FEATURES ── */
+.features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.feature-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px;
+  position: relative; overflow: hidden;
+  transition: border-color .2s, transform .2s, box-shadow .2s;
+}
+.feature-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; opacity: 0; transition: opacity .2s; }
+.feature-card:hover { border-color: rgba(0,229,200,.3); transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,.4), var(--glow); }
+.feature-card:hover::before { opacity: 1; background: linear-gradient(90deg, var(--accent), var(--accent3)); }
+.feature-icon { font-size: 2rem; margin-bottom: 14px; display: block; }
+.feature-title { font-size: 1rem; font-weight: 800; color: var(--text); margin-bottom: 10px; }
+.feature-desc  { font-size: .85rem; color: var(--text2); line-height: 1.7; }
+.feature-tag {
+  display: inline-block; margin-top: 14px; font-size: .68rem; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--accent);
+  background: rgba(0,229,200,.08); border: 1px solid rgba(0,229,200,.15);
+  border-radius: 4px; padding: 3px 8px;
+}
 
-    .section-title {
-      font-size: 2.25rem;
-      font-weight: 600;
-      color: #1a202c;
-      margin-bottom: 1rem;
-      letter-spacing: -0.02em;
-    }
+/* ── WHY SECTION ── */
+.why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; margin-top: 56px; }
+.why-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+.why-item { display: flex; align-items: flex-start; gap: 14px; padding: 16px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); transition: border-color .2s; }
+.why-item:hover { border-color: rgba(0,229,200,.25); }
+.why-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; background: rgba(0,229,200,.1); }
+.why-item-title { font-size: .9rem; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.why-item-desc  { font-size: .8rem; color: var(--text2); line-height: 1.6; }
 
-    .section-subtitle {
-      font-size: 1.125rem;
-      color: #4a5568;
-      max-width: 600px;
-      margin: 0 auto;
-    }
+.perf-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; box-shadow: 0 8px 32px rgba(0,0,0,.3); }
+.perf-title { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text3); margin-bottom: 20px; }
+.perf-metric { margin-bottom: 18px; }
+.perf-metric-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; font-size: .85rem; color: var(--text2); font-weight: 600; }
+.perf-metric-val { font-family: var(--font-mono); color: var(--accent); font-weight: 700; }
+.perf-bar-bg { height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.perf-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); animation: growBar 1.5s cubic-bezier(.4,0,.2,1) forwards; }
+@keyframes growBar { from { width: 0 !important; } }
 
-    /* Features Grid */
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      margin-top: 3rem;
-    }
+/* ── CURRICULUM ── */
+.curriculum-tabs { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+.ctab { padding: 8px 18px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg2); color: var(--text2); font-size: .82rem; font-weight: 700; cursor: pointer; transition: all .2s; }
+.ctab.active { background: var(--accent); border-color: var(--accent); color: #07080e; }
+.ctab:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+.curriculum-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.curriculum-item { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; display: flex; align-items: center; gap: 12px; transition: border-color .15s; }
+.curriculum-item:hover { border-color: rgba(0,229,200,.25); }
+.ci-num { width: 28px; height: 28px; border-radius: 50%; background: var(--bg3); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: .72rem; font-weight: 700; color: var(--text3); flex-shrink: 0; }
+.ci-text { font-size: .82rem; color: var(--text2); font-weight: 600; }
+.ci-tag { margin-left: auto; font-size: .65rem; padding: 2px 7px; border-radius: 4px; background: var(--bg3); color: var(--text3); flex-shrink: 0; }
+.ci-tag.audio { background: rgba(0,229,200,.1); color: var(--accent); }
+.ci-tag.game  { background: rgba(108,99,255,.1); color: var(--accent3); }
 
-    .feature-card {
-      background: white;
-      padding: 2rem;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
+/* ── CTA ── */
+.cta-section { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 100px 0; text-align: center; position: relative; overflow: hidden; }
+.cta-section::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(ellipse, rgba(0,229,200,.06) 0%, transparent 70%); pointer-events: none; }
+.cta-title { font-family: var(--font-disp); font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 700; margin-bottom: 16px; position: relative; }
+.cta-desc { font-size: 1.05rem; color: var(--text2); max-width: 500px; margin: 0 auto 36px; }
 
-    .feature-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.15);
-    }
+/* ── FOOTER ── */
+footer { background: var(--bg2); border-top: 1px solid var(--border); padding: 48px 0 32px; position: relative; z-index: 1; }
+.footer-inner { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; }
+.footer-brand-name { font-size: 1.2rem; font-weight: 800; color: var(--text); margin-bottom: 10px; }
+.footer-brand-name span { color: var(--accent); }
+.footer-brand-desc { font-size: .82rem; color: var(--text2); line-height: 1.7; max-width: 280px; }
+.footer-col h4 { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text3); margin-bottom: 14px; }
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+.footer-links a { color: var(--text2); text-decoration: none; font-size: .85rem; transition: color .2s; }
+.footer-links a:hover { color: var(--accent); }
+.footer-bottom { display: flex; align-items: center; justify-content: space-between; padding-top: 28px; margin-top: 40px; border-top: 1px solid var(--border); font-size: .78rem; color: var(--text3); }
+.footer-copy a { color: var(--text3); text-decoration: none; }
+.footer-copy a:hover { color: var(--accent); }
 
-    .feature-icon {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 1.5rem;
-    }
+/* ── SCROLL REVEAL ──
+   IMPORTANT: starts visible by default (opacity:1) and only animates
+   when JS is confirmed running. This prevents content staying hidden
+   if JS errors occur or IntersectionObserver fires too early. */
+.reveal { opacity: 1; transform: none; transition: opacity .6s ease, transform .6s ease; }
+.js-reveal { opacity: 0; transform: translateY(24px); }
+.js-reveal.visible { opacity: 1; transform: none; }
 
-    .feature-title {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: #1a202c;
-      margin-bottom: 0.75rem;
-    }
-
-    .feature-description {
-      color: #4a5568;
-      line-height: 1.6;
-    }
-
-    /* Benefits Section */
-    .benefits {
-      background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-      padding: 4rem 0;
-      border-radius: 16px;
-      margin: 4rem 0;
-    }
-
-    .benefits-content {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4rem;
-      align-items: center;
-    }
-
-    .benefits-list {
-      list-style: none;
-    }
-
-    .benefits-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-      font-size: 1.125rem;
-      color: #2d3748;
-    }
-
-    .check-icon {
-      width: 24px;
-      height: 24px;
-      background: #48bb78;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-top: 0.125rem;
-    }
-
-    .stats-visual {
-      background: white;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
-
-    /* CTA Section */
-    .cta-section {
-      text-align: center;
-      padding: 4rem 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 16px;
-      color: white;
-      margin: 4rem 0;
-    }
-
-    .cta-button {
-      display: inline-block;
-      background: white;
-      color: #667eea;
-      padding: 1rem 2.5rem;
-      border-radius: 8px;
-      text-decoration: none;
-      font-size: 1.125rem;
-      font-weight: 600;
-      margin-top: 2rem;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .cta-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.3);
-    }
-
-    /* Footer */
-    footer {
-      background: #1a202c;
-      color: #a0aec0;
-      padding: 3rem 0 2rem;
-      margin-top: 4rem;
-    }
-
-    .footer-content {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: center;
-      border-bottom: 1px solid #2d3748;
-      padding-bottom: 2rem;
-      margin-bottom: 2rem;
-    }
-
-    .footer-links {
-      display: flex;
-      gap: 2rem;
-    }
-
-    .footer-links a {
-      color: #a0aec0;
-      text-decoration: none;
-      font-size: 0.875rem;
-      transition: color 0.2s;
-    }
-
-    .footer-links a:hover {
-      color: white;
-    }
-
-    .footer-bottom {
-      text-align: center;
-      font-size: 0.875rem;
-      color: #718096;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      .header-content {
-        grid-template-columns: 1fr;
-        text-align: center;
-        gap: 2rem;
-      }
-
-      .hero-stats {
-        justify-self: center;
-      }
-
-      .brand-text h1 {
-        font-size: 2rem;
-      }
-
-      .section-title {
-        font-size: 1.875rem;
-      }
-
-      .benefits-content {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-      }
-
-      .footer-content {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-        text-align: center;
-      }
-    }
-  </style>
+/* ── RESPONSIVE ── */
+@media(max-width: 1024px) {
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+  .footer-inner { grid-template-columns: 1fr 1fr; }
+}
+@media(max-width: 768px) {
+  .hero-content { grid-template-columns: 1fr; gap: 40px; }
+  .hero-demo { display: none; }
+  .hero-stats { gap: 18px; }
+  .hstat-num { font-size: 1.3rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .features-grid { grid-template-columns: 1fr; }
+  .why-grid { grid-template-columns: 1fr; }
+  .footer-inner { grid-template-columns: 1fr; }
+  .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+  .nav-links { display: none; }
+  .nav-toggle { display: block; }
+  .nav-links.open {
+    display: flex; flex-direction: column;
+    position: absolute; top: 64px; left: 0; right: 0;
+    background: rgba(7,8,14,.96);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 28px; gap: 16px; z-index: 999;
+  }
+  [data-theme="light"] .nav-links.open { background: rgba(244,245,251,.96); }
+}
+</style>
 </head>
 <body>
-  <header>
-    <div class="container">
-      <div class="header-content">
-        <div class="logo-section">
-          <div class="logo">
-            <svg viewBox="0 0 24 24">
-              <path d="M20 5H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 12H4V7h16v10zm-9-9h5v2h-5V8z"/>
-            </svg>
-          </div>
-          <div class="brand-text">
-            <h1>SoftFingers</h1>
-            <div class="tagline">Professional Typing Platform</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">⌨️ Soft<span>Fingers</span></a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#curriculum">Curriculum</a></li>
+      <li><a href="#why">Why SoftFingers</a></li>
+      <li><a href="admin.html" style="color:var(--text3)">Admin</a></li>
+      <li>
+        <div class="theme-switcher" id="theme-switcher">
+          <button class="theme-switcher-btn" id="theme-btn" title="Change theme">
+            <div class="theme-switcher-dot" id="theme-dot"></div>
+            <span id="theme-label">Dark</span> ▾
+          </button>
+          <div class="theme-dropdown" id="theme-dropdown">
+            <div class="theme-option active" data-theme="dark">
+              <div class="theme-option-swatch" style="background:linear-gradient(135deg,#08090f,#00e5c8)"></div> Dark
+            </div>
+            <div class="theme-option" data-theme="light">
+              <div class="theme-option-swatch" style="background:linear-gradient(135deg,#f4f5fb,#00b3a0)"></div> Light
+            </div>
+            <div class="theme-option" data-theme="ocean">
+              <div class="theme-option-swatch" style="background:linear-gradient(135deg,#020d1a,#00cfff)"></div> Ocean
+            </div>
+            <div class="theme-option" data-theme="ember">
+              <div class="theme-option-swatch" style="background:linear-gradient(135deg,#0f0806,#ff6b35)"></div> Ember
+            </div>
+            <div class="theme-option" data-theme="forest">
+              <div class="theme-option-swatch" style="background:linear-gradient(135deg,#050d08,#39d96a)"></div> Forest
+            </div>
           </div>
         </div>
-        
+      </li>
+      <li><a href="softfingers-main.html" class="btn-launch">Launch App →</a></li>
+    </ul>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Menu">☰</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <div>
+        <div class="hero-eyebrow"><span></span>Professional Typing Platform</div>
+        <h1 class="hero-title">
+          Master the Keys,<br>
+          <em>Master Your Career</em>
+        </h1>
+        <p class="hero-desc">
+          Softfingers is a comprehensive typing training platform with structured lessons from beginner to advanced, real-time competitions, Bible &amp; history practice, and deep performance analytics.
+        </p>
+        <div class="hero-actions">
+          <a href="softfingers-main.html" class="btn-primary">⌨️ Start Typing Free</a>
+          <a href="#features" class="btn-outline">See Features →</a>
+        </div>
         <div class="hero-stats">
-          <div class="stat">
-            <span class="stat-number">500K+</span>
-            <div class="stat-label">Users Trained</div>
+          <div class="hstat"><div class="hstat-num accent">36+</div><div class="hstat-lbl">Structured Lessons</div></div>
+          <div class="hstat"><div class="hstat-num" style="color:var(--accent2)">5</div><div class="hstat-lbl">Difficulty Levels</div></div>
+          <div class="hstat"><div class="hstat-num" style="color:var(--accent3)">∞</div><div class="hstat-lbl">Practice Texts</div></div>
+        </div>
+      </div>
+      <div class="hero-demo">
+        <div class="badge-float badge-float-1">✅ +24 WPM this week</div>
+        <div class="badge-float badge-float-2">🏆 New Personal Best!</div>
+        <div class="demo-card">
+          <div class="demo-bar">
+            <div class="demo-dot"></div><div class="demo-dot"></div><div class="demo-dot"></div>
+            <span class="demo-title">Softfingers — Practice Mode</span>
           </div>
-          <div class="stat">
-            <span class="stat-number">95%</span>
-            <div class="stat-label">Improvement Rate</div>
+          <div class="demo-stats">
+            <div class="demo-stat"><div class="demo-stat-val" id="d-wpm">0</div><div class="demo-stat-lbl">WPM</div></div>
+            <div class="demo-stat"><div class="demo-stat-val" id="d-acc">100%</div><div class="demo-stat-lbl">Accuracy</div></div>
+            <div class="demo-stat"><div class="demo-stat-val" id="d-time">1:00</div><div class="demo-stat-lbl">Time</div></div>
           </div>
-          <div class="stat">
-            <span class="stat-number">24/7</span>
-            <div class="stat-label">Available</div>
+          <div class="demo-progress"><div class="demo-progress-fill" id="d-prog" style="width:0%"></div></div>
+          <div class="demo-text" id="d-text"></div>
+          <div class="demo-input-row">
+            <span style="color:var(--text3)">⌨️</span>
+            <div class="demo-input-box">the quick brown fox…</div>
           </div>
         </div>
       </div>
     </div>
-  </header>
+  </div>
+</section>
 
-  <main>
-    <div class="container">
-      <section class="section">
-        <div class="section-header">
-          <h2 class="section-title">Professional Typing Assessment</h2>
-          <p class="section-subtitle">
-            Advance your career with industry-standard typing proficiency. Our comprehensive platform provides 
-            detailed analytics and structured learning paths for professional development.
-          </p>
-        </div>
-
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="feature-icon">
-              <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
-                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-              </svg>
-            </div>
-            <h3 class="feature-title">Comprehensive Analytics</h3>
-            <p class="feature-description">
-              Track WPM, accuracy, error patterns, and improvement trends with detailed performance metrics 
-              and professional reporting capabilities.
-            </p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">
-              <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-              </svg>
-            </div>
-            <h3 class="feature-title">Skill Certification</h3>
-            <p class="feature-description">
-              Earn professional typing certifications with standardized assessments that meet industry 
-              requirements for administrative and technical roles.
-            </p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">
-              <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
-                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-              </svg>
-            </div>
-            <h3 class="feature-title">Structured Learning</h3>
-            <p class="feature-description">
-              Progressive skill development through customized lesson plans, practice modules, and 
-              targeted exercises designed by typing professionals.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section class="benefits">
-        <div class="container">
-          <div class="benefits-content">
-            <div>
-              <h2 class="section-title" style="text-align: left; margin-bottom: 2rem;">Why Choose SoftFingers Pro?</h2>
-              <ul class="benefits-list">
-                <li>
-                  <div class="check-icon">
-                    <svg width="14" height="14" fill="white" viewBox="0 0 24 24">
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                    </svg>
-                  </div>
-                  <span>Industry-standard assessment protocols</span>
-                </li>
-                <li>
-                  <div class="check-icon">
-                    <svg width="14" height="14" fill="white" viewBox="0 0 24 24">
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                    </svg>
-                  </div>
-                  <span>Advanced performance analytics and insights</span>
-                </li>
-                <li>
-                  <div class="check-icon">
-                    <svg width="14" height="14" fill="white" viewBox="0 0 24 24">
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                    </svg>
-                  </div>
-                  <span>Customizable practice environments</span>
-                </li>
-                <li>
-                  <div class="check-icon">
-                    <svg width="14" height="14" fill="white" viewBox="0 0 24 24">
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                    </svg>
-                  </div>
-                  <span>Professional certification programs</span>
-                </li>
-                <li>
-                  <div class="check-icon">
-                    <svg width="14" height="14" fill="white" viewBox="0 0 24 24">
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                    </svg>
-                  </div>
-                  <span>Enterprise-grade security and privacy</span>
-                </li>
-              </ul>
-            </div>
-            
-            <div class="stats-visual">
-              <h3 style="margin-bottom: 1.5rem; color: #1a202c;">Performance Tracking</h3>
-              <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                <span style="color: #4a5568;">Average WPM Increase</span>
-                <span style="font-weight: 600; color: #48bb78;">+45%</span>
-              </div>
-              <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                <span style="color: #4a5568;">Accuracy Improvement</span>
-                <span style="font-weight: 600; color: #48bb78;">+28%</span>
-              </div>
-              <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                <span style="color: #4a5568;">Time to Proficiency</span>
-                <span style="font-weight: 600; color: #667eea;">2-4 weeks</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="cta-section">
-        <div class="container">
-          <h2 style="font-size: 2rem; margin-bottom: 1rem; font-weight: 600;">Ready to Enhance Your Typing Skills?</h2>
-          <p style="font-size: 1.125rem; opacity: 0.9; max-width: 600px; margin: 0 auto;">
-            Join thousands of professionals who have improved their productivity and career prospects through our comprehensive typing platform.
-          </p>
-          <a href="/main.html" class="cta-button">Begin Assessment</a>
-        </div>
-      </section>
+<!-- STATS BAND -->
+<div class="stats-band">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-block reveal"><div class="stat-block-num" data-count="36">36</div><div class="stat-block-lbl">Structured Lessons</div></div>
+      <div class="stat-block reveal"><div class="stat-block-num" data-count="340">340</div><div class="stat-block-lbl">Typing Exercises</div></div>
+      <div class="stat-block reveal"><div class="stat-block-num accent2" data-count="95" data-suffix="%">95%</div><div class="stat-block-lbl">Avg Accuracy Gain</div></div>
+      <div class="stat-block reveal"><div class="stat-block-num accent3" data-count="45" data-suffix="+WPM">45+WPM</div><div class="stat-block-lbl">Avg Speed Improvement</div></div>
     </div>
-  </main>
+  </div>
+</div>
 
-  <footer>
-    <div class="container">
-      <div class="footer-content">
-        <div>
-          <h3 style="color: white; font-size: 1.25rem; margin-bottom: 0.5rem;">SoftFingers</h3>
-          <p>Professional typing development platform</p>
-        </div>
-        <div class="footer-links">
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Service</a>
-          <a href="#">Support</a>
-          <a href="#">Contact</a>
+<!-- FEATURES -->
+<section id="features">
+  <div class="container">
+    <div class="section-eyebrow">What's Inside</div>
+    <h2 class="section-title">Everything you need to<br>become an elite typist</h2>
+    <p class="section-desc">From your very first keystroke to blazing 100+ WPM — Softfingers guides every step of the journey.</p>
+    <div class="features-grid" style="margin-top:56px">
+      <div class="feature-card reveal"><span class="feature-icon">📚</span><div class="feature-title">Structured Lesson Curriculum</div><div class="feature-desc">36 lessons across Beginner, Intermediate, and Advanced levels. Progressive unlock system — master the home row before you run.</div><span class="feature-tag">36 Lessons</span></div>
+      <div class="feature-card reveal"><span class="feature-icon">⚡</span><div class="feature-title">Real-Time Practice Tests</div><div class="feature-desc">Timed tests with configurable duration, difficulty, and mode — random words, quotes, or stories. Live WPM, accuracy, and error tracking.</div><span class="feature-tag">Live Stats</span></div>
+      <div class="feature-card reveal"><span class="feature-icon">⚔️</span><div class="feature-title">Multiplayer Race Competitions</div><div class="feature-desc">Create or join typing races. Race against bots or friends in real-time. Podium results and shareable invite links.</div><span class="feature-tag">Multiplayer</span></div>
+      <div class="feature-card reveal"><span class="feature-icon">✝️</span><div class="feature-title">Sacred & Historical Practice</div><div class="feature-desc">Type Bible passages (KJV), classic hymns, and 17 history topics — from Ancient Civilizations to the Age of AI.</div><span class="feature-tag">Unique Content</span></div>
+      <div class="feature-card reveal"><span class="feature-icon">🎧</span><div class="feature-title">Audio Transcription Mode</div><div class="feature-desc">Listen and type what you hear using the Web Speech API. Expert-level training that sharpens both hearing and finger speed simultaneously.</div><span class="feature-tag">Advanced</span></div>
+      <div class="feature-card reveal"><span class="feature-icon">🏆</span><div class="feature-title">24 Achievements & Leaderboard</div><div class="feature-desc">Earn achievement badges for speed milestones, accuracy, streaks, and more. Compete globally on the live leaderboard.</div><span class="feature-tag">Gamified</span></div>
+      <div class="feature-card reveal"><span class="feature-icon">📥</span><div class="feature-title">Import Your Own Text</div><div class="feature-desc">Paste any text or load a .txt file to create a custom typing session. Perfect for students, writers, and professionals.</div><span class="feature-tag">Custom</span></div>
+      <div class="feature-card reveal"><span class="feature-icon">🎮</span><div class="feature-title">Typing Mini-Games</div><div class="feature-desc">Falling Words, Letter Hunt, Word Race, and Rapid Fire — fun games that build speed and reflexes without feeling like practice.</div><span class="feature-tag">4 Games</span></div>
+      <div class="feature-card reveal"><span class="feature-icon">⚙️</span><div class="feature-title">Deep Customisation</div><div class="feature-desc">5 themes, 4 caret styles, 3 font sizes, UI scale, page density, interface font, and 19 language options. Your app, your way.</div><span class="feature-tag">Personalised</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CURRICULUM -->
+<section id="curriculum" style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="container">
+    <div class="section-eyebrow">Curriculum</div>
+    <h2 class="section-title">From home row to 100+ WPM</h2>
+    <p class="section-desc">A proven touch-typing curriculum built on the same foundations used in professional typing academies.</p>
+    <div class="curriculum-tabs" style="margin-top:36px">
+      <button class="ctab active" data-tab="beginner">🌱 Beginner</button>
+      <button class="ctab" data-tab="intermediate">🌿 Intermediate</button>
+      <button class="ctab" data-tab="advanced">🌳 Advanced</button>
+    </div>
+    <div class="curriculum-grid" id="curriculum-grid"></div>
+  </div>
+</section>
+
+<!-- WHY SOFTFINGERS -->
+<section id="why">
+  <div class="container">
+    <div class="section-eyebrow">Why Softfingers</div>
+    <h2 class="section-title">Built different.<br>Results that stick.</h2>
+    <div class="why-grid">
+      <ul class="why-list">
+        <li class="why-item reveal"><div class="why-icon">🎯</div><div><div class="why-item-title">Accuracy-first methodology</div><div class="why-item-desc">Speed is a byproduct of accuracy. Every lesson prioritises correct finger placement before pushing for speed.</div></div></li>
+        <li class="why-item reveal"><div class="why-icon">📊</div><div><div class="why-item-title">Detailed real-time analytics</div><div class="why-item-desc">WPM, accuracy, error count, characters typed, elapsed time — all tracked live with personal bests per difficulty and duration.</div></div></li>
+        <li class="why-item reveal"><div class="why-icon">🔒</div><div><div class="why-item-title">Progressive unlock system</div><div class="why-item-desc">Intermediate lessons unlock only after Beginner mastery. You can't skip the fundamentals — that's what makes the system work.</div></div></li>
+        <li class="why-item reveal"><div class="why-icon">🌍</div><div><div class="why-item-title">19 language interface options</div><div class="why-item-desc">English, French, Spanish, German, Swahili, Arabic and more. Softfingers speaks your language.</div></div></li>
+        <li class="why-item reveal"><div class="why-icon">⌨️</div><div><div class="why-item-title">Works entirely in your browser</div><div class="why-item-desc">No app to install. No account required to start. Your progress is saved locally and available immediately.</div></div></li>
+        <li class="why-item reveal"><div class="why-icon">🆓</div><div><div class="why-item-title">Completely free to use</div><div class="why-item-desc">All features — lessons, competitions, practice texts, audio mode, achievements — are available at no cost.</div></div></li>
+      </ul>
+      <div class="perf-card reveal">
+        <div class="perf-title">📈 Typical Learner Progress</div>
+        <div class="perf-metric"><div class="perf-metric-header"><span>Average WPM Increase</span><span class="perf-metric-val">+45%</span></div><div class="perf-bar-bg"><div class="perf-bar-fill" style="width:45%"></div></div></div>
+        <div class="perf-metric"><div class="perf-metric-header"><span>Accuracy Improvement</span><span class="perf-metric-val">+28%</span></div><div class="perf-bar-bg"><div class="perf-bar-fill" style="width:28%;animation-delay:.2s"></div></div></div>
+        <div class="perf-metric"><div class="perf-metric-header"><span>Lessons Completed (avg)</span><span class="perf-metric-val">18 / 36</span></div><div class="perf-bar-bg"><div class="perf-bar-fill" style="width:50%;animation-delay:.4s"></div></div></div>
+        <div class="perf-metric"><div class="perf-metric-header"><span>Time to 60 WPM</span><span class="perf-metric-val">2–4 weeks</span></div><div class="perf-bar-bg"><div class="perf-bar-fill" style="width:70%;animation-delay:.6s;background:linear-gradient(90deg,var(--accent2),var(--accent))"></div></div></div>
+        <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+          <div class="perf-title">🥇 Current Global Leaders</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+            <div style="display:flex;justify-content:space-between;font-size:.82rem"><span style="color:var(--text2)">🥇 TypeMaster_GH</span><span class="mono" style="color:var(--accent)">187 WPM</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:.82rem"><span style="color:var(--text2)">🥈 SpeedDemon99</span><span class="mono" style="color:var(--accent)">172 WPM</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:.82rem"><span style="color:var(--text2)">🥉 KeyWizard</span><span class="mono" style="color:var(--accent)">165 WPM</span></div>
+          </div>
         </div>
       </div>
-      <div class="footer-bottom">
-        &copy; 2025 SoftFingers Professional Platform. All rights reserved.
-      </div>
     </div>
-  </footer>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container">
+    <h2 class="cta-title">Ready to <em style="font-family:var(--font-disp);font-style:italic;color:var(--accent)">Master the Keys</em>?</h2>
+    <p class="cta-desc">Join thousands of typists improving their speed and accuracy every day. No sign-up required to start.</p>
+    <a href="softfingers-main.html" class="btn-primary" style="font-size:1.1rem;padding:16px 36px">⌨️ Open Softfingers — It's Free</a>
+    <p style="margin-top:18px;font-size:.8rem;color:var(--text3)">No installation · No credit card · Works in any browser</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-brand-name">Soft<span>Fingers</span></div>
+        <p class="footer-brand-desc">A professional typing training platform built for students, professionals, and anyone who wants to communicate faster and more accurately.</p>
+      </div>
+      <div class="footer-col"><h4>Platform</h4><ul class="footer-links"><li><a href="softfingers-main.html">Practice</a></li><li><a href="softfingers-main.html">Lessons</a></li><li><a href="softfingers-main.html">Competitions</a></li><li><a href="softfingers-main.html">Achievements</a></li><li><a href="softfingers-main.html">Leaderboard</a></li></ul></div>
+      <div class="footer-col"><h4>Content</h4><ul class="footer-links"><li><a href="softfingers-main.html">Bible Practice</a></li><li><a href="softfingers-main.html">Hymns</a></li><li><a href="softfingers-main.html">History Texts</a></li><li><a href="softfingers-main.html">Import Text</a></li><li><a href="softfingers-main.html">Audio Mode</a></li></ul></div>
+      <div class="footer-col"><h4>Admin</h4><ul class="footer-links"><li><a href="admin.html">Admin Panel</a></li><li><a href="admin.html">Manage Users</a></li><li><a href="admin.html">Leaderboard</a></li><li><a href="admin.html">Competitions</a></li><li><a href="admin.html">Analytics</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2025 Softfingers. All rights reserved. &nbsp;·&nbsp; <a href="#">Privacy</a> &nbsp;·&nbsp; <a href="#">Terms</a></div>
+      <div style="color:var(--text3);font-size:.75rem">Built with ⌨️ and ❤️</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════════════
+// All JS wrapped in DOMContentLoaded — guarantees every
+// element exists before we touch it
+// ══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  try { initTheme(); }      catch(e) { console.warn('Theme init failed:', e); }
+  try { initNav(); }        catch(e) { console.warn('Nav init failed:', e); }
+  try { initCurriculum(); } catch(e) { console.warn('Curriculum init failed:', e); }
+  try { initDemo(); }       catch(e) { console.warn('Demo init failed:', e); }
+  try { initReveal(); }     catch(e) { console.warn('Reveal init failed:', e); }
+  try { initCountUp(); }    catch(e) { console.warn('CountUp init failed:', e); }
+});
+
+// ── Theme ──────────────────────────────────────────────
+const THEME_META = {
+  dark:   { label:'Dark',   dot:'#00e5c8' },
+  light:  { label:'Light',  dot:'#00b3a0' },
+  ocean:  { label:'Ocean',  dot:'#00cfff' },
+  ember:  { label:'Ember',  dot:'#ff6b35' },
+  forest: { label:'Forest', dot:'#39d96a' },
+};
+
+function setTheme(t) {
+  if(!THEME_META[t]) t = 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+  try { localStorage.setItem('tc_theme', t); } catch(e){}
+  const meta = THEME_META[t];
+  const dotEl = document.getElementById('theme-dot');
+  const lblEl = document.getElementById('theme-label');
+  if(dotEl) dotEl.style.background = meta.dot;
+  if(lblEl) lblEl.textContent = meta.label;
+  document.querySelectorAll('.theme-option').forEach(o =>
+    o.classList.toggle('active', o.dataset.theme === t)
+  );
+  // Close dropdown
+  const dd = document.getElementById('theme-dropdown');
+  if(dd) dd.classList.remove('open');
+}
+
+function initTheme() {
+  // Apply saved theme immediately so there's no flash
+  let saved = 'dark';
+  try { saved = localStorage.getItem('tc_theme') || 'dark'; } catch(e){}
+  setTheme(saved);
+
+  // Wire up theme option clicks
+  document.querySelectorAll('.theme-option').forEach(opt => {
+    opt.addEventListener('click', () => setTheme(opt.dataset.theme));
+  });
+
+  // Toggle dropdown
+  const btn = document.getElementById('theme-btn');
+  const dd  = document.getElementById('theme-dropdown');
+  if(btn && dd) {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      dd.classList.toggle('open');
+    });
+  }
+
+  // Close on outside click
+  document.addEventListener('click', e => {
+    const sw = document.getElementById('theme-switcher');
+    if(sw && !sw.contains(e.target)) {
+      const d = document.getElementById('theme-dropdown');
+      if(d) d.classList.remove('open');
+    }
+  });
+}
+
+// ── Nav ────────────────────────────────────────────────
+function initNav() {
+  const toggle = document.getElementById('nav-toggle');
+  const links  = document.getElementById('nav-links');
+  if(toggle && links) {
+    toggle.addEventListener('click', () => links.classList.toggle('open'));
+  }
+  // Close mobile menu on link click
+  if(links) {
+    links.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => links.classList.remove('open'));
+    });
+  }
+}
+
+// ── Curriculum ─────────────────────────────────────────
+const CURR = {
+  beginner: [
+    {n:1,name:"Tutorial — Posture & Finger Map",tag:""},
+    {n:2,name:"Left Hand Home Row (A S D F)",tag:""},
+    {n:3,name:"Right Hand Home Row (J K L ;)",tag:""},
+    {n:4,name:"Both Hands — Home Row Combined",tag:""},
+    {n:5,name:"Left Hand Top Row (Q W E R T)",tag:""},
+    {n:6,name:"Right Hand Top Row (Y U I O P)",tag:""},
+    {n:7,name:"Full Top Row — QWERTY Together",tag:""},
+    {n:8,name:"Left Hand Bottom Row (Z X C V B)",tag:""},
+    {n:9,name:"Right Hand Bottom Row (N M)",tag:""},
+    {n:10,name:"Full Keyboard — All Letters",tag:""},
+    {n:11,name:"Number Row Left Side (1–5)",tag:""},
+    {n:12,name:"Number Row Right Side (6–0)",tag:""},
+    {n:13,name:"Beginner Review — Speed Test",tag:""}
+  ],
+  intermediate: [
+    {n:1,name:"Shift Key — Capital Letters",tag:""},
+    {n:2,name:"Period and Comma",tag:""},
+    {n:3,name:"Question Mark and Exclamation",tag:""},
+    {n:4,name:"Apostrophes and Contractions",tag:""},
+    {n:5,name:"Colon, Semicolon, and Quotes",tag:""},
+    {n:6,name:"Brackets, Dashes, and Hyphens",tag:""},
+    {n:7,name:"Numbers in Context",tag:""},
+    {n:8,name:"Speed Drills — Pangrams",tag:""},
+    {n:9,name:"Business and Professional Phrases",tag:""},
+    {n:10,name:"Code and Symbols",tag:"game"},
+    {n:11,name:"Intermediate Paragraphs",tag:""},
+    {n:12,name:"Intermediate Review — Mixed Drill",tag:""}
+  ],
+  advanced: [
+    {n:1,name:"Advanced Vocabulary Drills",tag:""},
+    {n:2,name:"Scientific and Technical Writing",tag:""},
+    {n:3,name:"Legal and Formal Language",tag:""},
+    {n:4,name:"Financial and Business Prose",tag:""},
+    {n:5,name:"Speed Paragraphs — 60+ WPM",tag:""},
+    {n:6,name:"Literature and Classic Prose",tag:""},
+    {n:7,name:"News and Journalism Style",tag:""},
+    {n:8,name:"Code — Real Developer Patterns",tag:"game"},
+    {n:9,name:"Academic Essay Writing",tag:""},
+    {n:10,name:"Medical and Clinical Language",tag:""},
+    {n:11,name:"🎧 Audio — Standard Level",tag:"audio"},
+    {n:12,name:"🎧 Audio — Advanced Level",tag:"audio"}
+  ]
+};
+
+let activeTab = 'beginner';
+function renderCurriculum() {
+  const grid = document.getElementById('curriculum-grid');
+  if(!grid) return;
+  grid.innerHTML = CURR[activeTab].map(item => `
+    <div class="curriculum-item">
+      <div class="ci-num">${item.n}</div>
+      <div class="ci-text">${item.name}</div>
+      ${item.tag ? `<span class="ci-tag ${item.tag}">${item.tag === 'audio' ? '🎧' : '🎮'}</span>` : ''}
+    </div>`).join('');
+}
+
+function initCurriculum() {
+  document.querySelectorAll('.ctab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeTab = btn.dataset.tab;
+      document.querySelectorAll('.ctab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderCurriculum();
+    });
+  });
+  renderCurriculum();
+}
+
+// ── Demo typing animation ──────────────────────────────
+function initDemo() {
+  const demoWords = "the quick brown fox jumps over the lazy dog and she typed every single word with perfect accuracy";
+  const demoTextEl = document.getElementById('d-text');
+  const wpmEl  = document.getElementById('d-wpm');
+  const timeEl = document.getElementById('d-time');
+  const progEl = document.getElementById('d-prog');
+  if(!demoTextEl || !wpmEl || !timeEl || !progEl) return;
+
+  let demoPos = 0, demoTime = 60;
+
+  function renderDemo() {
+    let html = '';
+    for(let i = 0; i < demoWords.length; i++) {
+      const ch = demoWords[i] === ' ' ? '&nbsp;' : demoWords[i];
+      if(i < demoPos)      html += `<span class="ch-correct">${ch}</span>`;
+      else if(i === demoPos) html += `<span class="ch-cursor">${ch}</span>`;
+      else                 html += `<span>${ch}</span>`;
+    }
+    demoTextEl.innerHTML = html;
+  }
+  renderDemo();
+
+  setInterval(() => {
+    if(demoPos < demoWords.length) {
+      demoPos++;
+      const demoWpm = Math.round(demoPos / 5 / Math.max((60 - demoTime + 1) / 60, 0.01));
+      renderDemo();
+      wpmEl.textContent = Math.max(0, demoWpm) || 0;
+      progEl.style.width = Math.round((demoPos / demoWords.length) * 100) + '%';
+    } else {
+      demoPos = 0;
+      demoTime = 60;
+    }
+  }, 80);
+
+  setInterval(() => {
+    if(demoTime > 0) { demoTime--; timeEl.textContent = demoTime + 's'; }
+  }, 1000);
+}
+
+// ── Scroll reveal ──────────────────────────────────────
+// Add js-reveal class so animation only applies when JS runs.
+// This means content is ALWAYS visible without JS (opacity:1 by default).
+function initReveal() {
+  const items = document.querySelectorAll('.reveal');
+  // Mark as JS-enhanced
+  items.forEach(el => el.classList.add('js-reveal'));
+
+  if(!('IntersectionObserver' in window)) {
+    // No IO support — just show everything
+    items.forEach(el => el.classList.add('visible'));
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+  items.forEach(el => observer.observe(el));
+
+  // Safety net: force-show any that are already in viewport
+  setTimeout(() => {
+    items.forEach(el => {
+      const rect = el.getBoundingClientRect();
+      if(rect.top < window.innerHeight && rect.bottom > 0) {
+        el.classList.add('visible');
+      }
+    });
+  }, 300);
+}
+
+// ── Count-up animation ─────────────────────────────────
+function initCountUp() {
+  if(!('IntersectionObserver' in window)) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(!e.isIntersecting) return;
+      const el     = e.target;
+      const target = parseInt(el.dataset.count);
+      const suffix = el.dataset.suffix || '';
+      if(isNaN(target)) return;
+      let current = 0;
+      const step = Math.ceil(target / 60);
+      const interval = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = current + suffix;
+        if(current >= target) clearInterval(interval);
+      }, 20);
+      observer.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('[data-count]').forEach(el => observer.observe(el));
+}
+</script>
 </body>
 </html>
