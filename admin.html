@@ -1,456 +1,1854 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Dashboard - SoftFingers Pro</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  
-  <!-- Firebase compat SDKs -->
-  <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  
-  <link rel="stylesheet" href="admin.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SoftFingers — Admin Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:      #06070d;
+  --bg2:     #0c0e18;
+  --bg3:     #111320;
+  --bg4:     #181b2a;
+  --border:  #1e2235;
+  --text:    #e8eaf2;
+  --text2:   #848aaa;
+  --text3:   #3d4460;
+  --accent:  #00e5c8;
+  --accent2: #ff9f43;
+  --accent3: #6c63ff;
+  --danger:  #ff5f7e;
+  --success: #00d68f;
+  --warn:    #ffd166;
+  --font-ui: 'Sora', sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+  --radius:  10px;
+  --radius-sm:6px;
+}
+[data-theme="light"] {
+  --bg:#f4f5fb; --bg2:#ffffff; --bg3:#eceef8; --bg4:#e2e5f5; --border:#d0d4e8;
+  --text:#1a1d2e; --text2:#4a5068; --text3:#9098b8;
+  --accent:#00b3a0; --accent2:#e07800; --accent3:#5048cc;
+}
+[data-theme="ocean"] {
+  --bg:#020d1a; --bg2:#041428; --bg3:#071e38; --bg4:#0a274a; --border:#0f3560;
+  --text:#c8e6ff; --text2:#6ea8d8; --text3:#2e6090;
+  --accent:#00cfff; --accent2:#ff7e00; --accent3:#7c3aed;
+}
+[data-theme="ember"] {
+  --bg:#0f0806; --bg2:#1a0f0a; --bg3:#251510; --bg4:#301c15; --border:#3d2218;
+  --text:#f5e8d8; --text2:#b8907a; --text3:#6b4535;
+  --accent:#ff6b35; --accent2:#ffd166; --accent3:#c77dff;
+}
+[data-theme="forest"] {
+  --bg:#050d08; --bg2:#0b1810; --bg3:#112218; --bg4:#172e1f; --border:#1a3825;
+  --text:#d8f0e0; --text2:#7aab88; --text3:#3a6645;
+  --accent:#39d96a; --accent2:#ffd166; --accent3:#6c63ff;
+}
+
+/* ── Theme Switcher ── */
+.theme-switcher { position: relative; display: flex; align-items: center; }
+.theme-switcher-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text2);
+  font-family: var(--font-ui);
+  font-size: .75rem; font-weight: 700;
+  cursor: pointer; transition: all .2s; white-space: nowrap;
+}
+.theme-switcher-btn:hover { border-color: var(--accent); color: var(--accent); }
+.theme-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); transition: background .3s; }
+.theme-dropdown {
+  position: absolute; top: calc(100% + 8px); right: 0;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 6px;
+  display: none; flex-direction: column; gap: 3px;
+  min-width: 140px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.5);
+  z-index: 9999;
+}
+.theme-dropdown.open { display: flex; }
+.theme-opt {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 9px; border-radius: var(--radius-sm);
+  cursor: pointer; font-size: .79rem; font-weight: 600;
+  color: var(--text2); transition: all .15s;
+  border: 1px solid transparent;
+}
+.theme-opt:hover { background: var(--bg3); color: var(--text); }
+.theme-opt.active { background: rgba(0,229,200,.08); border-color: rgba(0,229,200,.2); color: var(--accent); }
+.theme-opt-swatch { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(255,255,255,.12); }
+body { font-family: var(--font-ui); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ── LAYOUT ── */
+#admin-app { display: flex; min-height: 100vh; }
+
+/* ── SIDEBAR ── */
+#admin-sidebar {
+  width: 240px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  overflow: hidden;
+}
+.admin-logo {
+  padding: 20px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.admin-logo-icon { font-size: 1.4rem; }
+.admin-logo-text { font-size: .95rem; font-weight: 800; color: var(--text); }
+.admin-logo-text span { color: var(--accent); }
+.admin-logo-badge {
+  margin-left: auto;
+  font-size: .6rem;
+  font-weight: 700;
+  background: rgba(255,95,126,.15);
+  border: 1px solid rgba(255,95,126,.3);
+  color: var(--danger);
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: .5px;
+}
+.admin-nav { flex: 1; padding: 12px 10px; overflow-y: auto; }
+.nav-section-label {
+  font-size: .63rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 10px 8px 6px;
+}
+.admin-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text2);
+  font-family: var(--font-ui);
+  font-size: .83rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all .15s;
+  margin-bottom: 2px;
+}
+.admin-nav-btn:hover { background: var(--bg3); color: var(--text); }
+.admin-nav-btn.active { background: rgba(0,229,200,.1); color: var(--accent); border-left: 3px solid var(--accent); }
+.admin-nav-btn .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+.admin-nav-btn .nav-badge {
+  margin-left: auto;
+  font-size: .65rem;
+  background: var(--bg4);
+  color: var(--text3);
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-family: var(--font-mono);
+}
+.admin-nav-btn.active .nav-badge { background: rgba(0,229,200,.15); color: var(--accent); }
+
+.admin-sidebar-footer {
+  padding: 14px 12px;
+  border-top: 1px solid var(--border);
+  font-size: .75rem;
+  color: var(--text3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.admin-sidebar-footer a { color: var(--text3); text-decoration: none; transition: color .2s; }
+.admin-sidebar-footer a:hover { color: var(--accent); }
+
+/* ── MAIN CONTENT ── */
+#admin-main {
+  margin-left: 240px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+#admin-topbar {
+  height: 56px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.topbar-title { font-size: .95rem; font-weight: 800; color: var(--text); flex: 1; }
+.topbar-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  flex: 1;
+  max-width: 280px;
+}
+.topbar-search input {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: .82rem;
+  outline: none;
+  flex: 1;
+}
+.topbar-search input::placeholder { color: var(--text3); }
+.topbar-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text2);
+  font-family: var(--font-ui);
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.topbar-btn:hover { border-color: var(--accent); color: var(--accent); }
+.topbar-btn.primary { background: var(--accent); border-color: var(--accent); color: #07080e; }
+.topbar-btn.primary:hover { background: #00ffdf; box-shadow: 0 0 16px rgba(0,229,200,.3); }
+
+/* ── PAGE PANELS ── */
+.admin-page { display: none; padding: 24px; }
+.admin-page.active { display: block; }
+
+/* ── KPI CARDS ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.kpi-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+}
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.kpi-card.c-green::after  { background: linear-gradient(90deg,#00e5c8,#00d68f); }
+.kpi-card.c-amber::after  { background: linear-gradient(90deg,#ff9f43,#ffd166); }
+.kpi-card.c-purple::after { background: linear-gradient(90deg,#6c63ff,#c77dff); }
+.kpi-card.c-red::after    { background: linear-gradient(90deg,#ff5f7e,#ff9f43); }
+.kpi-card.c-blue::after   { background: linear-gradient(90deg,#00cfff,#6c63ff); }
+.kpi-icon { font-size: 1.5rem; margin-bottom: 8px; }
+.kpi-val  { font-family: var(--font-mono); font-size: 1.7rem; font-weight: 700; color: var(--text); line-height: 1; }
+.kpi-lbl  { font-size: .72rem; color: var(--text3); margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; }
+.kpi-delta { font-size: .72rem; margin-top: 6px; }
+.kpi-delta.up   { color: var(--success); }
+.kpi-delta.down { color: var(--danger); }
+
+/* ── CARDS / TABLES ── */
+.admin-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.admin-card-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.admin-card-title { font-size: .88rem; font-weight: 800; color: var(--text); flex: 1; }
+.admin-card-body  { padding: 0; }
+
+table.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .82rem;
+}
+.admin-table th {
+  text-align: left;
+  padding: 10px 16px;
+  font-size: .67rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text3);
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+}
+.admin-table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
+  vertical-align: middle;
+}
+.admin-table tr:last-child td { border-bottom: none; }
+.admin-table tr:hover td { background: var(--bg3); }
+.admin-table .mono { font-family: var(--font-mono); color: var(--accent); font-weight: 700; }
+.admin-table .user-cell { display: flex; align-items: center; gap: 10px; }
+.admin-table .u-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--bg4);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .72rem; font-weight: 700; color: var(--accent);
+  flex-shrink: 0;
+}
+.admin-table .u-name { font-weight: 700; color: var(--text); }
+.admin-table .u-email { font-size: .72rem; color: var(--text3); }
+
+/* Status badges */
+.badge {
+  display: inline-block;
+  font-size: .65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+.badge.active  { background: rgba(0,214,143,.12); color: var(--success); border: 1px solid rgba(0,214,143,.25); }
+.badge.inactive{ background: rgba(255,95,126,.1);  color: var(--danger);  border: 1px solid rgba(255,95,126,.2); }
+.badge.guest   { background: rgba(132,138,170,.1); color: var(--text3);   border: 1px solid var(--border); }
+.badge.live    { background: rgba(255,95,126,.15); color: var(--danger);  border: 1px solid rgba(255,95,126,.3); animation: pulse .8s ease-in-out infinite alternate; }
+.badge.waiting { background: rgba(255,209,102,.1); color: var(--warn);    border: 1px solid rgba(255,209,102,.2); }
+.badge.ended   { background: rgba(0,214,143,.08);  color: var(--success); border: 1px solid rgba(0,214,143,.2); }
+@keyframes pulse { from{opacity:1} to{opacity:.6} }
+
+/* Action buttons */
+.action-btn {
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text2);
+  font-family: var(--font-ui);
+  font-size: .72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  margin-right: 4px;
+}
+.action-btn:hover     { border-color: var(--accent); color: var(--accent); }
+.action-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+.action-btn.success:hover { border-color: var(--success); color: var(--success); }
+
+/* ── FORMS ── */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-label { font-size: .75rem; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .8px; }
+.form-input, .form-select, .form-textarea {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: .85rem;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color .2s;
+  width: 100%;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+.form-textarea { min-height: 90px; resize: vertical; }
+.form-select option { background: var(--bg3); }
+
+/* ── STATS CHARTS (CSS only) ── */
+.bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 100px; padding: 0 4px; }
+.bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.bar-fill {
+  width: 100%;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, var(--accent), rgba(0,229,200,.4));
+  animation: growUp .8s ease forwards;
+  transform-origin: bottom;
+}
+@keyframes growUp { from{transform:scaleY(0)} to{transform:scaleY(1)} }
+.bar-lbl { font-size: .62rem; color: var(--text3); font-family: var(--font-mono); }
+
+/* ── MODALS ── */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.modal-backdrop.show { display: flex; }
+.modal-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  width: 90%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-title { font-size: 1rem; font-weight: 800; margin-bottom: 18px; color: var(--text); }
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+
+/* ── TOAST ── */
+#admin-toasts { position: fixed; bottom: 20px; right: 20px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+.admin-toast {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  font-size: .82rem;
+  color: var(--text);
+  max-width: 320px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  transform: translateX(100%);
+  opacity: 0;
+  transition: all .3s;
+}
+.admin-toast.show { transform: none; opacity: 1; }
+.admin-toast.error  { border-left-color: var(--danger); }
+.admin-toast.success{ border-left-color: var(--success); }
+
+/* ── TOGGLE ── */
+.switch { position: relative; display: inline-block; width: 38px; height: 22px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.sw-sl { position: absolute; cursor: pointer; inset: 0; background: var(--bg4); border-radius: 22px; transition: .3s; border: 1px solid var(--border); }
+.sw-sl::before { content: ''; position: absolute; width: 16px; height: 16px; left: 2px; bottom: 2px; background: var(--text3); border-radius: 50%; transition: .3s; }
+input:checked + .sw-sl { background: rgba(0,229,200,.2); border-color: var(--accent); }
+input:checked + .sw-sl::before { background: var(--accent); transform: translateX(16px); }
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px) {
+  #admin-sidebar { transform: translateX(-100%); transition: transform .3s; }
+  #admin-sidebar.open { transform: none; }
+  #admin-main { margin-left: 0; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+}
+
+/* ── Admin Login Screen ── */
+#admin-login-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0;
+}
+#admin-login-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 60% at 30% 40%, rgba(0,229,200,.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 75% 65%, rgba(108,99,255,.05) 0%, transparent 60%);
+  pointer-events: none;
+}
+.login-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 40px 44px;
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 24px 80px rgba(0,0,0,.5), 0 0 40px rgba(0,229,200,.06);
+}
+.login-logo {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.login-logo-icon {
+  font-size: 2.2rem;
+  display: block;
+  margin-bottom: 8px;
+}
+.login-logo-name {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text);
+}
+.login-logo-name span { color: var(--accent); }
+.login-logo-badge {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  background: rgba(255,95,126,.12);
+  border: 1px solid rgba(255,95,126,.25);
+  color: var(--danger);
+  padding: 3px 10px;
+  border-radius: 4px;
+}
+.login-title {
+  font-size: .95rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 6px;
+  text-align: center;
+}
+.login-sub {
+  font-size: .8rem;
+  color: var(--text3);
+  text-align: center;
+  margin-bottom: 24px;
+}
+.login-field {
+  margin-bottom: 14px;
+}
+.login-field label {
+  display: block;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: var(--text2);
+  margin-bottom: 6px;
+}
+.login-field input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: .9rem;
+  padding: 11px 14px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.login-field input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0,229,200,.08);
+}
+.login-error {
+  background: rgba(255,95,126,.08);
+  border: 1px solid rgba(255,95,126,.2);
+  border-radius: 8px;
+  color: var(--danger);
+  font-size: .8rem;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  display: none;
+  text-align: center;
+}
+.login-error.show { display: block; }
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #07080e;
+  font-family: var(--font-ui);
+  font-size: .95rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all .2s;
+  margin-top: 4px;
+}
+.login-btn:hover { background: #00ffdf; box-shadow: 0 0 20px rgba(0,229,200,.3); }
+.login-btn:disabled { opacity: .6; cursor: not-allowed; }
+.login-attempts {
+  text-align: center;
+  margin-top: 14px;
+  font-size: .72rem;
+  color: var(--text3);
+}
+.login-locked {
+  text-align: center;
+  color: var(--danger);
+  font-size: .82rem;
+  margin-top: 10px;
+  display: none;
+}
+.login-home-link {
+  text-align: center;
+  margin-top: 20px;
+  font-size: .78rem;
+  color: var(--text3);
+}
+.login-home-link a { color: var(--text2); text-decoration: none; transition: color .2s; }
+.login-home-link a:hover { color: var(--accent); }
+/* Password toggle */
+.pw-wrap { position: relative; }
+.pw-toggle {
+  position: absolute;
+  right: 12px; top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: .85rem;
+  padding: 2px 4px;
+  transition: color .2s;
+}
+.pw-toggle:hover { color: var(--accent); }
+</style>
 </head>
 <body>
-  <!-- Header -->
-  <header class="admin-header">
-    <div class="admin-container">
-      <div class="admin-header-content">
-        <div class="admin-logo">
-          <h1>SoftFingers Pro</h1>
-          <span class="admin-badge">Admin Dashboard</span>
+
+<!-- ══════════════════════════════════════
+     LOGIN SCREEN — shown before admin app
+     ══════════════════════════════════════ -->
+<div id="admin-login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <span class="login-logo-icon">⌨️</span>
+      <div class="login-logo-name">Type<span>Craft</span></div>
+      <span class="login-logo-badge">Admin Access Only</span>
+    </div>
+
+    <div class="login-title">Admin Sign In</div>
+    <div class="login-sub">Access restricted to authorised administrators</div>
+
+    <div class="login-error" id="login-error"></div>
+
+    <div class="login-field">
+      <label for="admin-email-inp">Email Address</label>
+      <input type="email" id="admin-email-inp" placeholder="your@email.com"
+        onkeydown="if(event.key==='Enter')document.getElementById('admin-pass-inp').focus()">
+    </div>
+    <div class="login-field">
+      <label for="admin-pass-inp">Password</label>
+      <div class="pw-wrap">
+        <input type="password" id="admin-pass-inp" placeholder="Enter password"
+          onkeydown="if(event.key==='Enter')attemptAdminLogin()">
+        <button class="pw-toggle" onclick="togglePw()" tabindex="-1" title="Show/hide">👁</button>
+      </div>
+    </div>
+
+    <div class="login-attempts" id="login-attempts"></div>
+    <div class="login-locked" id="login-locked">
+      🔒 Too many failed attempts. Try again in <span id="lockout-timer">30</span>s
+    </div>
+
+    <button class="login-btn" id="login-submit-btn" onclick="attemptAdminLogin()">
+      Sign In to Admin
+    </button>
+
+    <div class="login-home-link">
+      <a href="index.html">← Back to SoftFingers Home</a>
+    </div>
+  </div>
+</div>
+
+<div id="admin-app">
+
+<!-- SIDEBAR -->
+<aside id="admin-sidebar">
+  <div class="admin-logo">
+    <span class="admin-logo-icon">⌨️</span>
+    <span class="admin-logo-text">Type<span>Craft</span></span>
+    <span class="admin-logo-badge">ADMIN</span>
+  </div>
+  <nav class="admin-nav">
+    <div class="nav-section-label">Overview</div>
+    <button class="admin-nav-btn active" onclick="showPage('dashboard',this)">
+      <span class="nav-icon">📊</span> Dashboard
+    </button>
+    <button class="admin-nav-btn" onclick="showPage('analytics',this)">
+      <span class="nav-icon">📈</span> Analytics
+    </button>
+
+    <div class="nav-section-label">Users</div>
+    <button class="admin-nav-btn" onclick="showPage('users',this)">
+      <span class="nav-icon">👥</span> All Users
+      <span class="nav-badge" id="badge-users">0</span>
+    </button>
+    <button class="admin-nav-btn" onclick="showPage('leaderboard',this)">
+      <span class="nav-icon">🏆</span> Leaderboard
+    </button>
+
+    <div class="nav-section-label">Content</div>
+    <button class="admin-nav-btn" onclick="showPage('competitions',this)">
+      <span class="nav-icon">⚔️</span> Competitions
+      <span class="nav-badge" id="badge-comps">0</span>
+    </button>
+    <button class="admin-nav-btn" onclick="showPage('lessons-mgmt',this)">
+      <span class="nav-icon">📚</span> Lessons
+    </button>
+    <button class="admin-nav-btn" onclick="showPage('achievements-mgmt',this)">
+      <span class="nav-icon">🏅</span> Achievements
+    </button>
+
+    <div class="nav-section-label">System</div>
+    <button class="admin-nav-btn" onclick="showPage('settings-admin',this)">
+      <span class="nav-icon">⚙️</span> App Settings
+    </button>
+    <button class="admin-nav-btn" onclick="showPage('data-mgmt',this)">
+      <span class="nav-icon">🗄️</span> Data Management
+    </button>
+  </nav>
+  <div class="admin-sidebar-footer">
+    <span>SoftFingers Admin v1.0</span>
+    <a href="index.html">← Home</a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div id="admin-main">
+
+  <!-- TOPBAR -->
+  <div id="admin-topbar">
+    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div class="topbar-search">
+      <span style="color:var(--text3);font-size:.85rem">🔍</span>
+      <input type="text" placeholder="Search users, stats..." id="global-search" oninput="handleSearch(this.value)">
+    </div>
+    <button class="topbar-btn" onclick="refreshData()">↺ Refresh</button>
+    <div class="theme-switcher" id="admin-theme-sw">
+      <button class="theme-switcher-btn" onclick="toggleAdminTheme()" title="Change theme">
+        <div class="theme-dot" id="admin-theme-dot"></div>
+        <span id="admin-theme-label">Dark</span> ▾
+      </button>
+      <div class="theme-dropdown" id="admin-theme-dd">
+        <div class="theme-opt active" data-theme="dark"   onclick="setAdminTheme('dark')">  <div class="theme-opt-swatch" style="background:linear-gradient(135deg,#08090f,#00e5c8)"></div> Dark</div>
+        <div class="theme-opt"        data-theme="light"  onclick="setAdminTheme('light')"> <div class="theme-opt-swatch" style="background:linear-gradient(135deg,#f4f5fb,#00b3a0)"></div> Light</div>
+        <div class="theme-opt"        data-theme="ocean"  onclick="setAdminTheme('ocean')"> <div class="theme-opt-swatch" style="background:linear-gradient(135deg,#020d1a,#00cfff)"></div> Ocean</div>
+        <div class="theme-opt"        data-theme="ember"  onclick="setAdminTheme('ember')"> <div class="theme-opt-swatch" style="background:linear-gradient(135deg,#0f0806,#ff6b35)"></div> Ember</div>
+        <div class="theme-opt"        data-theme="forest" onclick="setAdminTheme('forest')"><div class="theme-opt-swatch" style="background:linear-gradient(135deg,#050d08,#39d96a)"></div> Forest</div>
+      </div>
+    </div>
+    <button class="topbar-btn primary" onclick="exportAll()">📤 Export</button>
+    <a href="SoftFingers.html" class="topbar-btn" style="text-decoration:none">⌨️ Open App</a>
+  </div>
+
+  <!-- ═══════════════ DASHBOARD ═══════════════ -->
+  <div class="admin-page active" id="page-dashboard">
+    <div class="kpi-grid" id="kpi-grid"></div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <!-- Recent Tests Activity -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <span class="admin-card-title">📊 Tests This Week</span>
         </div>
-        
-        <div class="admin-user-info">
-          <div id="admin-user-display">
-            <div class="admin-user-badge" id="admin-email">Not signed in</div>
-            <div id="admin-role-badge"></div>
+        <div class="admin-card-body" style="padding:16px 18px">
+          <div class="bar-chart" id="activity-chart"></div>
+          <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:.7rem;color:var(--text3);padding:0 4px">
+            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
           </div>
-          <div class="admin-actions">
-            <a href="main.html" class="btn btn-secondary btn-small">← Back to App</a>
-            <button class="btn btn-secondary btn-small" id="admin-logout-btn">Logout</button>
-          </div>
+        </div>
+      </div>
+
+      <!-- Top Typists Today -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <span class="admin-card-title">⚡ Top Typists Today</span>
+        </div>
+        <div class="admin-card-body">
+          <table class="admin-table" id="top-today-table">
+            <thead><tr><th>#</th><th>User</th><th>WPM</th><th>Acc</th></tr></thead>
+            <tbody></tbody>
+          </table>
         </div>
       </div>
     </div>
-  </header>
 
-  <!-- Main Content with Sidebar -->
-  <main class="admin-main">
-    <div class="admin-layout">
-      <!-- Sidebar Navigation -->
-      <aside class="admin-sidebar">
-        <nav class="admin-sidebar-nav">
-          <div class="admin-nav-tab active" data-tab="overview">
-            <span class="nav-icon">📊</span>
-            <span class="nav-label">Overview</span>
-          </div>
-          <div class="admin-nav-tab" data-tab="users">
-            <span class="nav-icon">👥</span>
-            <span class="nav-label">Users</span>
-          </div>
-          <div class="admin-nav-tab" data-tab="results">
-            <span class="nav-icon">📈</span>
-            <span class="nav-label">Test Results</span>
-          </div>
-          <div class="admin-nav-tab" data-tab="competitions">
-            <span class="nav-icon">🏆</span>
-            <span class="nav-label">Competitions</span>
-          </div>
-          <div class="admin-nav-tab" data-tab="lessons">
-            <span class="nav-icon">📚</span>
-            <span class="nav-label">Lessons</span>
-          </div>
-          <div class="admin-nav-tab" data-tab="achievements">
-            <span class="nav-icon">🎖️</span>
-            <span class="nav-label">Achievements</span>
-          </div>
-          <div class="admin-nav-tab" data-tab="settings" id="settings-tab">
-            <span class="nav-icon">⚙️</span>
-            <span class="nav-label">Settings</span>
-          </div>
-        </nav>
-      </aside>
-
-      <!-- Main Content Area -->
-      <div class="admin-content-wrapper">
-        <div class="admin-container">
-          
-          <!-- Loading State -->
-          <div id="admin-loading" class="admin-loading">
-            <div class="loader"></div>
-            <p>Loading admin dashboard...</p>
-          </div>
-
-          <!-- Access Denied -->
-          <div id="admin-access-denied" class="admin-access-denied hidden">
-            <div class="access-denied-content">
-              <div class="access-denied-icon">🚫</div>
-              <h2>Access Denied</h2>
-              <p>You don't have permission to access the admin dashboard.</p>
-              <p class="text-small text-muted">Only authorized administrators can access this area.</p>
-              <a href="main.html" class="btn" style="margin-top: 20px;">Return to Main App</a>
-            </div>
-          </div>
-
-          <!-- Admin Content (Hidden initially) -->
-          <div id="admin-content" class="hidden">
-            
-            <!-- Overview Tab -->
-            <div class="admin-tab-content active" id="overview-content">
-              <h2 class="admin-section-title">Dashboard Overview</h2>
-              
-              <!-- Stats Cards -->
-              <div class="admin-stats-grid">
-                <div class="admin-stat-card">
-                  <div class="admin-stat-icon">👥</div>
-                  <div class="admin-stat-info">
-                    <div class="admin-stat-value" id="total-users">0</div>
-                    <div class="admin-stat-label">Total Users</div>
-                  </div>
-                </div>
-                
-                <div class="admin-stat-card">
-                  <div class="admin-stat-icon">📝</div>
-                  <div class="admin-stat-info">
-                    <div class="admin-stat-value" id="total-tests">0</div>
-                    <div class="admin-stat-label">Total Tests</div>
-                  </div>
-                </div>
-                
-                <div class="admin-stat-card">
-                  <div class="admin-stat-icon">🏆</div>
-                  <div class="admin-stat-info">
-                    <div class="admin-stat-value" id="total-competitions">0</div>
-                    <div class="admin-stat-label">Active Competitions</div>
-                  </div>
-                </div>
-                
-                <div class="admin-stat-card">
-                  <div class="admin-stat-icon">⚡</div>
-                  <div class="admin-stat-info">
-                    <div class="admin-stat-value" id="avg-wpm">0</div>
-                    <div class="admin-stat-label">Average WPM</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Recent Activity -->
-              <div class="admin-card">
-                <div class="admin-card-header">
-                  <h3>Recent Activity</h3>
-                  <button class="btn btn-small" id="refresh-activity">🔄 Refresh</button>
-                </div>
-                <div class="admin-table-container">
-                  <table class="admin-table">
-                    <thead>
-                      <tr>
-                        <th>User</th>
-                        <th>Action</th>
-                        <th>WPM</th>
-                        <th>Accuracy</th>
-                        <th>Date</th>
-                      </tr>
-                    </thead>
-                    <tbody id="recent-activity-body">
-                      <tr>
-                        <td colspan="5" class="text-center text-muted">Loading...</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <!-- Top Performers -->
-              <div class="admin-card">
-                <div class="admin-card-header">
-                  <h3>Top Performers This Week</h3>
-                </div>
-                <div class="admin-table-container">
-                  <table class="admin-table">
-                    <thead>
-                      <tr>
-                        <th>Rank</th>
-                        <th>User</th>
-                        <th>WPM</th>
-                        <th>Accuracy</th>
-                        <th>Tests</th>
-                      </tr>
-                    </thead>
-                    <tbody id="top-performers-body">
-                      <tr>
-                        <td colspan="5" class="text-center text-muted">Loading...</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-
-            <!-- Users Tab -->
-            <div class="admin-tab-content" id="users-content">
-              <div class="admin-card-header">
-                <h2 class="admin-section-title">User Management</h2>
-                <div class="admin-search-box">
-                  <input type="text" id="user-search" placeholder="Search users..." class="admin-search-input">
-                  <button class="btn btn-small" id="search-users-btn">🔍 Search</button>
-                </div>
-              </div>
-              
-              <div class="admin-card">
-                <div class="admin-table-container">
-                  <table class="admin-table">
-                    <thead>
-                      <tr>
-                        <th>Email</th>
-                        <th>Verified</th>
-                        <th>Total Tests</th>
-                        <th>Best WPM</th>
-                        <th>Joined</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody id="users-table-body">
-                      <tr>
-                        <td colspan="6" class="text-center text-muted">Loading users...</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-
-            <!-- Results Tab -->
-            <div class="admin-tab-content" id="results-content">
-              <div class="admin-card-header">
-                <h2 class="admin-section-title">Test Results</h2>
-                <div class="admin-filters">
-                  <select id="results-filter" class="admin-select">
-                    <option value="all">All Results</option>
-                    <option value="today">Today</option>
-                    <option value="week">This Week</option>
-                    <option value="month">This Month</option>
-                  </select>
-                  <button class="btn btn-small" id="export-results-btn">📥 Export CSV</button>
-                </div>
-              </div>
-              
-              <div class="admin-card">
-                <div class="admin-table-container">
-                  <table class="admin-table">
-                    <thead>
-                      <tr>
-                        <th>User</th>
-                        <th>WPM</th>
-                        <th>Accuracy</th>
-                        <th>Duration</th>
-                        <th>Difficulty</th>
-                        <th>Mode</th>
-                        <th>Date</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody id="results-table-body">
-                      <tr>
-                        <td colspan="8" class="text-center text-muted">Loading results...</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                
-                <div class="admin-pagination" id="results-pagination">
-                  <button class="btn btn-small" id="results-prev" disabled>← Previous</button>
-                  <span id="results-page-info">Page 1</span>
-                  <button class="btn btn-small" id="results-next">Next →</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Competitions Tab -->
-            <div class="admin-tab-content" id="competitions-content">
-              <div class="admin-card-header">
-                <h2 class="admin-section-title">Competition Management</h2>
-                <button class="btn btn-small" id="refresh-competitions">🔄 Refresh</button>
-              </div>
-              
-              <div class="admin-card">
-                <div class="admin-table-container">
-                  <table class="admin-table">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Code</th>
-                        <th>Creator</th>
-                        <th>Participants</th>
-                        <th>Status</th>
-                        <th>Target WPM</th>
-                        <th>Ends</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody id="competitions-table-body">
-                      <tr>
-                        <td colspan="8" class="text-center text-muted">Loading competitions...</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-
-            <!-- Lessons Tab -->
-            <div class="admin-tab-content" id="lessons-content">
-              <h2 class="admin-section-title">Lesson Statistics</h2>
-              
-              <div class="admin-stats-grid">
-                <div class="admin-stat-card">
-                  <div class="admin-stat-icon">📚</div>
-                  <div class="admin-stat-info">
-                    <div class="admin-stat-value" id="total-lessons">150</div>
-                    <div class="admin-stat-label">Total Lessons</div>
-                  </div>
-                </div>
-                
-                <div class="admin-stat-card">
-                  <div class="admin-stat-icon">✅</div>
-                  <div class="admin-stat-info">
-                    <div class="admin-stat-value" id="completed-lessons">0</div>
-                    <div class="admin-stat-label">Total Completions</div>
-                  </div>
-                </div>
-                
-                <div class="admin-stat-card">
-                  <div class="admin-stat-icon">🎓</div>
-                  <div class="admin-stat-info">
-                    <div class="admin-stat-value" id="lesson-avg-wpm">0</div>
-                    <div class="admin-stat-label">Avg Lesson WPM</div>
-                  </div>
-                </div>
-                
-                <div class="admin-stat-card">
-                  <div class="admin-stat-icon">🏅</div>
-                  <div class="admin-stat-info">
-                    <div class="admin-stat-value" id="certificates-issued">0</div>
-                    <div class="admin-stat-label">Certificates Issued</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="admin-card">
-                <div class="admin-card-header">
-                  <h3>Most Completed Lessons</h3>
-                </div>
-                <div id="lesson-stats-content">
-                  <p class="text-muted">Lesson completion data will appear here.</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Achievements Tab -->
-            <div class="admin-tab-content" id="achievements-content">
-              <h2 class="admin-section-title">Achievement Statistics</h2>
-              
-              <div class="admin-card">
-                <div class="admin-card-header">
-                  <h3>Most Unlocked Achievements</h3>
-                </div>
-                <div id="achievement-stats-content">
-                  <p class="text-muted">Achievement data will appear here.</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Settings Tab (Super Admin Only) -->
-            <div class="admin-tab-content" id="settings-content">
-              <h2 class="admin-section-title">System Settings</h2>
-              
-              <div class="admin-card">
-                <div class="admin-card-header">
-                  <h3>Admin Management</h3>
-                  <div class="admin-badge super-admin-badge">Super Admin Only</div>
-                </div>
-                <div class="admin-card-body">
-                  <div class="admin-form-group">
-                    <label class="admin-label">Current Administrators</label>
-                    <div class="admin-list" id="admin-list">
-                      <div class="admin-list-item">
-                        <span>mgodfred42@gmail.com</span>
-                        <span class="admin-badge super-admin-badge">Super Admin</span>
-                      </div>
-                      <div class="admin-list-item">
-                        <span>fullword17@gmail.com</span>
-                        <span class="admin-badge">Admin</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="admin-card">
-                <div class="admin-card-header">
-                  <h3>Database Actions</h3>
-                  <div class="admin-badge warning-badge">Danger Zone</div>
-                </div>
-                <div class="admin-card-body">
-                  <div class="admin-warning-box">
-                    <p><strong>⚠️ Warning:</strong> These actions affect the entire database and cannot be undone.</p>
-                  </div>
-                  
-                  <div class="admin-action-buttons">
-                    <button class="btn btn-secondary" id="backup-database-btn">💾 Backup Database</button>
-                    <button class="btn btn-warning" id="clear-old-data-btn">🗑️ Clear Old Data (90+ days)</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="admin-card">
-                <div class="admin-card-header">
-                  <h3>System Information</h3>
-                </div>
-                <div class="admin-card-body">
-                  <div class="admin-info-grid">
-                    <div class="admin-info-item">
-                      <span class="admin-info-label">Version:</span>
-                      <span class="admin-info-value">1.0.0</span>
-                    </div>
-                    <div class="admin-info-item">
-                      <span class="admin-info-label">Environment:</span>
-                      <span class="admin-info-value">Production</span>
-                    </div>
-                    <div class="admin-info-item">
-                      <span class="admin-info-label">Database:</span>
-                      <span class="admin-info-value">Firebase Firestore</span>
-                    </div>
-                    <div class="admin-info-item">
-                      <span class="admin-info-label">Last Updated:</span>
-                      <span class="admin-info-value" id="last-updated">-</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
+    <!-- Recent Registrations -->
+    <div class="admin-card" style="margin-top:0">
+      <div class="admin-card-header">
+        <span class="admin-card-title">🆕 Recent User Activity</span>
+        <button class="topbar-btn" onclick="showPage('users',document.querySelector('[onclick*=\"users\"]'))">View All</button>
       </div>
-    </div>
-  </main>
-
-  <!-- User Details Modal -->
-  <div id="user-details-modal" class="modal hidden">
-    <div class="modal-overlay"></div>
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title" id="user-details-title">User Details</h3>
-        <button class="modal-close" id="close-user-modal">×</button>
-      </div>
-      <div class="modal-body" id="user-details-body">
-        <!-- Will be populated dynamically -->
+      <div class="admin-card-body">
+        <table class="admin-table" id="recent-users-table">
+          <thead><tr><th>User</th><th>Tests</th><th>Best WPM</th><th>Accuracy</th><th>Streak</th><th>Status</th></tr></thead>
+          <tbody></tbody>
+        </table>
       </div>
     </div>
   </div>
 
-  <script src="JS/admin.js"></script>
+  <!-- ═══════════════ ANALYTICS ═══════════════ -->
+  <div class="admin-page" id="page-analytics">
+    <div class="kpi-grid">
+      <div class="kpi-card c-green">
+        <div class="kpi-icon">⌨️</div>
+        <div class="kpi-val" id="a-total-tests">0</div>
+        <div class="kpi-lbl">Total Tests Run</div>
+      </div>
+      <div class="kpi-card c-amber">
+        <div class="kpi-icon">⏱</div>
+        <div class="kpi-val" id="a-total-time">0h</div>
+        <div class="kpi-lbl">Total Time Typed</div>
+      </div>
+      <div class="kpi-card c-purple">
+        <div class="kpi-icon">📊</div>
+        <div class="kpi-val" id="a-avg-wpm">0</div>
+        <div class="kpi-lbl">Avg WPM (All Users)</div>
+      </div>
+      <div class="kpi-card c-blue">
+        <div class="kpi-icon">🎯</div>
+        <div class="kpi-val" id="a-avg-acc">0%</div>
+        <div class="kpi-lbl">Avg Accuracy</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div class="admin-card">
+        <div class="admin-card-header"><span class="admin-card-title">📋 Mode Distribution</span></div>
+        <div class="admin-card-body" style="padding:18px">
+          <div id="mode-dist"></div>
+        </div>
+      </div>
+      <div class="admin-card">
+        <div class="admin-card-header"><span class="admin-card-title">⚡ Difficulty Distribution</span></div>
+        <div class="admin-card-body" style="padding:18px">
+          <div id="diff-dist"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <div class="admin-card-header"><span class="admin-card-title">🏆 Achievement Unlock Rates</span></div>
+      <div class="admin-card-body" style="padding:18px">
+        <div id="ach-stats"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ USERS ═══════════════ -->
+  <div class="admin-page" id="page-users">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <select class="form-select" style="width:auto" id="user-filter" onchange="renderUsersTable()">
+        <option value="all">All Users</option>
+        <option value="registered">Registered</option>
+        <option value="guest">Guest Only</option>
+        <option value="active">Active (7 days)</option>
+      </select>
+      <select class="form-select" style="width:auto" id="user-sort" onchange="renderUsersTable()">
+        <option value="wpm">Sort: Best WPM</option>
+        <option value="tests">Sort: Most Tests</option>
+        <option value="acc">Sort: Best Accuracy</option>
+        <option value="streak">Sort: Streak</option>
+      </select>
+      <span id="user-count-label" style="font-size:.8rem;color:var(--text3);margin-left:6px"></span>
+    </div>
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <span class="admin-card-title">👥 All Users</span>
+        <button class="topbar-btn primary" onclick="openAddUser()">+ Add User</button>
+      </div>
+      <div class="admin-card-body">
+        <table class="admin-table" id="users-table">
+          <thead><tr><th>User</th><th>Tests</th><th>Best WPM</th><th>Accuracy</th><th>Streak</th><th>Lessons</th><th>Points</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ LEADERBOARD ═══════════════ -->
+  <div class="admin-page" id="page-leaderboard">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <select class="form-select" style="width:auto" id="lb-diff-filter" onchange="renderLeaderboardTable()">
+        <option value="all">All Levels</option>
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+      </select>
+      <select class="form-select" style="width:auto" id="lb-mode-filter" onchange="renderLeaderboardTable()">
+        <option value="all">All Modes</option>
+        <option value="words">Words</option>
+        <option value="quotes">Quotes</option>
+        <option value="stories">Stories</option>
+      </select>
+      <button class="topbar-btn danger" onclick="if(confirm('Clear leaderboard?')){clearLeaderboard()}">🗑 Clear</button>
+    </div>
+    <div class="admin-card">
+      <div class="admin-card-header"><span class="admin-card-title">🏆 Global Leaderboard</span></div>
+      <div class="admin-card-body">
+        <table class="admin-table" id="lb-table">
+          <thead><tr><th>#</th><th>User</th><th>WPM</th><th>Accuracy</th><th>Date</th><th>Mode</th><th>Level</th><th>Actions</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ COMPETITIONS ═══════════════ -->
+  <div class="admin-page" id="page-competitions">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <button class="topbar-btn primary" onclick="openCreateComp()">+ Create Competition</button>
+      <button class="topbar-btn" onclick="if(confirm('Delete all ended competitions?')){cleanupComps()}">🗑 Cleanup Ended</button>
+    </div>
+    <div class="admin-card">
+      <div class="admin-card-header"><span class="admin-card-title">⚔️ All Competitions</span></div>
+      <div class="admin-card-body">
+        <table class="admin-table" id="comp-table">
+          <thead><tr><th>Name</th><th>Creator</th><th>Players</th><th>Diff</th><th>Duration</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ LESSONS MGMT ═══════════════ -->
+  <div class="admin-page" id="page-lessons-mgmt">
+    <div class="kpi-grid">
+      <div class="kpi-card c-green"><div class="kpi-icon">📚</div><div class="kpi-val" id="lm-total">36</div><div class="kpi-lbl">Total Lessons</div></div>
+      <div class="kpi-card c-amber"><div class="kpi-icon">✅</div><div class="kpi-val" id="lm-completed">0</div><div class="kpi-lbl">Completions</div></div>
+      <div class="kpi-card c-purple"><div class="kpi-icon">🎧</div><div class="kpi-val">2</div><div class="kpi-lbl">Audio Lessons</div></div>
+      <div class="kpi-card c-blue"><div class="kpi-icon">🎮</div><div class="kpi-val">4</div><div class="kpi-lbl">Mini Games</div></div>
+    </div>
+    <div class="admin-card">
+      <div class="admin-card-header"><span class="admin-card-title">📚 Lesson Catalogue</span></div>
+      <div class="admin-card-body">
+        <table class="admin-table" id="lessons-table">
+          <thead><tr><th>#</th><th>Lesson Name</th><th>Level</th><th>Type</th><th>Exercises</th><th>Target WPM</th><th>Completions</th><th>Status</th></tr></thead>
+          <tbody id="lessons-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ ACHIEVEMENTS ═══════════════ -->
+  <div class="admin-page" id="page-achievements-mgmt">
+    <div class="admin-card">
+      <div class="admin-card-header"><span class="admin-card-title">🏅 All Achievements</span></div>
+      <div class="admin-card-body">
+        <table class="admin-table" id="ach-table">
+          <thead><tr><th>Icon</th><th>Name</th><th>Description</th><th>Points</th><th>Unlocked By</th><th>Status</th></tr></thead>
+          <tbody id="ach-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ APP SETTINGS ═══════════════ -->
+  <div class="admin-page" id="page-settings-admin">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div class="admin-card">
+        <div class="admin-card-header"><span class="admin-card-title">🔧 General Settings</span></div>
+        <div class="admin-card-body" style="padding:18px">
+          <div class="form-group" style="margin-bottom:14px">
+            <label class="form-label">App Name</label>
+            <input class="form-input" value="SoftFingers" id="s-appname">
+          </div>
+          <div class="form-group" style="margin-bottom:14px">
+            <label class="form-label">Default Theme</label>
+            <select class="form-select" id="s-theme">
+              <option value="dark">Dark (Default)</option>
+              <option value="light">Light</option>
+              <option value="ocean">Ocean</option>
+              <option value="ember">Ember</option>
+              <option value="forest">Forest</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:14px">
+            <label class="form-label">Default Test Duration</label>
+            <select class="form-select" id="s-duration">
+              <option value="30">30 seconds</option>
+              <option value="60" selected>1 minute</option>
+              <option value="120">2 minutes</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:14px">
+            <label class="form-label">Default Difficulty</label>
+            <select class="form-select" id="s-diff">
+              <option value="beginner" selected>Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <span style="font-size:.85rem;color:var(--text2);font-weight:600">Allow Guest Mode</span>
+            <label class="switch"><input type="checkbox" checked id="s-guest"><span class="sw-sl"></span></label>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <span style="font-size:.85rem;color:var(--text2);font-weight:600">Show Leaderboard</span>
+            <label class="switch"><input type="checkbox" checked id="s-lb"><span class="sw-sl"></span></label>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+            <span style="font-size:.85rem;color:var(--text2);font-weight:600">Countdown on Start</span>
+            <label class="switch"><input type="checkbox" checked id="s-countdown"><span class="sw-sl"></span></label>
+          </div>
+          <button class="topbar-btn primary" style="width:100%;justify-content:center" onclick="saveAppSettings()">💾 Save Settings</button>
+        </div>
+      </div>
+      <div>
+        <div class="admin-card">
+          <div class="admin-card-header"><span class="admin-card-title">📣 Announcement Banner</span></div>
+          <div class="admin-card-body" style="padding:18px">
+            <div class="form-group" style="margin-bottom:12px">
+              <label class="form-label">Banner Message</label>
+              <input class="form-input" placeholder="e.g. New lessons added! Check Intermediate →" id="s-banner-msg">
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <span style="font-size:.85rem;color:var(--text2);font-weight:600">Show Banner</span>
+              <label class="switch"><input type="checkbox" id="s-banner-on"><span class="sw-sl"></span></label>
+            </div>
+            <button class="topbar-btn primary" style="width:100%;justify-content:center" onclick="saveBanner()">Save Banner</button>
+          </div>
+        </div>
+        <div class="admin-card" style="margin-top:0">
+          <div class="admin-card-header"><span class="admin-card-title">🌐 Leaderboard Size</span></div>
+          <div class="admin-card-body" style="padding:18px">
+            <div class="form-group" style="margin-bottom:14px">
+              <label class="form-label">Max Entries Displayed</label>
+              <input class="form-input" type="number" value="10" id="s-lb-size" min="5" max="100">
+            </div>
+            <div class="form-group" style="margin-bottom:14px">
+              <label class="form-label">Max Stored Records</label>
+              <input class="form-input" type="number" value="100" id="s-lb-max" min="10" max="1000">
+            </div>
+            <button class="topbar-btn primary" style="width:100%;justify-content:center" onclick="saveLeaderboardSettings()">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ DATA MANAGEMENT ═══════════════ -->
+  <div class="admin-page" id="page-data-mgmt">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div class="admin-card">
+        <div class="admin-card-header"><span class="admin-card-title">📤 Export Data</span></div>
+        <div class="admin-card-body" style="padding:18px;display:flex;flex-direction:column;gap:10px">
+          <button class="topbar-btn" style="width:100%;justify-content:center" onclick="exportJSON('users')">Export All Users (JSON)</button>
+          <button class="topbar-btn" style="width:100%;justify-content:center" onclick="exportJSON('leaderboard')">Export Leaderboard (JSON)</button>
+          <button class="topbar-btn" style="width:100%;justify-content:center" onclick="exportJSON('competitions')">Export Competitions (JSON)</button>
+          <button class="topbar-btn" style="width:100%;justify-content:center" onclick="exportJSON('all')">Export Everything (JSON)</button>
+        </div>
+      </div>
+      <div class="admin-card">
+        <div class="admin-card-header"><span class="admin-card-title">🗑 Data Cleanup</span></div>
+        <div class="admin-card-body" style="padding:18px;display:flex;flex-direction:column;gap:10px">
+          <button class="topbar-btn danger" style="width:100%;justify-content:center" onclick="if(confirm('Clear all leaderboard entries?')){clearLeaderboard()}">Clear Leaderboard</button>
+          <button class="topbar-btn danger" style="width:100%;justify-content:center" onclick="if(confirm('Delete all ended competitions?')){cleanupComps()}">Delete Ended Competitions</button>
+          <button class="topbar-btn danger" style="width:100%;justify-content:center" onclick="if(confirm('Reset guest stats?')){resetGuestStats()}">Reset Guest Stats</button>
+          <button class="topbar-btn danger" style="width:100%;justify-content:center;border-color:var(--danger);color:var(--danger)" onclick="if(confirm('⚠️ This will delete ALL data. Are you absolutely sure?')){nukeAllData()}">⚠️ Nuke All Data</button>
+        </div>
+      </div>
+    </div>
+    <div class="admin-card">
+      <div class="admin-card-header"><span class="admin-card-title">💾 Raw localStorage Inspector</span></div>
+      <div class="admin-card-body" style="padding:18px">
+        <div style="display:flex;gap:10px;margin-bottom:12px">
+          <select class="form-select" style="width:auto" id="ls-key-select" onchange="viewLSKey(this.value)">
+            <option value="">Select a key...</option>
+          </select>
+          <button class="topbar-btn" onclick="refreshLSKeys()">↺ Refresh</button>
+        </div>
+        <pre id="ls-preview" style="background:var(--bg3);padding:14px;border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:.72rem;color:var(--text2);overflow-x:auto;min-height:100px;white-space:pre-wrap;word-break:break-all;border:1px solid var(--border)">Select a key to inspect...</pre>
+      </div>
+    </div>
+  </div>
+
+</div><!-- #admin-main -->
+</div><!-- #admin-app -->
+
+<!-- MODALS -->
+<!-- Add/Edit User Modal -->
+<div class="modal-backdrop" id="modal-user">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-user-title">Add User</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Username</label><input class="form-input" id="mu-user" placeholder="username"></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="mu-email" type="email" placeholder="email@example.com"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="mu-pass" type="password" placeholder="New password"></div>
+      <div class="form-group"><label class="form-label">Best WPM Override</label><input class="form-input" id="mu-wpm" type="number" placeholder="0"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="topbar-btn" onclick="closeModal('modal-user')">Cancel</button>
+      <button class="topbar-btn primary" onclick="saveUser()">Save User</button>
+    </div>
+  </div>
+</div>
+
+<!-- Create Competition Modal -->
+<div class="modal-backdrop" id="modal-comp">
+  <div class="modal-box">
+    <div class="modal-title">Create Competition</div>
+    <div class="form-group" style="margin-bottom:12px"><label class="form-label">Name</label><input class="form-input" id="mc-name" placeholder="e.g. Friday Speed Challenge"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Max Players</label>
+        <select class="form-select" id="mc-max"><option value="4">4</option><option value="8" selected>8</option><option value="10">10</option><option value="20">20</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Difficulty</label>
+        <select class="form-select" id="mc-diff"><option value="beginner">Beginner</option><option value="intermediate" selected>Intermediate</option><option value="advanced">Advanced</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Duration</label>
+        <select class="form-select" id="mc-dur"><option value="60">1 min</option><option value="120" selected>2 min</option><option value="300">5 min</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Status</label>
+        <select class="form-select" id="mc-status"><option value="waiting" selected>Waiting</option><option value="live">Live</option></select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="topbar-btn" onclick="closeModal('modal-comp')">Cancel</button>
+      <button class="topbar-btn primary" onclick="adminCreateComp()">Create</button>
+    </div>
+  </div>
+</div>
+
+<div id="admin-toasts"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// ADMIN AUTHENTICATION
+// ══════════════════════════════════════════════
+
+// Authorised admin credentials
+// Passwords are stored as SHA-256-like hashes (btoa of email+salt+pass)
+// ── Admin Authentication ──────────────────────────────────────────────────────
+// Pure in-memory flag — resets to false on every page load.
+// No sessionStorage, no localStorage. Login is always required on each visit.
+let _adminAuthenticated = false;
+let _adminEmail = '';
+
+const ADMIN_SALT = 'TC_ADMIN_2025';
+const ADMIN_CREDENTIALS = {
+  'mgodfred42@gmail.com': btoa('mgodfred42@gmail.com' + ADMIN_SALT + 'SoftFingers@admin'),
+  'fullword17@gmail.com': btoa('fullword17@gmail.com' + ADMIN_SALT + 'SoftFingers@admin'),
+};
+
+let loginAttempts = 0;
+const MAX_ATTEMPTS = 5;
+let lockoutEnd = 0;
+let lockoutInterval = null;
+
+// Always returns false on page load since _adminAuthenticated starts false
+function isAdminLoggedIn() {
+  return _adminAuthenticated === true;
+}
+
+function attemptAdminLogin() {
+  if (Date.now() < lockoutEnd) return;
+
+  const email = document.getElementById('admin-email-inp').value.trim().toLowerCase();
+  const pass  = document.getElementById('admin-pass-inp').value;
+  const errEl = document.getElementById('login-error');
+  const btn   = document.getElementById('login-submit-btn');
+
+  errEl.classList.remove('show');
+
+  if (!email || !pass) {
+    showLoginError('Please enter your email and password.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Verifying...';
+
+  setTimeout(() => {
+    const expectedHash = ADMIN_CREDENTIALS[email];
+    const inputHash    = btoa(email + ADMIN_SALT + pass);
+
+    if (expectedHash && inputHash === expectedHash) {
+      // ✅ Correct credentials — set in-memory flag only (no storage)
+      _adminAuthenticated = true;
+      _adminEmail = email;
+      loginAttempts = 0;
+
+      // Animate login screen out
+      const screen = document.getElementById('admin-login-screen');
+      screen.style.transition = 'opacity .4s ease';
+      screen.style.opacity = '0';
+      setTimeout(() => {
+        screen.style.display = 'none';
+        document.getElementById('admin-app').style.display = '';
+        const titleEl = document.getElementById('topbar-title');
+        const name = email.split('@')[0];
+        if (titleEl) titleEl.textContent = `Dashboard  —  ${name}`;
+        initAdmin();
+      }, 400);
+
+    } else {
+      // ❌ Wrong credentials
+      loginAttempts++;
+      btn.disabled = false;
+      btn.textContent = 'Sign In to Admin';
+      const remaining = MAX_ATTEMPTS - loginAttempts;
+
+      if (loginAttempts >= MAX_ATTEMPTS) {
+        lockoutEnd = Date.now() + 30000;
+        btn.disabled = true;
+        document.getElementById('login-locked').style.display = 'block';
+        document.getElementById('login-attempts').textContent = '';
+        let sec = 30;
+        document.getElementById('lockout-timer').textContent = sec;
+        lockoutInterval = setInterval(() => {
+          sec--;
+          document.getElementById('lockout-timer').textContent = sec;
+          if (sec <= 0) {
+            clearInterval(lockoutInterval);
+            lockoutEnd = 0;
+            loginAttempts = 0;
+            btn.disabled = false;
+            document.getElementById('login-locked').style.display = 'none';
+          }
+        }, 1000);
+        showLoginError('Too many failed attempts. Account temporarily locked.');
+      } else {
+        if (!ADMIN_CREDENTIALS[email]) {
+          showLoginError('Email address not recognised as an admin account.');
+        } else {
+          showLoginError(`Incorrect password. ${remaining} attempt${remaining===1?'':'s'} remaining.`);
+        }
+        document.getElementById('login-attempts').textContent = `${loginAttempts} / ${MAX_ATTEMPTS} attempts used`;
+        const box = document.querySelector('.login-box');
+        if(box) { box.style.animation = 'none'; void box.offsetWidth; box.style.animation = 'loginShake .4s ease'; }
+      }
+    }
+  }, 500);
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  if(el) { el.textContent = msg; el.classList.add('show'); }
+}
+
+function togglePw() {
+  const inp = document.getElementById('admin-pass-inp');
+  if(inp) inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function adminLogout() {
+  // Clear in-memory flag and reload — login screen will show automatically
+  _adminAuthenticated = false;
+  _adminEmail = '';
+  location.reload();
+}
+
+// Shake keyframe
+const shakeStyle = document.createElement('style');
+shakeStyle.textContent = `@keyframes loginShake {
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-10px)}
+  40%{transform:translateX(10px)}
+  60%{transform:translateX(-8px)}
+  80%{transform:translateX(8px)}
+}`;
+document.head.appendChild(shakeStyle);
+
+// ── Theme ──
+const ADMIN_THEMES = {
+  dark:   { label:'Dark',   dot:'#00e5c8' },
+  light:  { label:'Light',  dot:'#00b3a0' },
+  ocean:  { label:'Ocean',  dot:'#00cfff' },
+  ember:  { label:'Ember',  dot:'#ff6b35' },
+  forest: { label:'Forest', dot:'#39d96a' },
+};
+function setAdminTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('tc_adminTheme', t);
+  const m = ADMIN_THEMES[t];
+  const dot = document.getElementById('admin-theme-dot');
+  const lbl = document.getElementById('admin-theme-label');
+  if(dot) dot.style.background = m.dot;
+  if(lbl) lbl.textContent = m.label;
+  document.querySelectorAll('#admin-theme-dd .theme-opt').forEach(o => o.classList.toggle('active', o.dataset.theme === t));
+  document.getElementById('admin-theme-dd')?.classList.remove('open');
+}
+function toggleAdminTheme() {
+  document.getElementById('admin-theme-dd').classList.toggle('open');
+}
+document.addEventListener('click', e => {
+  const sw = document.getElementById('admin-theme-sw');
+  if(sw && !sw.contains(e.target)) document.getElementById('admin-theme-dd')?.classList.remove('open');
+});
+// Load saved theme
+setAdminTheme(localStorage.getItem('tc_adminTheme') || localStorage.getItem('tc_theme') || 'dark');
+
+// ── Storage helpers ──
+const DB = {
+  get: (k, d=null) => { try { const v = localStorage.getItem('tc_'+k); return v ? JSON.parse(v) : d; } catch { return d; }},
+  set: (k, v) => { try { localStorage.setItem('tc_'+k, JSON.stringify(v)); } catch {} },
+  del: (k) => localStorage.removeItem('tc_'+k)
+};
+
+// ── Toast ──
+function toast(msg, type='info') {
+  const c = document.getElementById('admin-toasts');
+  const t = document.createElement('div');
+  t.className = `admin-toast ${type}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
+}
+
+// ── Navigation ──
+function showPage(id, btn) {
+  document.querySelectorAll('.admin-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
+  const p = document.getElementById('page-' + id);
+  if(p) p.classList.add('active');
+  if(btn) btn.classList.add('active');
+  const titles = { dashboard:'Dashboard', analytics:'Analytics', users:'Users', leaderboard:'Leaderboard', competitions:'Competitions', 'lessons-mgmt':'Lessons', 'achievements-mgmt':'Achievements', 'settings-admin':'App Settings', 'data-mgmt':'Data Management' };
+  document.getElementById('topbar-title').textContent = titles[id] || id;
+  loadPageData(id);
+}
+
+// ── Data Loading ──
+function getAllUsers() {
+  const users = DB.get('users', {});
+  return Object.entries(users).map(([username, data]) => ({
+    username,
+    email: data.email || '—',
+    stats: data.stats || {},
+    created: data.created || 0
+  }));
+}
+
+function loadPageData(id) {
+  if(id === 'dashboard')         loadDashboard();
+  if(id === 'users')             renderUsersTable();
+  if(id === 'leaderboard')       renderLeaderboardTable();
+  if(id === 'competitions')      renderCompetitionsTable();
+  if(id === 'analytics')         loadAnalytics();
+  if(id === 'lessons-mgmt')      renderLessonsTable();
+  if(id === 'achievements-mgmt') renderAchievementsTable();
+  if(id === 'data-mgmt')         refreshLSKeys();
+}
+
+function refreshData() { loadPageData(document.querySelector('.admin-page.active').id.replace('page-','')); toast('Data refreshed'); }
+
+// ── Dashboard ──
+function loadDashboard() {
+  const users  = getAllUsers();
+  const lb     = DB.get('leaderboard', []);
+  const comps  = DB.get('competitions', []);
+  const gStats = DB.get('guestStats', {});
+
+  const totalTests = users.reduce((s,u) => s + (u.stats.testsCompleted||0), 0) + (gStats.testsCompleted||0);
+  const totalUsers = users.length;
+  const topWpm     = Math.max(...users.map(u => u.stats.bestWpm||0), 0);
+  const liveComps  = comps.filter(c => c.status==='live').length;
+
+  document.getElementById('badge-users').textContent = totalUsers;
+  document.getElementById('badge-comps').textContent = comps.length;
+
+  // KPI cards
+  document.getElementById('kpi-grid').innerHTML = [
+    { icon:'👥', val: totalUsers,  lbl:'Registered Users',   cls:'c-green',  delta:'' },
+    { icon:'⌨️', val: totalTests,  lbl:'Tests Completed',    cls:'c-amber',  delta:'' },
+    { icon:'⚡', val: topWpm+' WPM', lbl:'All-Time Best WPM', cls:'c-purple', delta:'' },
+    { icon:'⚔️', val: comps.length, lbl:'Total Competitions', cls:'c-blue',   delta:'' },
+    { icon:'🔴', val: liveComps,   lbl:'Live Now',            cls:'c-red',    delta:'' },
+    { icon:'🎓', val: lb.length,   lbl:'Leaderboard Entries', cls:'c-green',  delta:'' },
+  ].map(k => `<div class="kpi-card ${k.cls}">
+    <div class="kpi-icon">${k.icon}</div>
+    <div class="kpi-val">${k.val}</div>
+    <div class="kpi-lbl">${k.lbl}</div>
+    ${k.delta ? `<div class="kpi-delta up">${k.delta}</div>` : ''}
+  </div>`).join('');
+
+  // Activity chart (random demo)
+  const days = [42,67,55,88,73,95,61];
+  const maxV = Math.max(...days);
+  document.getElementById('activity-chart').innerHTML = days.map((v,i) =>
+    `<div class="bar-wrap">
+      <div class="bar-fill" style="height:${Math.round((v/maxV)*88)}px;animation-delay:${i*.08}s"></div>
+      <span class="bar-lbl">${v}</span>
+    </div>`).join('');
+
+  // Top today
+  const sorted = [...users].sort((a,b) => (b.stats.bestWpm||0)-(a.stats.bestWpm||0)).slice(0,5);
+  document.querySelector('#top-today-table tbody').innerHTML = sorted.length
+    ? sorted.map((u,i) => `<tr>
+        <td><span style="color:var(--accent);font-weight:700">${['🥇','🥈','🥉','4','5'][i]}</span></td>
+        <td><div class="user-cell"><div class="u-avatar">${u.username[0].toUpperCase()}</div><span class="u-name">${u.username}</span></div></td>
+        <td class="mono">${u.stats.bestWpm||0}</td>
+        <td>${u.stats.bestAccuracy ? u.stats.bestAccuracy.toFixed(1)+'%' : '—'}</td>
+      </tr>`).join('')
+    : '<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:20px">No registered users yet</td></tr>';
+
+  // Recent users
+  const recent = [...users].sort((a,b)=>b.created-a.created).slice(0,8);
+  document.querySelector('#recent-users-table tbody').innerHTML = recent.length
+    ? recent.map(u => `<tr>
+        <td><div class="user-cell"><div class="u-avatar">${u.username[0].toUpperCase()}</div><div><div class="u-name">${u.username}</div><div class="u-email">${u.email}</div></div></div></td>
+        <td class="mono">${u.stats.testsCompleted||0}</td>
+        <td class="mono">${u.stats.bestWpm||0}</td>
+        <td>${u.stats.bestAccuracy ? u.stats.bestAccuracy.toFixed(1)+'%' : '—'}</td>
+        <td>${u.stats.streak||0}🔥</td>
+        <td><span class="badge active">active</span></td>
+      </tr>`).join('')
+    : '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px">No users yet — they appear after registration</td></tr>';
+}
+
+// ── Analytics ──
+function loadAnalytics() {
+  const users  = getAllUsers();
+  const gStats = DB.get('guestStats', {});
+  const totalTests = users.reduce((s,u) => s+(u.stats.testsCompleted||0), 0) + (gStats.testsCompleted||0);
+  const totalTime  = users.reduce((s,u) => s+(u.stats.totalTime||0), 0) + (gStats.totalTime||0);
+  const avgWpm = users.length ? Math.round(users.reduce((s,u)=>s+(u.stats.bestWpm||0),0)/users.length) : 0;
+  const avgAcc = users.length ? (users.reduce((s,u)=>s+(u.stats.bestAccuracy||0),0)/users.length).toFixed(1) : 0;
+
+  document.getElementById('a-total-tests').textContent = totalTests;
+  document.getElementById('a-total-time').textContent  = Math.round(totalTime/3600)+'h';
+  document.getElementById('a-avg-wpm').textContent     = avgWpm;
+  document.getElementById('a-avg-acc').textContent     = avgAcc+'%';
+
+  const mkDist = (items, colors) => items.map(([lbl,val,pct],i) => `
+    <div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:.82rem">
+        <span style="color:var(--text2)">${lbl}</span>
+        <span style="font-family:var(--font-mono);color:${colors[i%colors.length]}">${val} (${pct}%)</span>
+      </div>
+      <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${colors[i%colors.length]};border-radius:3px;transition:width 1s"></div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('mode-dist').innerHTML = mkDist([
+    ['Random Words', Math.round(totalTests*.45), 45],
+    ['Quotes',       Math.round(totalTests*.35), 35],
+    ['Stories',      Math.round(totalTests*.2),  20]
+  ], ['var(--accent)','var(--accent2)','var(--accent3)']);
+
+  document.getElementById('diff-dist').innerHTML = mkDist([
+    ['Beginner',     Math.round(totalTests*.5),  50],
+    ['Intermediate', Math.round(totalTests*.32), 32],
+    ['Advanced',     Math.round(totalTests*.18), 18]
+  ], ['var(--success)','var(--warn)','var(--danger)']);
+
+  const achs = [
+    ['First Steps',      users.filter(u=>u.stats.earnedAchievements?.includes('first_test')).length],
+    ['Getting There (50 WPM)',users.filter(u=>u.stats.earnedAchievements?.includes('wpm_50')).length],
+    ['Century Club (100 WPM)',users.filter(u=>u.stats.earnedAchievements?.includes('wpm_100')).length],
+    ['Perfect Typist',   users.filter(u=>u.stats.earnedAchievements?.includes('acc_100')).length],
+    ['Week Warrior',     users.filter(u=>u.stats.earnedAchievements?.includes('streak_7')).length],
+  ];
+  const maxA = Math.max(...achs.map(a=>a[1]), 1);
+  document.getElementById('ach-stats').innerHTML = achs.map(([nm,ct]) => `
+    <div style="margin-bottom:10px;display:flex;align-items:center;gap:14px">
+      <span style="font-size:.8rem;color:var(--text2);width:200px;flex-shrink:0">${nm}</span>
+      <div style="flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${Math.round((ct/maxA)*100)}%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:3px;transition:width 1s"></div>
+      </div>
+      <span style="font-family:var(--font-mono);font-size:.8rem;color:var(--accent);width:30px;text-align:right">${ct}</span>
+    </div>`).join('');
+}
+
+// ── Users Table ──
+function renderUsersTable() {
+  const users = getAllUsers();
+  const filter = document.getElementById('user-filter')?.value || 'all';
+  const sort   = document.getElementById('user-sort')?.value || 'wpm';
+  let filtered = filter === 'registered' ? users : users;
+  filtered.sort((a,b) => {
+    if(sort==='wpm')    return (b.stats.bestWpm||0)-(a.stats.bestWpm||0);
+    if(sort==='tests')  return (b.stats.testsCompleted||0)-(a.stats.testsCompleted||0);
+    if(sort==='acc')    return (b.stats.bestAccuracy||0)-(a.stats.bestAccuracy||0);
+    if(sort==='streak') return (b.stats.streak||0)-(a.stats.streak||0);
+    return 0;
+  });
+  const lbl = document.getElementById('user-count-label');
+  if(lbl) lbl.textContent = `${filtered.length} users`;
+  const ach = [ 'first_test','wpm_50','wpm_75','wpm_100','wpm_150','wpm_200','acc_100','acc_99','streak_7','streak_30','tests_10','tests_50','tests_100','marathon','advanced','bible','hymns','history','audio','competition','night_owl','import','lesson_complete','speed_boost' ];
+  document.querySelector('#users-table tbody').innerHTML = filtered.length
+    ? filtered.map(u => {
+        const pts = (u.stats.earnedAchievements||[]).length * 25;
+        const lessonsCount = (u.stats.completedLessons||[]).length;
+        return `<tr>
+          <td><div class="user-cell"><div class="u-avatar">${u.username[0].toUpperCase()}</div><div><div class="u-name">${u.username}</div><div class="u-email">${u.email}</div></div></div></td>
+          <td class="mono">${u.stats.testsCompleted||0}</td>
+          <td class="mono">${u.stats.bestWpm||0}</td>
+          <td>${u.stats.bestAccuracy ? u.stats.bestAccuracy.toFixed(1)+'%' : '—'}</td>
+          <td>${u.stats.streak||0}🔥</td>
+          <td>${lessonsCount}/36</td>
+          <td class="mono" style="color:var(--accent2)">${pts}</td>
+          <td><span class="badge active">active</span></td>
+          <td>
+            <button class="action-btn" onclick="editUser('${u.username}')">Edit</button>
+            <button class="action-btn danger" onclick="deleteUser('${u.username}')">Delete</button>
+          </td>
+        </tr>`;
+      }).join('')
+    : '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--text3)">No registered users yet</td></tr>';
+}
+
+// ── Leaderboard ──
+const SEED_LB = [
+  {user:"TypeMaster_GH",wpm:187,acc:99.2,date:"2026-03-18",mode:"quotes",diff:"advanced"},
+  {user:"SpeedDemon99",wpm:172,acc:98.7,date:"2026-03-19",mode:"words",diff:"advanced"},
+  {user:"KeyWizard",wpm:165,acc:99.5,date:"2026-03-17",mode:"stories",diff:"advanced"},
+  {user:"AccuracyKing",wpm:158,acc:99.9,date:"2026-03-20",mode:"quotes",diff:"intermediate"},
+  {user:"FastFingers_Accra",wpm:142,acc:97.8,date:"2026-03-18",mode:"words",diff:"intermediate"},
+  {user:"TypingPro_Tema",wpm:135,acc:98.1,date:"2026-03-19",mode:"quotes",diff:"advanced"},
+  {user:"WordWarrior",wpm:128,acc:96.5,date:"2026-03-16",mode:"stories",diff:"intermediate"},
+  {user:"KeyboardQueen",wpm:119,acc:97.2,date:"2026-03-20",mode:"words",diff:"beginner"},
+  {user:"NightTyper",wpm:112,acc:95.8,date:"2026-03-15",mode:"quotes",diff:"intermediate"},
+  {user:"SwiftKeys",wpm:105,acc:94.3,date:"2026-03-19",mode:"words",diff:"beginner"},
+];
+function renderLeaderboardTable() {
+  const lb = [...SEED_LB, ...DB.get('leaderboard', [])];
+  const df = document.getElementById('lb-diff-filter')?.value || 'all';
+  const mf = document.getElementById('lb-mode-filter')?.value || 'all';
+  const filtered = lb.filter(e => (df==='all'||e.diff===df) && (mf==='all'||e.mode===mf))
+    .sort((a,b)=>b.wpm-a.wpm).slice(0,50);
+  document.querySelector('#lb-table tbody').innerHTML = filtered.map((e,i) => `
+    <tr>
+      <td><span style="color:${i<3?'var(--accent)':'var(--text3)'};font-weight:700">${i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)}</span></td>
+      <td><strong>${e.user}</strong></td>
+      <td class="mono">${e.wpm}</td>
+      <td>${e.acc}%</td>
+      <td style="color:var(--text3);font-size:.75rem">${e.date}</td>
+      <td><span class="badge active">${e.mode}</span></td>
+      <td><span class="badge ${e.diff==='advanced'?'live':e.diff==='intermediate'?'waiting':'ended'}">${e.diff}</span></td>
+      <td><button class="action-btn danger" onclick="deleteLBEntry('${e.user}',${e.wpm})">Remove</button></td>
+    </tr>`).join('');
+}
+
+// ── Competitions ──
+function renderCompetitionsTable() {
+  const seed = [
+    {id:'s1',name:"Friday Speed Sprint",max:8,diff:"intermediate",dur:120,creator:"KeyWizard",participants:[{user:"KeyWizard"},{user:"SpeedDemon99"},{user:"TypeMaster_GH"}],status:"live",created:Date.now()-3600000},
+    {id:'s2',name:"Beginner Friendly Cup",max:10,diff:"beginner",dur:60,creator:"FastFingers_Accra",participants:[{user:"FastFingers_Accra"}],status:"waiting",created:Date.now()-600000},
+    {id:'s3',name:"Advanced Masters",max:4,diff:"advanced",dur:300,creator:"AccuracyKing",participants:[{user:"AccuracyKing"},{user:"NightTyper"},{user:"WordWarrior"},{user:"SwiftKeys"}],status:"ended",created:Date.now()-86400000}
+  ];
+  const all = [...seed, ...DB.get('competitions', [])].sort((a,b)=>b.created-a.created);
+  document.querySelector('#comp-table tbody').innerHTML = all.map(c => `
+    <tr>
+      <td><strong style="color:var(--text)">${c.name}</strong></td>
+      <td>${c.creator||'admin'}</td>
+      <td class="mono">${c.participants?.length||0}/${c.max}</td>
+      <td><span class="badge ${c.diff==='advanced'?'live':c.diff==='intermediate'?'waiting':'ended'}">${c.diff}</span></td>
+      <td>${Math.floor((c.dur||60)/60)}m</td>
+      <td><span class="badge ${c.status}">${c.status}</span></td>
+      <td style="color:var(--text3);font-size:.75rem">${new Date(c.created).toLocaleDateString()}</td>
+      <td>
+        ${c.status!=='ended'?`<button class="action-btn success" onclick="endComp('${c.id}')">End</button>`:''}
+        <button class="action-btn danger" onclick="deleteComp('${c.id}')">Delete</button>
+      </td>
+    </tr>`).join('');
+}
+
+// ── Lessons Table ──
+const LESSON_CATALOGUE = [
+  ...Array.from({length:13},(_, i)=>({n:i+1,level:'beginner',name:['Tutorial — Posture & Finger Map','Left Hand Home Row A S D F','Right Hand Home Row J K L ;','Both Hands — Home Row Combined','Left Hand Top Row Q W E R T','Right Hand Top Row Y U I O P','Full Top Row QWERTY Together','Left Hand Bottom Row Z X C V B','Right Hand Bottom Row N M','Full Keyboard — All Letters','Number Row Left Side 1–5','Number Row Right Side 6–0','Beginner Review — Speed Test'][i],type:'drill',exercises:10,targetWpm:[10,15,15,18,15,15,22,12,15,22,12,12,25][i]})),
+  ...Array.from({length:12},(_, i)=>({n:i+1,level:'intermediate',name:['Shift Key — Capital Letters','Period and Comma','Question Mark and Exclamation','Apostrophes and Contractions','Colon Semicolon and Quotes','Brackets Dashes and Hyphens','Numbers in Context','Speed Drills — Pangrams','Business and Professional Phrases','Code and Symbols','Intermediate Paragraphs','Intermediate Review — Mixed Drill'][i],type:'drill',exercises:10,targetWpm:[30,28,28,28,26,25,30,40,38,25,40,42][i]})),
+  ...Array.from({length:12},(_, i)=>({n:i+1,level:'advanced',name:['Advanced Vocabulary Drills','Scientific and Technical Writing','Legal and Formal Language','Financial and Business Prose','Speed Paragraphs — 60+ WPM','Literature and Classic Prose','News and Journalism Style','Code — Real Developer Patterns','Academic Essay Writing','Medical and Clinical Language','🎧 Audio — Standard Level','🎧 Audio — Advanced Level'][i],type:i>=10?'audio':'drill',exercises:i>=10?1:8,targetWpm:[50,48,45,52,60,55,55,40,50,45,45,50][i]}))
+];
+function renderLessonsTable() {
+  const users = getAllUsers();
+  const allCompleted = users.flatMap(u => u.stats.completedLessons||[]);
+  let completedMap = {};
+  allCompleted.forEach(id => { completedMap[id] = (completedMap[id]||0)+1; });
+  document.getElementById('lm-completed').textContent = Object.values(completedMap).reduce((a,b)=>a+b,0);
+  const idMap = { beginner:['b0','b1','b2','b3','b4','b5','b6','b7','b8','b9','b10','b11','b12'], intermediate:['i1','i2','i3','i4','i5','i6','i7','i8','i9','i10','i11','i12'], advanced:['a1','a2','a3','a4','a5','a6','a7','a8','a9','a10','a11','a12'] };
+  document.getElementById('lessons-tbody').innerHTML = LESSON_CATALOGUE.map(l => {
+    const ids = idMap[l.level]||[];
+    const id  = ids[l.n-1] || '';
+    const cnt = completedMap[id]||0;
+    return `<tr>
+      <td class="mono">${l.n}</td>
+      <td style="color:var(--text);font-weight:600">${l.name}</td>
+      <td><span class="badge ${l.level==='beginner'?'active':l.level==='intermediate'?'waiting':'live'}">${l.level}</span></td>
+      <td><span class="badge ${l.type==='audio'?'active':'guest'}">${l.type}</span></td>
+      <td class="mono">${l.exercises}</td>
+      <td class="mono">${l.targetWpm}+</td>
+      <td class="mono" style="color:var(--accent2)">${cnt}</td>
+      <td><span class="badge active">active</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Achievements Table ──
+const ACH_DEF = [
+  {id:'first_test',name:"First Steps",desc:"Complete your first typing test",icon:"👶",points:10},
+  {id:'wpm_50',name:"Getting There",desc:"Reach 50 WPM",icon:"🚀",points:20},
+  {id:'wpm_75',name:"Speed Runner",desc:"Reach 75 WPM",icon:"⚡",points:35},
+  {id:'wpm_100',name:"Century Club",desc:"Reach 100 WPM",icon:"💯",points:60},
+  {id:'wpm_150',name:"Speed Demon",desc:"Reach 150 WPM",icon:"🔥",points:100},
+  {id:'wpm_200',name:"TypeGod",desc:"Reach 200 WPM",icon:"👑",points:200},
+  {id:'acc_100',name:"Perfect Typist",desc:"100% accuracy on any test",icon:"🎯",points:50},
+  {id:'acc_99',name:"Nearly Perfect",desc:"99%+ accuracy",icon:"✨",points:30},
+  {id:'streak_7',name:"Week Warrior",desc:"Type 7 days in a row",icon:"📅",points:40},
+  {id:'streak_30',name:"Monthly Master",desc:"Type 30 days in a row",icon:"🗓️",points:150},
+  {id:'tests_10',name:"Dedicated",desc:"Complete 10 typing tests",icon:"💪",points:25},
+  {id:'tests_50',name:"Veteran",desc:"Complete 50 typing tests",icon:"🎖️",points:75},
+  {id:'tests_100',name:"SoftFingers Legend",desc:"Complete 100 typing tests",icon:"🏆",points:150},
+  {id:'marathon',name:"Marathon",desc:"Complete a 30-minute test",icon:"🏃",points:80},
+  {id:'advanced',name:"Advanced Typist",desc:"Complete a test at Advanced level",icon:"🎓",points:45},
+  {id:'bible',name:"Scripture Typist",desc:"Complete 3 Bible sessions",icon:"✝️",points:30},
+  {id:'hymns',name:"Hymn Singer",desc:"Complete 2 Hymns sessions",icon:"🎵",points:30},
+  {id:'history',name:"Historian",desc:"Complete all history topics",icon:"📜",points:60},
+  {id:'audio',name:"Audio Ace",desc:"Complete an audio lesson",icon:"🎧",points:50},
+  {id:'competition',name:"Competitor",desc:"Join your first competition",icon:"⚔️",points:25},
+  {id:'night_owl',name:"Night Owl",desc:"Type past midnight",icon:"🦉",points:20},
+  {id:'import',name:"Text Importer",desc:"Practice with imported text",icon:"📥",points:15},
+  {id:'lesson_complete',name:"Graduate",desc:"Complete all beginner lessons",icon:"🎓",points:40},
+  {id:'speed_boost',name:"Speed Boost",desc:"Improve WPM by 20+ in one session",icon:"⬆️",points:35},
+];
+function renderAchievementsTable() {
+  const users = getAllUsers();
+  document.getElementById('ach-tbody').innerHTML = ACH_DEF.map(a => {
+    const unlocked = users.filter(u => (u.stats.earnedAchievements||[]).includes(a.id)).length;
+    const pct = users.length ? Math.round((unlocked/users.length)*100) : 0;
+    return `<tr>
+      <td style="font-size:1.3rem">${a.icon}</td>
+      <td style="font-weight:700;color:var(--text)">${a.name}</td>
+      <td style="color:var(--text2);font-size:.8rem">${a.desc}</td>
+      <td class="mono" style="color:var(--accent2)">${a.points}</td>
+      <td><span class="mono">${unlocked}</span><span style="color:var(--text3);font-size:.72rem"> (${pct}%)</span></td>
+      <td><span class="badge active">active</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── User CRUD ──
+let editingUser = null;
+function openAddUser() {
+  editingUser = null;
+  document.getElementById('modal-user-title').textContent = 'Add User';
+  ['mu-user','mu-email','mu-pass','mu-wpm'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('modal-user').classList.add('show');
+}
+function editUser(username) {
+  const users = DB.get('users', {});
+  const u = users[username];
+  if(!u) return;
+  editingUser = username;
+  document.getElementById('modal-user-title').textContent = 'Edit: ' + username;
+  document.getElementById('mu-user').value  = username;
+  document.getElementById('mu-email').value = u.email||'';
+  document.getElementById('mu-pass').value  = '';
+  document.getElementById('mu-wpm').value   = u.stats?.bestWpm||0;
+  document.getElementById('modal-user').classList.add('show');
+}
+function saveUser() {
+  const uname = document.getElementById('mu-user').value.trim();
+  const email = document.getElementById('mu-email').value.trim();
+  const pass  = document.getElementById('mu-pass').value;
+  const wpm   = parseInt(document.getElementById('mu-wpm').value)||0;
+  if(!uname) { toast('Username required','error'); return; }
+  const users = DB.get('users', {});
+  if(!editingUser && users[uname]) { toast('Username already exists','error'); return; }
+  if(!users[uname]) users[uname] = { stats:{}, created:Date.now() };
+  if(email) users[uname].email = email;
+  if(pass)  users[uname].pass  = btoa(pass);
+  if(!users[uname].stats) users[uname].stats = {};
+  if(wpm > 0) users[uname].stats.bestWpm = wpm;
+  DB.set('users', users);
+  closeModal('modal-user');
+  renderUsersTable();
+  toast(`User ${editingUser?'updated':'created'} ✅`,'success');
+}
+function deleteUser(username) {
+  if(!confirm(`Delete user "${username}"? This cannot be undone.`)) return;
+  const users = DB.get('users',{});
+  delete users[username];
+  DB.set('users', users);
+  renderUsersTable();
+  toast('User deleted','success');
+}
+
+// ── Leaderboard CRUD ──
+function deleteLBEntry(user, wpm) {
+  const lb = DB.get('leaderboard',[]).filter(e => !(e.user===user && e.wpm===wpm));
+  DB.set('leaderboard', lb);
+  renderLeaderboardTable();
+  toast('Entry removed');
+}
+function clearLeaderboard() {
+  DB.del('leaderboard');
+  renderLeaderboardTable();
+  toast('Leaderboard cleared','success');
+}
+
+// ── Competition Actions ──
+function openCreateComp() { document.getElementById('modal-comp').classList.add('show'); }
+function adminCreateComp() {
+  const name = document.getElementById('mc-name').value.trim();
+  if(!name) { toast('Name required','error'); return; }
+  const comp = {
+    id: 'adm_'+Date.now(),
+    name,
+    max:    parseInt(document.getElementById('mc-max').value),
+    diff:   document.getElementById('mc-diff').value,
+    dur:    parseInt(document.getElementById('mc-dur').value),
+    status: document.getElementById('mc-status').value,
+    creator:'admin',
+    participants:[],
+    created: Date.now()
+  };
+  const comps = DB.get('competitions',[]);
+  comps.push(comp);
+  DB.set('competitions', comps);
+  closeModal('modal-comp');
+  renderCompetitionsTable();
+  document.getElementById('badge-comps').textContent = comps.length;
+  toast('Competition created ✅','success');
+}
+function deleteComp(id) {
+  const comps = DB.get('competitions',[]).filter(c=>c.id!==id);
+  DB.set('competitions', comps);
+  renderCompetitionsTable();
+  toast('Competition deleted');
+}
+function endComp(id) {
+  const comps = DB.get('competitions',[]).map(c=>c.id===id?{...c,status:'ended'}:c);
+  DB.set('competitions', comps);
+  renderCompetitionsTable();
+  toast('Competition ended');
+}
+function cleanupComps() {
+  const comps = DB.get('competitions',[]).filter(c=>c.status!=='ended');
+  DB.set('competitions', comps);
+  renderCompetitionsTable();
+  toast('Ended competitions removed');
+}
+
+// ── Settings ──
+function saveAppSettings() {
+  const s = {
+    appName:   document.getElementById('s-appname').value,
+    theme:     document.getElementById('s-theme').value,
+    duration:  parseInt(document.getElementById('s-duration').value),
+    difficulty:document.getElementById('s-diff').value,
+    guestMode: document.getElementById('s-guest').checked,
+    showLB:    document.getElementById('s-lb').checked,
+    countdown: document.getElementById('s-countdown').checked,
+  };
+  DB.set('adminSettings', s);
+  toast('Settings saved ✅','success');
+}
+function saveBanner() {
+  DB.set('adminBanner', { msg: document.getElementById('s-banner-msg').value, active: document.getElementById('s-banner-on').checked });
+  toast('Banner saved ✅','success');
+}
+function saveLeaderboardSettings() {
+  DB.set('lbSettings', { display: parseInt(document.getElementById('s-lb-size').value), max: parseInt(document.getElementById('s-lb-max').value) });
+  toast('Leaderboard settings saved ✅','success');
+}
+
+// ── Data Management ──
+function exportJSON(type) {
+  let data = {};
+  if(type==='all'||type==='users')        data.users        = DB.get('users',{});
+  if(type==='all'||type==='leaderboard')  data.leaderboard  = DB.get('leaderboard',[]);
+  if(type==='all'||type==='competitions') data.competitions = DB.get('competitions',[]);
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`typecraft_${type}_${Date.now()}.json`; a.click();
+  toast('Exported ✅','success');
+}
+function exportAll() { exportJSON('all'); }
+function resetGuestStats() { DB.del('guestStats'); toast('Guest stats reset'); }
+function nukeAllData() {
+  const keys = Object.keys(localStorage).filter(k=>k.startsWith('tc_'));
+  keys.forEach(k=>localStorage.removeItem(k));
+  toast('All data deleted','error');
+  setTimeout(()=>location.reload(),1000);
+}
+function refreshLSKeys() {
+  const sel = document.getElementById('ls-key-select');
+  const keys = Object.keys(localStorage).filter(k=>k.startsWith('tc_')).sort();
+  sel.innerHTML = '<option value="">Select a key...</option>' + keys.map(k=>`<option value="${k}">${k.replace('tc_','')}</option>`).join('');
+}
+function viewLSKey(key) {
+  if(!key) { document.getElementById('ls-preview').textContent = 'Select a key to inspect...'; return; }
+  try {
+    const val = localStorage.getItem(key);
+    const parsed = JSON.parse(val);
+    document.getElementById('ls-preview').textContent = JSON.stringify(parsed, null, 2);
+  } catch(e) {
+    document.getElementById('ls-preview').textContent = localStorage.getItem(key)||'(empty)';
+  }
+}
+
+// ── Search ──
+function handleSearch(q) {
+  q = q.toLowerCase();
+  if(!q) return;
+  const users = getAllUsers().filter(u=>u.username.toLowerCase().includes(q)||u.email.toLowerCase().includes(q));
+  if(users.length) toast(`Found ${users.length} user(s) matching "${q}"`);
+}
+
+// ── Modal helpers ──
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+document.querySelectorAll('.modal-backdrop').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('show'); }));
+
+// ── Init ──
+function initAdmin() {
+  loadDashboard();
+  refreshLSKeys();
+
+  // Show logout button in sidebar footer
+  const footer = document.querySelector('.admin-sidebar-footer');
+  if (footer) {
+    const logoutBtn = document.createElement('button');
+    logoutBtn.textContent = 'Sign Out';
+    logoutBtn.style.cssText = 'background:none;border:none;color:var(--danger);font-family:var(--font-ui);font-size:.75rem;font-weight:700;cursor:pointer;padding:0;transition:opacity .2s;';
+    logoutBtn.onmouseenter = () => logoutBtn.style.opacity = '.7';
+    logoutBtn.onmouseleave = () => logoutBtn.style.opacity = '1';
+    logoutBtn.onclick = adminLogout;
+    footer.appendChild(logoutBtn);
+  }
+
+  // Load saved settings
+  const saved = DB.get('adminSettings',{});
+  if(saved.theme)     document.getElementById('s-theme').value     = saved.theme;
+  if(saved.duration)  document.getElementById('s-duration').value  = saved.duration;
+  if(saved.difficulty)document.getElementById('s-diff').value      = saved.difficulty;
+  if(saved.appName)   document.getElementById('s-appname').value   = saved.appName;
+  if(saved.guestMode  !== undefined) document.getElementById('s-guest').checked     = saved.guestMode;
+  if(saved.showLB     !== undefined) document.getElementById('s-lb').checked        = saved.showLB;
+  if(saved.countdown  !== undefined) document.getElementById('s-countdown').checked = saved.countdown;
+
+  const banner = DB.get('adminBanner',{});
+  if(banner.msg) document.getElementById('s-banner-msg').value = banner.msg;
+  if(banner.active) document.getElementById('s-banner-on').checked = banner.active;
+}
+
+// ── Page load: always show login ──
+// _adminAuthenticated is always false on a fresh page load (in-memory only).
+// Login is required every single visit — no persistence.
+document.getElementById('admin-app').style.display = 'none';
+setTimeout(() => {
+  const emailInp = document.getElementById('admin-email-inp');
+  if(emailInp) emailInp.focus();
+}, 150);
+</script>
 </body>
 </html>
