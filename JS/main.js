@@ -1,10 +1,14 @@
+
+
+
 /* ====================================================
-   SoftFingers - Full Application Logic
+   SoftFingers — Full Application Logic
    ==================================================== */
 
 // ====== STATE ======
 const state = {
-  user: null,  // null = guest
+  user: null,          // display name string when signed in, null = guest
+  firebaseUser: null,  // raw Firebase User object
   currentPage: 'dashboard',
   // Test
   testActive: false,
@@ -42,6 +46,16 @@ const state = {
   importErrors: 0,
   importStartTime: null,
   importActive: false,
+  // Typing buffers (lazy-init but declared for clarity)
+  testOffset:         0,
+  committedChars:     [],
+  currentQuoteAuthor: null,
+  importOffset:       0,
+  importTypedChars:   [],
+  importCommitted:    [],
+  practiceOffset:     0,
+  practiceTypedChars: [],
+  practiceCommitted:  [],
   // Audio
   audioText: '',
   audioUtterance: null,
@@ -52,6 +66,8 @@ const state = {
   currentShareLink: ''
 };
 
+
+
 // ====== STORAGE ======
 const DB = {
   get: (k, d=null) => { try { const v = localStorage.getItem('tc_'+k); return v ? JSON.parse(v) : d; } catch { return d; }},
@@ -59,6 +75,167 @@ const DB = {
   del: (k) => localStorage.removeItem('tc_'+k)
 };
 
+// ====== WORD BANKS ======
+const WORDS = {
+  beginner: ['the','and','for','are','but','not','you','all','can','her','was','one','our','out','day','get','has','him','his','how','man','new','now','old','see','two','way','who','boy','did','its','let','put','say','she','too','use','dad','age','ago','aim','ask','cat','dog','eat','far','got','had','has','hit','hot','job','key','kid','law','lay','led','leg','let','lie','low','map','may','met','nor','odd','off','oil','old','pay','per','ran','raw','red','rid','row','ran','sad','sat','set','six','sky','son','top','try','cut','war','won','yet','zip','act','add','bed','big','bit','buy','came','down','each','face','fact','find','five','form','four','free','from','give','goes','good','grow','hand','hard','have','head','help','here','high','hold','home','hour','just','keep','know','land','last','left','life','like','line','live','long','look','made','make','many','mean','meet','mind','more','most','move','much','must','name','near','need','next','nice','nine','none','only','open','over','part','past','plan','play','plus','read','real','rest','rich','ride','rise','road','room','rule','same','send','seven','show','side','sign','slow','some','soon','star','stay','step','stop','such','sure','take','talk','tell','than','that','them','then','they','this','thus','time','told','took','tree','true','turn','type','upon','used','very','view','wait','walk','want','warm','week','well','were','what','when','wide','will','wish','with','word','work','year','your','zero'],
+  intermediate: ['about','above','after','again','along','among','apply','bring','build','built','catch','cause','check','child','claim','class','clean','clear','climb','close','color','could','count','cover','craft','crazy','cross','crush','cycle','dance','death','delay','depth','enjoy','enter','every','exact','exist','extra','faith','false','favor','field','fight','final','first','fixed','floor','focus','force','found','front','fully','given','going','grand','grant','great','green','group','guard','guess','guide','happy','heart','heavy','hence','honor','house','human','humor','hurry','ideal','image','inner','issue','judge','large','later','launch','layer','learn','level','light','limit','local','lower','lucky','magic','major','march','match','maybe','media','minor','model','money','month','moral','motor','mount','music','naive','never','night','noble','north','offer','often','order','other','ought','outer','owner','paint','paper','phase','photo','piece','pilot','place','plane','plate','point','policy','power','press','price','pride','prime','print','prior','prize','prove','query','quiet','quite','quote','radio','raise','rally','range','rapid','ratio','reach','ready','realm','refer','reign','relax','reply','right','rival','robot','rough','round','route','royal','scale','scene','score','sense','serve','sharp','shift','shirt','short','shout','sight','skill','slash','sleep','slice','slide','small','smart','smile','solid','solve','south','space','spare','spark','speak','speed','spend','split','spoke','sport','spray','squad','stand','start','state','steel','still','stock','stone','store','story','strap','strip','study','style','super','surge','sweet','swift','table','teach','teach','thank','think','throw','tight','timer','title','today','total','touch','tough','trace','track','trade','train','trait','trend','trial','trick','truly','trust','truth','twist','under','until','upper','urban','usual','value','video','virus','visit','vital','vivid','voice','voter','waste','watch','water','waves','while','white','whole','whose','world','worry','worth','would','write','yacht','young'],
+  advanced: ['aberration','abolish','abruptly','abstemious','abstraction','abundance','accelerate','accentuate','accomplish','accountable','accumulate','acknowledge','acquisition','adaptation','administer','administration','admittedly','adolescent','advancement','adversarial','affirmative','aggravate','aggressive','alienation','allegiance','ambiguity','ameliorate','anachronism','anatomical','anticipate','antiquated','approximate','architecture','aristocracy','articulate','astronomical','atmospheric','authorization','bankruptcy','biologically','bureaucratic','calculation','catastrophic','characterize','chronological','circumference','civilization','collaborate','commemorate','communicate','compensation','comprehension','concentrated','configuration','conjunction','consequently','considerable','constitutional','contemporary','contradiction','controversial','conversation','coordination','correspondent','crystallization','deliberately','denomination','dependability','determination','differentiate','discrimination','documentation','ecclesiastical','electromagnetic','elimination','enlightenment','exaggeration','examination','extraordinary','fundamentally','generalization','governmental','grammatically','hypothetically','identification','independence','individually','infrastructure','instantaneous','intellectually','interconnected','international','investigation','jurisprudence','justification','knowledgeable','legislative','legitimately','manifestation','manipulation','mathematical','methodology','occasionally','organization','overwhelming','participation','particularly','perpendicular','perspective','phenomenon','photosynthesis','predominantly','proliferation','psychological','quantitative','quintessential','rationalization','reconnaissance','reinforcement','representation','responsibility','revolutionary','simultaneously','sophistication','standardization','subordinate','subsequently','successfully','technological','transformation','transparency','understanding','unfortunately','unilaterally','unpredictable','visualization','vulnerability','willingness','xenophobia','zeal']
+};
+
+const QUOTES = [
+  // ── Motivation & Success ──
+  { text: "The only way to do great work is to love what you do. If you haven't found it yet, keep looking. Don't settle.", author: "Steve Jobs" },
+  { text: "In the middle of every difficulty lies opportunity.", author: "Albert Einstein" },
+  { text: "It is not the mountain we conquer but ourselves.", author: "Edmund Hillary" },
+  { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+  { text: "The greatest glory in living lies not in never falling, but in rising every time we fall.", author: "Nelson Mandela" },
+  { text: "Your time is limited, so don't waste it living someone else's life. Have the courage to follow your heart and intuition.", author: "Steve Jobs" },
+  { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
+  { text: "Whether you think you can or you think you can't, you're right.", author: "Henry Ford" },
+  { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+  { text: "Start where you are. Use what you have. Do what you can.", author: "Arthur Ashe" },
+  { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
+  { text: "Everything you have ever wanted is on the other side of fear.", author: "George Addair" },
+  { text: "I find that the harder I work, the more luck I seem to have.", author: "Thomas Jefferson" },
+  { text: "You miss 100 percent of the shots you do not take.", author: "Wayne Gretzky" },
+  { text: "Twenty years from now you will be more disappointed by the things you did not do than by the ones you did.", author: "Mark Twain" },
+  { text: "I attribute my success to this: I never gave or took any excuse.", author: "Florence Nightingale" },
+  { text: "I have learned over the years that when one's mind is made up, this diminishes fear.", author: "Rosa Parks" },
+  { text: "The most common way people give up their power is by thinking they do not have any.", author: "Alice Walker" },
+  { text: "The most difficult thing is the decision to act; the rest is merely tenacity.", author: "Amelia Earhart" },
+  { text: "It is not whether you get knocked down; it is whether you get up.", author: "Vince Lombardi" },
+  { text: "If you look at what you have in life, you will always have more than you think.", author: "Oprah Winfrey" },
+  { text: "When you have a dream, you have got to grab it and never let go.", author: "Carol Burnett" },
+  { text: "Too many of us are not living our dreams because we are living our fears.", author: "Les Brown" },
+  { text: "The question is not who is going to let me; it is who is going to stop me.", author: "Ayn Rand" },
+  // ── Life & Wisdom ──
+  { text: "Spread love everywhere you go. Let no one ever come to you without leaving happier.", author: "Mother Teresa" },
+  { text: "In three words I can sum up everything I have learned about life: it goes on.", author: "Robert Frost" },
+  { text: "Life is what happens when you are busy making other plans.", author: "John Lennon" },
+  { text: "Life is not measured by the number of breaths we take but by the moments that take our breath away.", author: "Maya Angelou" },
+  { text: "If you want to live a happy life, tie it to a goal, not to people or things.", author: "Albert Einstein" },
+  { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+  { text: "How wonderful it is that nobody need wait a single moment before starting to improve the world.", author: "Anne Frank" },
+  { text: "When everything seems to be going against you, remember that the airplane takes off against the wind, not with it.", author: "Henry Ford" },
+  { text: "I cannot change the direction of the wind, but I can adjust my sails to always reach my destination.", author: "Jimmy Dean" },
+  { text: "To handle yourself, use your head; to handle others, use your heart.", author: "Eleanor Roosevelt" },
+  { text: "Simplicity is the ultimate sophistication.", author: "Leonardo da Vinci" },
+  { text: "The only true wisdom is in knowing you know nothing.", author: "Socrates" },
+  { text: "We accept the love we think we deserve.", author: "Stephen Chbosky" },
+  { text: "Not all those who wander are lost.", author: "J.R.R. Tolkien" },
+  { text: "It is during our darkest moments that we must focus to see the light.", author: "Aristotle" },
+  // ── Knowledge & Learning ──
+  { text: "An investment in knowledge pays the best interest.", author: "Benjamin Franklin" },
+  { text: "Education is the most powerful weapon which you can use to change the world.", author: "Nelson Mandela" },
+  { text: "Live as if you were to die tomorrow. Learn as if you were to live forever.", author: "Mahatma Gandhi" },
+  { text: "The beautiful thing about learning is that no one can take it away from you.", author: "B.B. King" },
+  { text: "Tell me and I forget. Teach me and I remember. Involve me and I learn.", author: "Benjamin Franklin" },
+  { text: "The more that you read, the more things you will know. The more that you learn, the more places you will go.", author: "Dr. Seuss" },
+  { text: "Intelligence plus character — that is the goal of true education.", author: "Martin Luther King Jr." },
+  { text: "The mind is not a vessel to be filled but a fire to be ignited.", author: "Plutarch" },
+  // ── Courage & Perseverance ──
+  { text: "Courage is not the absence of fear, but the triumph over it.", author: "Nelson Mandela" },
+  { text: "Fall seven times, stand up eight.", author: "Japanese Proverb" },
+  { text: "The only limit to our realization of tomorrow will be our doubts of today.", author: "Franklin D. Roosevelt" },
+  { text: "Do not go where the path may lead; go instead where there is no path and leave a trail.", author: "Ralph Waldo Emerson" },
+  { text: "You are never too old to set another goal or to dream a new dream.", author: "C.S. Lewis" },
+  { text: "What lies behind us and what lies before us are tiny matters compared to what lies within us.", author: "Ralph Waldo Emerson" },
+  { text: "It always seems impossible until it is done.", author: "Nelson Mandela" },
+  { text: "He who has a why to live can bear almost any how.", author: "Friedrich Nietzsche" },
+  // ── Character & Integrity ──
+  { text: "In the end, it is not the years in your life that count. It is the life in your years.", author: "Abraham Lincoln" },
+  { text: "Nearly all men can stand adversity, but if you want to test a man's character, give him power.", author: "Abraham Lincoln" },
+  { text: "Character is how you treat those who can do nothing for you.", author: "Johann Wolfgang von Goethe" },
+  { text: "Darkness cannot drive out darkness; only light can do that. Hate cannot drive out hate; only love can do that.", author: "Martin Luther King Jr." },
+  { text: "The time is always right to do what is right.", author: "Martin Luther King Jr." },
+  { text: "Injustice anywhere is a threat to justice everywhere.", author: "Martin Luther King Jr." },
+  { text: "The measure of who we are is what we do with what we have.", author: "Vince Lombardi" },
+  // ── Creativity & Innovation ──
+  { text: "Imagination is more important than knowledge. Knowledge is limited. Imagination encircles the world.", author: "Albert Einstein" },
+  { text: "Creativity is intelligence having fun.", author: "Albert Einstein" },
+  { text: "Innovation distinguishes between a leader and a follower.", author: "Steve Jobs" },
+  { text: "Every artist was first an amateur.", author: "Ralph Waldo Emerson" },
+  { text: "You cannot use up creativity. The more you use, the more you have.", author: "Maya Angelou" },
+  // ── Faith & Purpose ──
+  { text: "Faith is taking the first step even when you do not see the whole staircase.", author: "Martin Luther King Jr." },
+  { text: "With God all things are possible.", author: "Matthew 19:26" },
+  { text: "I can do all things through Christ who strengthens me.", author: "Philippians 4:13" },
+  { text: "The Lord is my strength and my shield; my heart trusts in him, and he helps me.", author: "Psalm 28:7" },
+  { text: "Trust in the Lord with all your heart and lean not on your own understanding.", author: "Proverbs 3:5" },
+  { text: "For I know the plans I have for you, plans to prosper you and not to harm you, plans to give you hope and a future.", author: "Jeremiah 29:11" },
+  { text: "Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go.", author: "Joshua 1:9" },
+  // ── African Wisdom ──
+  { text: "If you want to go fast, go alone. If you want to go far, go together.", author: "African Proverb" },
+  { text: "However long the night, the dawn will break.", author: "African Proverb" },
+  { text: "Until the lion learns to write, every story will glorify the hunter.", author: "African Proverb" },
+  { text: "The forest would be silent if no bird sang except the one that sang best.", author: "African Proverb" },
+  { text: "Rain does not fall on one roof alone.", author: "African Proverb" },
+  { text: "A child who is not embraced by the village will burn it down to feel its warmth.", author: "African Proverb" },
+  // ── Technology & Progress ──
+  { text: "The advance of technology is based on making it fit in so that you do not really even notice it.", author: "Bill Gates" },
+  { text: "Any sufficiently advanced technology is indistinguishable from magic.", author: "Arthur C. Clarke" },
+  { text: "Technology is best when it brings people together.", author: "Matt Mullenweg" },
+  { text: "The science of today is the technology of tomorrow.", author: "Edward Teller" },
+  // ── Short & Sharp ──
+  { text: "Be yourself; everyone else is already taken.", author: "Oscar Wilde" },
+  { text: "A room without books is like a body without a soul.", author: "Marcus Tullius Cicero" },
+  { text: "You only live once, but if you do it right, once is enough.", author: "Mae West" },
+  { text: "Be the change you wish to see in the world.", author: "Mahatma Gandhi" },
+  { text: "In a gentle way, you can shake the world.", author: "Mahatma Gandhi" },
+  { text: "The weak can never forgive. Forgiveness is the attribute of the strong.", author: "Mahatma Gandhi" },
+  { text: "First they ignore you, then they laugh at you, then they fight you, then you win.", author: "Mahatma Gandhi" },
+  { text: "Speak softly and carry a big stick; you will go far.", author: "Theodore Roosevelt" },
+  { text: "The only thing we have to fear is fear itself.", author: "Franklin D. Roosevelt" },
+  { text: "Ask not what your country can do for you; ask what you can do for your country.", author: "John F. Kennedy" },
+  { text: "One small step for man, one giant leap for mankind.", author: "Neil Armstrong" },
+];
+
+const STORIES = [
+  "Once upon a time in a small village nestled between two great mountains, there lived a young craftsman named Elias. He spent his days carving wood into magnificent figures, each piece telling a story of ancient times. The villagers would gather around his workshop every evening to watch him work, their eyes wide with wonder as rough blocks of timber transformed into lifelike sculptures. One autumn day, a wealthy merchant passed through the village and offered Elias a fortune for his finest piece. But Elias refused, saying the work was not yet complete. The merchant laughed and rode away. Months later, he returned to find the carving had become a masterpiece, worth ten times his original offer.",
+  "The lighthouse stood at the edge of the rocky peninsula, its beam sweeping across the dark waters every few seconds. Marina had tended it for thirty years, through storms that shook the very foundations of the tower and through calm nights when the stars reflected perfectly on the still sea. She knew every rock, every current, every mood of the ocean. Sailors trusted their lives to her light. On the night of the great storm, when the automated systems failed and the backup generator sputtered and died, Marina climbed to the top with a hand lamp and kept it burning until dawn, guiding three ships safely to harbor.",
+  "The library at the end of Chestnut Street was rumored to hold every book ever written. Of course that was not literally true, but to young Samuel it felt that way. He had discovered it by accident one rainy afternoon when he ducked inside to escape a thunderstorm. The librarian, an elderly woman with silver hair and reading glasses perched at the end of her nose, had handed him a book without saying a word. It was exactly the book he had been searching for his entire short life, though he had not known he was searching for it until that very moment."
+];
+
+const BIBLE_TEXTS = {
+  "Genesis 1:1-5": "In the beginning God created the heavens and the earth. Now the earth was formless and empty, darkness was over the surface of the deep, and the Spirit of God was hovering over the waters. And God said, Let there be light, and there was light. God saw that the light was good, and he separated the light from the darkness. God called the light day, and the darkness he called night. And there was evening, and there was morning, the first day.",
+  "Psalm 23": "The Lord is my shepherd, I lack nothing. He makes me lie down in green pastures, he leads me beside quiet waters, he refreshes my soul. He guides me along the right paths for his name sake. Even though I walk through the darkest valley, I will fear no evil, for you are with me; your rod and your staff, they comfort me. You prepare a table before me in the presence of my enemies. You anoint my head with oil; my cup overflows. Surely your goodness and love will follow me all the days of my life, and I will dwell in the house of the Lord forever.",
+  "John 3:16-17": "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life. For God did not send his Son into the world to condemn the world, but to save the world through him.",
+  "Romans 8:28": "And we know that in all things God works for the good of those who love him, who have been called according to his purpose.",
+  "Proverbs 3:5-6": "Trust in the Lord with all your heart and lean not on your own understanding; in all your ways submit to him, and he will make your paths straight.",
+  "Matthew 5:3-12 (Beatitudes)": "Blessed are the poor in spirit, for theirs is the kingdom of heaven. Blessed are those who mourn, for they will be comforted. Blessed are the meek, for they will inherit the earth. Blessed are those who hunger and thirst for righteousness, for they will be filled. Blessed are the merciful, for they will be shown mercy. Blessed are the pure in heart, for they will see God. Blessed are the peacemakers, for they will be called children of God. Blessed are those who are persecuted because of righteousness, for theirs is the kingdom of heaven.",
+  "1 Corinthians 13:4-8": "Love is patient, love is kind. It does not envy, it does not boast, it is not proud. It does not dishonor others, it is not self-seeking, it is not easily angered, it keeps no record of wrongs. Love does not delight in evil but rejoices with the truth. It always protects, always trusts, always hopes, always perseveres. Love never fails.",
+  "Philippians 4:13": "I can do all this through him who gives me strength.",
+  "Isaiah 40:31": "But those who hope in the Lord will renew their strength. They will soar on wings like eagles; they will run and not grow weary, they will walk and not be faint."
+};
+
+const HYMNS_TEXTS = {
+  "Amazing Grace": "Amazing grace, how sweet the sound, that saved a wretch like me. I once was lost, but now am found, was blind, but now I see. Twas grace that taught my heart to fear, and grace my fears relieved. How precious did that grace appear the hour I first believed. Through many dangers, toils and snares I have already come. Tis grace hath brought me safe thus far and grace will lead me home. When we have been there ten thousand years bright shining as the sun. We shall have no less days to sing God praise than when we first begun.",
+  "How Great Thou Art": "O Lord my God, when I in awesome wonder consider all the worlds thy hands have made. I see the stars, I hear the rolling thunder, thy power throughout the universe displayed. Then sings my soul, my Savior God to thee, how great thou art, how great thou art. Then sings my soul, my Savior God to thee, how great thou art, how great thou art.",
+  "Great Is Thy Faithfulness": "Great is thy faithfulness, O God my Father, there is no shadow of turning with thee. Thou changest not, thy compassions they fail not, as thou hast been thou forever wilt be. Great is thy faithfulness, great is thy faithfulness, morning by morning new mercies I see. All I have needed thy hand hath provided, great is thy faithfulness, Lord, unto me.",
+  "Holy Holy Holy": "Holy, holy, holy, Lord God Almighty. Early in the morning our song shall rise to thee. Holy, holy, holy, merciful and mighty, God in three persons, blessed Trinity.",
+  "It Is Well With My Soul": "When peace like a river attendeth my way, when sorrows like sea billows roll. Whatever my lot thou hast taught me to say, it is well, it is well with my soul. It is well with my soul, it is well, it is well with my soul.",
+  "To God Be the Glory": "To God be the glory, great things he hath done, so loved he the world that he gave us his Son. Who yielded his life an atonement for sin, and opened the life gate that all may go in. Praise the Lord, praise the Lord, let the earth hear his voice. Praise the Lord, praise the Lord, let the people rejoice."
+};
+
+const HISTORY_TEXTS = {
+  "Christian Martyrs": "Throughout the history of Christianity, countless believers have given their lives for their faith. Stephen, the first Christian martyr, was stoned to death around 34 AD for his bold proclamation of the gospel. The apostles faced persecution throughout the Roman Empire; tradition holds that most were killed for their beliefs. Polycarp, bishop of Smyrna, was burned at the stake in 155 AD at the age of eighty-six. When asked to renounce Christ, he replied that he had served him for eighty-six years and Christ had never wronged him, so he could not blaspheme his King. The Colosseum in Rome became a symbol of martyrdom as Christians faced lions and gladiators. During the twentieth century, more Christians were martyred than in all previous centuries combined, demonstrating that the age of martyrdom has never truly ended.",
+  "Scientific Discoveries": "The history of scientific discovery is a testament to human curiosity and perseverance. Nicolaus Copernicus proposed in 1543 that the Earth revolves around the Sun, overturning centuries of geocentric belief. Galileo Galilei confirmed this with his telescope and suffered house arrest for it. Isaac Newton formulated the laws of motion and universal gravitation in 1687. Charles Darwin published On the Origin of Species in 1859, revolutionizing our understanding of life on Earth. Marie Curie discovered radium and polonium and became the first person to win two Nobel Prizes. Albert Einstein published his theory of special relativity in 1905, changing our conception of space and time. The structure of DNA was revealed by Watson and Crick in 1953, unlocking the secret of heredity and opening the door to modern genetics and medicine.",
+  "Age of Exploration": "The Age of Exploration, spanning roughly from the fifteenth to the seventeenth century, transformed the world as European nations sent navigators across uncharted oceans. Prince Henry the Navigator of Portugal sponsored expeditions along the African coast, seeking a route to Asia and establishing a tradition of maritime exploration. Bartolomeu Dias rounded the Cape of Good Hope in 1488, proving that ships could sail from the Atlantic to the Indian Ocean. Vasco da Gama reached India in 1498, establishing a lucrative spice trade route. Christopher Columbus, sailing under Spanish patronage, reached the Americas in 1492, initiating contact between the Old and New Worlds. Ferdinand Magellan led the first circumnavigation of the globe, completed in 1522. These voyages brought great wealth to European powers but also devastated indigenous populations through disease, conquest, and enslavement.",
+  "Revolutionary Inventions": "The course of human history has been repeatedly altered by revolutionary inventions that changed how people live, work, and communicate. The printing press, invented by Johannes Gutenberg around 1440, democratized knowledge and fueled the Protestant Reformation and the Scientific Revolution. James Watt improved the steam engine in the 1760s, powering the Industrial Revolution and transforming transportation. The telephone, patented by Alexander Graham Bell in 1876, shrank the world by allowing voice communication across distances. Thomas Edison perfected the incandescent light bulb in 1879 and created the first electrical power distribution system. The Wright brothers achieved powered flight at Kitty Hawk in 1903. Tim Berners-Lee invented the World Wide Web in 1989, creating the information infrastructure of the modern age. Each of these inventions built upon previous knowledge and sparked cascades of further innovation.",
+  "Independence Movements": "The twentieth century was defined by waves of independence movements as colonized peoples around the world threw off imperial rule. India gained independence from Britain in 1947 through the largely nonviolent campaign led by Mohandas Gandhi, who championed civil disobedience and mass protest. Ghana became the first sub-Saharan African nation to gain independence in 1957 under Kwame Nkrumah, inspiring liberation movements across the continent. The decade of the 1960s saw most of Africa freed from colonial rule. Vietnam fought first against French and then American power before reunifying as an independent nation in 1975. The anti-apartheid struggle in South Africa culminated in the first democratic elections in 1994 and the presidency of Nelson Mandela. These movements demonstrated that determined peoples could reshape the political map of the world.",
+  "Renaissance Era": "The Renaissance, meaning rebirth in French, was a period of cultural and intellectual flourishing that began in Italy in the fourteenth century and spread across Europe. It was characterized by renewed interest in classical Greek and Roman art, literature, and philosophy. Leonardo da Vinci exemplified the Renaissance ideal of the universal man, excelling as a painter, sculptor, architect, scientist, and inventor. His masterworks include the Mona Lisa and The Last Supper. Michelangelo adorned the ceiling of the Sistine Chapel with his breathtaking frescoes and carved the statue of David from a single block of marble. Dante Alighieri wrote the Divine Comedy, Petrarch pioneered the sonnet form, and Boccaccio wrote the Decameron. The invention of the printing press allowed Renaissance ideas to spread rapidly. Humanist thinkers placed man rather than God at the center of inquiry, transforming philosophy, science, and education.",
+  "Ancient Civilizations": "Human civilization first emerged in the river valleys of Mesopotamia, Egypt, the Indus Valley, and China around five thousand years ago. The Sumerians of Mesopotamia developed the first writing system, called cuneiform, around 3500 BC. They built the first cities and organized governments, laying the foundations of urban civilization. Ancient Egypt, unified around 3100 BC, built the pyramids and the Sphinx, created a complex writing system using hieroglyphics, and developed sophisticated medicine and astronomy. The Indus Valley Civilization had well-planned cities with advanced sanitation systems. Ancient China developed paper, gunpowder, the compass, and printing centuries before Europe. The Greeks pioneered philosophy, democracy, and systematic inquiry into nature. Rome built an empire that stretched from Britain to Mesopotamia and created the legal and administrative foundations of Western civilization.",
+  "World Wars": "The First World War, from 1914 to 1918, was triggered by the assassination of Archduke Franz Ferdinand and drew in the major powers of Europe through a web of alliances. The war introduced industrial-scale killing with machine guns, artillery, poison gas, and trench warfare. Over sixteen million people died. The Treaty of Versailles imposed harsh penalties on Germany, sowing the seeds of the Second World War. The Second World War, from 1939 to 1945, was the deadliest conflict in human history, claiming over seventy million lives. It began with German invasions of Poland and France and ended with the defeat of Nazi Germany and Japan. The Holocaust, in which Nazi Germany systematically murdered six million Jews and millions of others, remains one of the most horrific genocides in history. The United States ended the Pacific War by dropping atomic bombs on Hiroshima and Nagasaki. The war's end led to the creation of the United Nations and the beginning of the Cold War.",
+  "Civil Rights Movements": "The Civil Rights Movement in the United States, reaching its peak in the 1950s and 1960s, was a sustained effort by African Americans and their allies to end racial segregation and discrimination. Rosa Parks sparked the Montgomery Bus Boycott in 1955 by refusing to give up her seat. Martin Luther King Jr. led nonviolent marches and delivered his famous speech declaring that he had a dream of a nation where people would be judged by the content of their character rather than the color of their skin. The movement achieved landmark legislation including the Civil Rights Act of 1964 and the Voting Rights Act of 1965. Similar movements challenged racial and ethnic discrimination around the world, from the anti-apartheid struggle in South Africa to campaigns against discrimination in Britain and Australia. These movements transformed law and social attitudes, though the struggle for equality continues.",
+  "Industrial Revolution": "The Industrial Revolution, beginning in Britain in the mid-eighteenth century, transformed human society from agrarian and craft-based to industrial and factory-based. New inventions like the spinning jenny, the water frame, and the steam engine dramatically increased productivity. Coal became the primary energy source as steam-powered machines replaced human and animal labor. Cotton mills in Manchester and steel works in Birmingham attracted workers from the countryside, creating industrial cities. Railways and steamships transformed transportation, creating national and eventually global markets. Working conditions in early factories were often brutal, with long hours, low wages, and dangerous machinery. Child labor was widespread. These conditions sparked labor movements, trade unions, and eventually legislation protecting workers. The Industrial Revolution spread from Britain to Europe, North America, and eventually Asia, fundamentally transforming the global economy.",
+  "Space Exploration": "Humanity's journey into space began in the twentieth century and stands as one of our greatest achievements. The Soviet Union launched Sputnik, the first artificial satellite, in 1957, initiating the Space Race. Yuri Gagarin became the first human to orbit the Earth in 1961. The United States responded with the Apollo program, and Neil Armstrong became the first human to walk on the Moon on July 20, 1969. Unmanned probes explored the solar system: Voyager 1 and 2 flew past the outer planets and are now in interstellar space. The Hubble Space Telescope, launched in 1990, revealed the universe's age, structure, and beauty. Mars has been explored by numerous rovers, with Perseverance collecting samples for possible return to Earth. Private companies like SpaceX have revolutionized access to space with reusable rockets. Plans are underway for human return to the Moon and eventual missions to Mars.",
+  "Medical Breakthroughs": "Medical science has undergone revolutionary advances over the past two centuries that have dramatically extended human life expectancy. The germ theory of disease, developed by Louis Pasteur and Robert Koch in the nineteenth century, established that microorganisms cause infectious diseases. Joseph Lister pioneered antiseptic surgical techniques. The discovery of penicillin by Alexander Fleming in 1928 inaugurated the antibiotic era, saving hundreds of millions of lives. Vaccines have eradicated smallpox and nearly eliminated polio. The structure of DNA, elucidated in 1953, opened the era of molecular biology and genetics. Organ transplantation, pioneered in the 1950s and 1960s, gave new life to patients with failing organs. The sequencing of the human genome in 2003 revolutionized our understanding of hereditary disease. Most recently, mRNA vaccine technology, rapidly deployed against COVID-19, represents a new paradigm for vaccine development.",
+  "African Kingdoms": "Long before European contact, Africa was home to powerful and sophisticated kingdoms and empires. The Kingdom of Kush, in modern-day Sudan, rivaled ancient Egypt in power and built its own pyramids. The Mali Empire, at its height in the fourteenth century, was one of the wealthiest empires in the world. Its ruler Mansa Musa undertook a famous pilgrimage to Mecca in 1324, distributing so much gold that he temporarily depressed gold prices across the Mediterranean world. Timbuktu was a great center of Islamic learning and commerce. The Songhai Empire succeeded Mali and became even larger. The Kingdom of Kongo in central Africa had a sophisticated political system and a population in the millions. Great Zimbabwe was an impressive stone city and trading center. The Benin Kingdom in modern Nigeria produced remarkable bronze sculptures of great artistry. These civilizations demonstrate the richness and complexity of African history.",
+  "Asian Empires": "Asia has been home to some of the greatest empires in world history. The Persian Empire, at its height under Darius the Great, stretched from the Aegean Sea to the Indus River and was the largest empire the world had seen. The Maurya Empire unified much of the Indian subcontinent under Chandragupta Maurya, and reached its cultural peak under Ashoka, who converted to Buddhism and promoted nonviolence. The Han Dynasty of China built a sophisticated bureaucratic state and extended the Silk Road, connecting China to Rome. The Tang Dynasty presided over a golden age of Chinese culture, arts, and commerce. The Mongol Empire of Genghis Khan and his successors was the largest contiguous land empire in history, stretching from the Pacific to Eastern Europe. The Ottoman Empire endured for over six centuries, controlling much of the Middle East, North Africa, and southeastern Europe. The Mughal Empire unified most of the Indian subcontinent and produced architectural masterpieces such as the Taj Mahal.",
+  "Cold War Era": "The Cold War, lasting from 1947 to 1991, was a geopolitical struggle between the United States and the Soviet Union that defined the second half of the twentieth century. Though the two superpowers never fought each other directly, they engaged in proxy wars, arms races, and ideological competition around the world. The Berlin Wall, built in 1961 to prevent East Germans from fleeing to the West, became the defining symbol of the divided world. The Cuban Missile Crisis of 1962 brought the world to the brink of nuclear war before a diplomatic resolution was reached. The Space Race saw both nations pour resources into space exploration. Dozens of nations experienced proxy conflicts funded by one or both superpowers. The Cold War ended with the fall of the Berlin Wall in 1989 and the dissolution of the Soviet Union in 1991, leaving the United States as the sole superpower in a rapidly changing world.",
+  "Plagues": "Throughout human history, epidemic diseases have killed more people than all wars combined and have repeatedly altered the course of civilization. The Plague of Athens in 430 BC weakened the city-state and contributed to its decline. The Antonine Plague devastated the Roman Empire in the second century AD. The Black Death of the fourteenth century killed an estimated one-third of Europe's population, fundamentally transforming European society and labor relations. The smallpox brought by European explorers to the Americas devastated indigenous populations who had no immunity, contributing to the collapse of civilizations. The 1918 influenza pandemic infected five hundred million people worldwide and killed between fifty and one hundred million. HIV-AIDS, emerging in the 1980s, has killed over forty million people and continues to affect millions. The COVID-19 pandemic demonstrated that even in the modern age of medicine and global communication, infectious disease remains a profound threat.",
+  "AI": "Artificial intelligence, the simulation of human intelligence by machines, has transformed from a theoretical concept into a technology that is reshaping every aspect of human society. The field was formally founded at the Dartmouth Conference in 1956, where pioneers like John McCarthy, Marvin Minsky, and Claude Shannon envisioned machines that could think. Early AI research was optimistic but ran into fundamental obstacles, producing cycles of boom and disappointment known as AI winters. The revival came with machine learning, where systems learn from data rather than following explicit rules. Deep learning, using artificial neural networks with many layers, produced breakthroughs in image recognition, natural language processing, and game playing. In 2016, AlphaGo defeated the world champion at Go, a milestone thought decades away. Large language models have demonstrated remarkable abilities in writing, coding, and reasoning. Questions about the societal impact, safety, and ethics of increasingly powerful AI systems are among the most important of our time."
+};
 
 // ====== LEADERBOARD SEED DATA ======
 const SEED_LEADERBOARD = [
@@ -587,7 +764,7 @@ const LESSONS = {
       exercises:[
         "function calculateWPM(chars, time) { return Math.round((chars / 5) / time); }",
         "const users = await db.query('SELECT * FROM users WHERE active = true');",
-        "class TypeCraft { constructor(config) { this.config = config || {}; } }",
+        "class SoftFingers { constructor(config) { this.config = config || {}; } }",
         "export default function App({ title, onSubmit }) { return <div>{title}</div>; }",
         "const sorted = arr.filter(x => x > 0).sort((a, b) => a - b).slice(0, 10);",
         "try { const data = JSON.parse(input); } catch (err) { console.error(err); }",
@@ -639,7 +816,87 @@ const LESSONS = {
     }
   ]
 };
+// ====== ACHIEVEMENTS DATA ======
+// Categories: speed | accuracy | dedication | content | competition | learning | special
+const ACHIEVEMENTS_DEF = [
 
+  // ── 🚀 SPEED ──────────────────────────────────────────
+  { id:'wpm_20',   cat:'speed',  tier:'bronze',   name:"Warming Up",      desc:"Reach 20 WPM",                       icon:"🐢", points:10,  condition: s => s.bestWpm >= 20 },
+  { id:'wpm_35',   cat:'speed',  tier:'bronze',   name:"Finding Rhythm",  desc:"Reach 35 WPM",                       icon:"🎵", points:15,  condition: s => s.bestWpm >= 35 },
+  { id:'wpm_50',   cat:'speed',  tier:'bronze',   name:"Getting There",   desc:"Reach 50 WPM",                       icon:"🚀", points:20,  condition: s => s.bestWpm >= 50 },
+  { id:'wpm_65',   cat:'speed',  tier:'silver',   name:"Fast Fingers",    desc:"Reach 65 WPM",                       icon:"✌️", points:30,  condition: s => s.bestWpm >= 65 },
+  { id:'wpm_75',   cat:'speed',  tier:'silver',   name:"Speed Runner",    desc:"Reach 75 WPM",                       icon:"⚡", points:35,  condition: s => s.bestWpm >= 75 },
+  { id:'wpm_90',   cat:'speed',  tier:'silver',   name:"Blazing Fast",    desc:"Reach 90 WPM",                       icon:"🏎️", points:50,  condition: s => s.bestWpm >= 90 },
+  { id:'wpm_100',  cat:'speed',  tier:'gold',     name:"Century Club",    desc:"Reach 100 WPM",                      icon:"💯", points:60,  condition: s => s.bestWpm >= 100 },
+  { id:'wpm_120',  cat:'speed',  tier:'gold',     name:"Supersonic",      desc:"Reach 120 WPM",                      icon:"✈️", points:80,  condition: s => s.bestWpm >= 120 },
+  { id:'wpm_150',  cat:'speed',  tier:'gold',     name:"Speed Demon",     desc:"Reach 150 WPM",                      icon:"🔥", points:100, condition: s => s.bestWpm >= 150 },
+  { id:'wpm_175',  cat:'speed',  tier:'platinum', name:"Lightning Hands", desc:"Reach 175 WPM",                      icon:"⚡💥",points:150, condition: s => s.bestWpm >= 175 },
+  { id:'wpm_200',  cat:'speed',  tier:'platinum', name:"TypeGod",         desc:"Reach 200 WPM",                      icon:"👑", points:200, condition: s => s.bestWpm >= 200 },
+
+  // ── 🎯 ACCURACY ───────────────────────────────────────
+  { id:'acc_80',   cat:'accuracy',tier:'bronze',  name:"Getting Accurate","desc":"Finish a test with 80%+ accuracy", icon:"🎯", points:10,  condition: s => s.bestAccuracy >= 80 },
+  { id:'acc_90',   cat:'accuracy',tier:'bronze',  name:"Sharp Typist",    desc:"Finish a test with 90%+ accuracy",  icon:"🔍", points:20,  condition: s => s.bestAccuracy >= 90 },
+  { id:'acc_95',   cat:'accuracy',tier:'silver',  name:"Precision Coder", desc:"Finish a test with 95%+ accuracy",  icon:"💎", points:35,  condition: s => s.bestAccuracy >= 95 },
+  { id:'acc_99',   cat:'accuracy',tier:'gold',    name:"Nearly Perfect",  desc:"Finish a test with 99%+ accuracy",  icon:"✨", points:50,  condition: s => s.bestAccuracy >= 99 },
+  { id:'acc_100',  cat:'accuracy',tier:'platinum',name:"Perfect Typist",  desc:"Achieve 100% accuracy on any test", icon:"💫", points:75,  condition: s => s.bestAccuracy >= 100 },
+  { id:'acc_streak',cat:'accuracy',tier:'gold',   name:"Consistent Hand", desc:"Score 95%+ accuracy 10 tests in a row",icon:"🎖️",points:60, condition: s => (s.accuracyStreak||0) >= 10 },
+
+  // ── 🔥 DEDICATION ─────────────────────────────────────
+  { id:'first_test',cat:'dedication',tier:'bronze',name:"First Steps",    desc:"Complete your very first typing test",icon:"👶",points:10,  condition: s => s.testsCompleted >= 1 },
+  { id:'tests_5',  cat:'dedication',tier:'bronze', name:"Just Starting",  desc:"Complete 5 typing tests",            icon:"🌱", points:15,  condition: s => s.testsCompleted >= 5 },
+  { id:'tests_10', cat:'dedication',tier:'bronze', name:"Dedicated",      desc:"Complete 10 typing tests",           icon:"💪", points:25,  condition: s => s.testsCompleted >= 10 },
+  { id:'tests_25', cat:'dedication',tier:'silver', name:"Committed",      desc:"Complete 25 typing tests",           icon:"🛠️", points:40,  condition: s => s.testsCompleted >= 25 },
+  { id:'tests_50', cat:'dedication',tier:'silver', name:"Veteran",        desc:"Complete 50 typing tests",           icon:"🎖️", points:60,  condition: s => s.testsCompleted >= 50 },
+  { id:'tests_100',cat:'dedication',tier:'gold',   name:"SoftFingers Legend",desc:"Complete 100 typing tests",         icon:"🏆", points:100, condition: s => s.testsCompleted >= 100 },
+  { id:'tests_200',cat:'dedication',tier:'gold',   name:"Centurion",      desc:"Complete 200 typing tests",          icon:"⚔️", points:150, condition: s => s.testsCompleted >= 200 },
+  { id:'tests_500',cat:'dedication',tier:'platinum',name:"Eternal Typist","desc":"Complete 500 typing tests",        icon:"♾️", points:300, condition: s => s.testsCompleted >= 500 },
+  { id:'streak_3', cat:'dedication',tier:'bronze', name:"On a Roll",       desc:"Type 3 days in a row",              icon:"🔗", points:15,  condition: s => s.streak >= 3 },
+  { id:'streak_7', cat:'dedication',tier:'silver', name:"Week Warrior",    desc:"Type 7 days in a row",              icon:"📅", points:40,  condition: s => s.streak >= 7 },
+  { id:'streak_14',cat:'dedication',tier:'gold',   name:"Fortnight Fire",  desc:"Type 14 days in a row",             icon:"🌟", points:80,  condition: s => s.streak >= 14 },
+  { id:'streak_30',cat:'dedication',tier:'gold',   name:"Monthly Master",  desc:"Type 30 days in a row",             icon:"🗓️", points:150, condition: s => s.streak >= 30 },
+  { id:'streak_60',cat:'dedication',tier:'platinum',name:"Unstoppable",    desc:"Type 60 days in a row",             icon:"🌊", points:250, condition: s => s.streak >= 60 },
+  { id:'marathon', cat:'dedication',tier:'gold',   name:"Marathon",        desc:"Complete a 30-minute typing test",  icon:"🏃", points:80,  condition: s => s.longestTest >= 1800 },
+
+  // ── 📚 CONTENT ────────────────────────────────────────
+  { id:'import',   cat:'content', tier:'bronze',  name:"Text Importer",   desc:"Practice with imported text",        icon:"📥", points:15,  condition: s => s.importUsed >= 1 },
+  { id:'import_5', cat:'content', tier:'silver',  name:"Import Addict",   desc:"Import and type 5 custom texts",     icon:"📂", points:35,  condition: s => s.importUsed >= 5 },
+  { id:'quotes_10',cat:'content', tier:'bronze',  name:"Quote Collector", desc:"Complete 10 tests in Quotes mode",   icon:"💬", points:25,  condition: s => s.quotesCompleted >= 10 },
+  { id:'quotes_50',cat:'content', tier:'silver',  name:"Quote Master",    desc:"Complete 50 tests in Quotes mode",   icon:"📖", points:60,  condition: s => s.quotesCompleted >= 50 },
+  { id:'stories_5',cat:'content', tier:'bronze',  name:"Story Time",      desc:"Complete 5 tests in Stories mode",   icon:"📚", points:20,  condition: s => s.storiesCompleted >= 5 },
+  { id:'bible',    cat:'content', tier:'silver',  name:"Scripture Typist",desc:"Complete 3 Bible practice sessions", icon:"✝️", points:30,  condition: s => s.bibleCompleted >= 3 },
+  { id:'bible_all',cat:'content', tier:'gold',    name:"Bible Scholar",   desc:"Complete all Bible passages",        icon:"📿", points:80,  condition: s => s.bibleCompleted >= 9 },
+  { id:'hymns',    cat:'content', tier:'silver',  name:"Hymn Singer",     desc:"Complete 2 Hymns practice sessions", icon:"🎵", points:30,  condition: s => s.hymnsCompleted >= 2 },
+  { id:'hymns_all',cat:'content', tier:'gold',    name:"Choir Master",    desc:"Complete all Hymns sessions",        icon:"🎶", points:60,  condition: s => s.hymnsCompleted >= 6 },
+  { id:'history',  cat:'content', tier:'gold',    name:"Historian",       desc:"Complete all history topics",        icon:"📜", points:60,  condition: s => s.historyCompleted >= Object.keys(HISTORY_TEXTS||{}).length },
+  { id:'history_5',cat:'content', tier:'bronze',  name:"History Buff",    desc:"Complete 5 history topics",          icon:"🏛️", points:25,  condition: s => s.historyCompleted >= 5 },
+
+  // ── ⚔️ COMPETITION ────────────────────────────────────
+  { id:'competition',cat:'competition',tier:'bronze', name:"Competitor",  desc:"Join your first competition",        icon:"⚔️", points:25,  condition: s => s.competitionsJoined >= 1 },
+  { id:'comp_3',   cat:'competition',tier:'bronze',   name:"Race Regular",desc:"Join 3 competitions",                icon:"🏁", points:40,  condition: s => s.competitionsJoined >= 3 },
+  { id:'comp_10',  cat:'competition',tier:'silver',   name:"Speed Racer", desc:"Join 10 competitions",               icon:"🏎️", points:80,  condition: s => s.competitionsJoined >= 10 },
+  { id:'comp_win', cat:'competition',tier:'gold',     name:"Race Winner",  desc:"Win a typing competition",          icon:"🥇", points:100, condition: s => (s.competitionsWon||0) >= 1 },
+  { id:'comp_podium',cat:'competition',tier:'silver', name:"Podium Finish",desc:"Finish in the top 3 of any race",   icon:"🏅", points:60,  condition: s => (s.podiumFinishes||0) >= 1 },
+  { id:'comp_5wins',cat:'competition',tier:'platinum',name:"Champion",    desc:"Win 5 competitions",                icon:"🏆", points:200, condition: s => (s.competitionsWon||0) >= 5 },
+
+  // ── 🎓 LEARNING ───────────────────────────────────────
+  { id:'lesson_1',  cat:'learning', tier:'bronze',  name:"First Lesson",  desc:"Complete your first lesson",         icon:"📝", points:10,  condition: s => (s.completedLessons||[]).length >= 1 },
+  { id:'lesson_5',  cat:'learning', tier:'bronze',  name:"Quick Learner", desc:"Complete 5 lessons",                 icon:"⚡", points:25,  condition: s => (s.completedLessons||[]).length >= 5 },
+  { id:'lesson_10', cat:'learning', tier:'silver',  name:"Lesson Veteran",desc:"Complete 10 lessons",               icon:"📗", points:50,  condition: s => (s.completedLessons||[]).length >= 10 },
+  { id:'lesson_complete',cat:'learning',tier:'gold', name:"Graduate",      desc:"Complete all beginner lessons",     icon:"🎓", points:60,  condition: s => s.beginnerLessonsComplete },
+  { id:'intermediate_grad',cat:'learning',tier:'gold',name:"Intermediate Graduate",desc:"Complete all intermediate lessons",icon:"🎓",points:100,condition: s => s.intermediateLessonsComplete },
+  { id:'master_typist',cat:'learning',tier:'platinum',name:"Master Typist","desc":"Complete all advanced lessons",   icon:"🏛️", points:200, condition: s => s.advancedLessonsComplete },
+  { id:'advanced',  cat:'learning', tier:'silver',  name:"Advanced Typist",desc:"Complete a test at Advanced level", icon:"📈", points:45,  condition: s => s.advancedTests >= 1 },
+  { id:'audio',     cat:'learning', tier:'gold',    name:"Audio Ace",      desc:"Complete an audio transcription lesson",icon:"🎧",points:50,condition: s => s.audioCompleted >= 1 },
+
+  // ── ⭐ SPECIAL ────────────────────────────────────────
+  { id:'night_owl', cat:'special',  tier:'silver',  name:"Night Owl",      desc:"Type past midnight",                icon:"🦉", points:20,  condition: s => s.nightTyping },
+  { id:'early_bird',cat:'special',  tier:'silver',  name:"Early Bird",     desc:"Type before 6 AM",                  icon:"🌅", points:20,  condition: s => s.earlyBird },
+  { id:'speed_boost',cat:'special', tier:'silver',  name:"Speed Boost",    desc:"Improve WPM by 20+ in one session", icon:"⬆️", points:35,  condition: s => s.wpmImproved >= 20 },
+  { id:'comeback',  cat:'special',  tier:'gold',    name:"Comeback Kid",   desc:"Bounce back after 3 poor tests",    icon:"🔄", points:50,  condition: s => (s.comebackCount||0) >= 1 },
+  { id:'error_free',cat:'special',  tier:'gold',    name:"Ghost Typist",   desc:"Complete a full test with zero errors",icon:"👻",points:80, condition: s => s.zeroErrorTest },
+  { id:'speed_accurate',cat:'special',tier:'platinum',name:"Diamond Hands","desc":"Score 100 WPM with 99%+ accuracy",icon:"💎",points:150, condition: s => s.bestWpm >= 100 && s.bestAccuracy >= 99 },
+  { id:'all_rounder',cat:'special', tier:'platinum',name:"All-Rounder",   desc:"Use all 3 modes at least 5 times each",icon:"🌐",points:120,condition: s => s.quotesCompleted >= 5 && s.storiesCompleted >= 5 && (s.testsCompleted - (s.quotesCompleted||0) - (s.storiesCompleted||0)) >= 5 },
+];
 
 // ====== UTILITY FUNCTIONS ======
 function toast(msg, type='info', duration=3000) {
@@ -741,6 +998,7 @@ function navigate(page) {
       lessons:      ['Typing', 'Lessons'],
       achievements: ['My', 'Achievements'],
       competition:  ['Typing', 'Competition'],
+      challenges:   ['Typing', 'Challenges'],
       import:       ['Import', 'Text'],
       practice:     ['Sacred & Historical', 'Practice'],
       settings:     ['App', 'Settings']
@@ -761,6 +1019,7 @@ function navigate(page) {
       regenerateTest();
     }
     if(page==='competition') renderCompetitions();
+    if(page==='challenges')  renderChallenges();
     if(page!=='competition') stopCompLbRefresh();
     if(page==='practice') renderPracticeCards();
     if(page==='lessons')  renderLessons();
@@ -782,69 +1041,160 @@ function closeSidebar() {
   document.getElementById('sidebar-overlay').classList.remove('show');
 }
 
-// ====== AUTH ======
-function openLogin() { openModal('login-modal'); }
+// ====== AUTH — Firebase ======
+// state.user holds the display name (string) when signed in, null when guest
+// state.firebaseUser holds the raw Firebase user object
+
+function openLogin() { clearAuthError(); openModal('login-modal'); }
+
 function switchAuthTab(tab) {
-  document.getElementById('login-form-wrap').style.display = tab==='login' ? '' : 'none';
-  document.getElementById('register-form-wrap').style.display = tab==='register' ? '' : 'none';
-  document.querySelectorAll('#auth-tab-group .toggle-pill').forEach(b => b.classList.toggle('active', b.dataset.val===tab));
+  clearAuthError();
+  document.getElementById('login-form-wrap').style.display    = tab === 'login'    ? '' : 'none';
+  document.getElementById('register-form-wrap').style.display = tab === 'register'  ? '' : 'none';
+  document.querySelectorAll('#auth-tab-group .toggle-pill')
+    .forEach(b => b.classList.toggle('active', b.dataset.val === tab));
 }
+
+function clearAuthError() {
+  const el = document.getElementById('auth-error');
+  if(el) { el.style.display = 'none'; el.textContent = ''; }
+}
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  if(el) { el.textContent = msg; el.style.display = 'block'; }
+}
+
+// ── Sign In with Email/Password ──────────────────────────
 function doLogin() {
-  const u = document.getElementById('login-user').value.trim();
-  const p = document.getElementById('login-pass').value;
-  if(!u||!p) { toast('Enter username and password','error'); return; }
+  const email = document.getElementById('login-user').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  if(!email || !pass) { showAuthError('Please enter your email and password.'); return; }
+
+  clearAuthError();
+  setAuthLoading(true, 'login-btn');
   showTopBarLoader('Signing in...');
-  setTimeout(() => {
-    const users = DB.get('users', {});
-    if(users[u] && users[u].pass === btoa(p)) {
-      state.user = u;
-      DB.set('currentUser', u);
-      closeModal('login-modal');
-      renderUserArea();
-      toast(`Welcome back, ${u}! 👋`, 'success');
-      updateGuestBanner();
-      updatePBDisplay();
-    } else { toast('Invalid credentials','error'); }
-    hideTopBarLoader();
-  }, 400);
+
+  fbAuth.signInWithEmailAndPassword(email, pass)
+    .then(() => { closeModal('login-modal'); hideTopBarLoader(); })
+    .catch(err => {
+      hideTopBarLoader();
+      setAuthLoading(false, 'login-btn');
+      showAuthError(friendlyAuthError(err.code));
+    });
 }
+
+// ── Create Account ───────────────────────────────────────
 function doRegister() {
-  const u = document.getElementById('reg-user').value.trim();
-  const e = document.getElementById('reg-email').value.trim();
-  const p = document.getElementById('reg-pass').value;
-  if(!u||!p||!e) { toast('All fields required','error'); return; }
-  if(u.length < 3) { toast('Username too short','error'); return; }
-  const users = DB.get('users', {});
-  if(users[u]) { toast('Username taken','error'); return; }
+  const displayName = document.getElementById('reg-user').value.trim();
+  const email       = document.getElementById('reg-email').value.trim();
+  const pass        = document.getElementById('reg-pass').value;
+
+  if(!displayName || !email || !pass) { showAuthError('All fields are required.'); return; }
+  if(displayName.length < 2)          { showAuthError('Display name is too short.'); return; }
+  if(pass.length < 6)                 { showAuthError('Password must be at least 6 characters.'); return; }
+
+  clearAuthError();
+  setAuthLoading(true, 'register-btn');
   showTopBarLoader('Creating account...');
-  setTimeout(() => {
-    users[u] = { pass: btoa(p), email: e, created: Date.now(), stats: defaultStats() };
-    DB.set('users', users);
-    state.user = u;
-    DB.set('currentUser', u);
-    closeModal('login-modal');
-    renderUserArea();
-    toast(`Welcome to TypeCraft, ${u}! 🎉`, 'success');
-    updateGuestBanner();
-    hideTopBarLoader();
-  }, 500);
+
+  fbAuth.createUserWithEmailAndPassword(email, pass)
+    .then(cred => cred.user.updateProfile({ displayName }))
+    .then(() => {
+      // Create Firestore user document
+      const uid = fbAuth.currentUser.uid;
+      return fbDB.collection('users').doc(uid).set({
+        displayName, email, created: firebase.firestore.FieldValue.serverTimestamp(),
+        stats: defaultStats()
+      }, { merge: true });
+    })
+    .then(() => { closeModal('login-modal'); hideTopBarLoader(); })
+    .catch(err => {
+      hideTopBarLoader();
+      setAuthLoading(false, 'register-btn');
+      showAuthError(friendlyAuthError(err.code));
+    });
 }
+
+// ── Google Sign-In ───────────────────────────────────────
+function doGoogleSignIn() {
+  clearAuthError();
+  const provider = new firebase.auth.GoogleAuthProvider();
+  fbAuth.signInWithPopup(provider)
+    .then(result => {
+      const user = result.user;
+      // Upsert Firestore doc for Google users
+      return fbDB.collection('users').doc(user.uid).set({
+        displayName: user.displayName || user.email.split('@')[0],
+        email: user.email,
+        created: firebase.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true });
+    })
+    .then(() => { closeModal('login-modal'); })
+    .catch(err => {
+      if(err.code !== 'auth/popup-closed-by-user')
+        showAuthError(friendlyAuthError(err.code));
+    });
+}
+
+// ── Forgot Password ──────────────────────────────────────
+function doForgotPassword() {
+  const email = document.getElementById('login-user').value.trim();
+  if(!email) { showAuthError('Enter your email address above, then click Forgot password.'); return; }
+  clearAuthError();
+  fbAuth.sendPasswordResetEmail(email)
+    .then(() => toast('Password reset email sent — check your inbox 📧', 'success'))
+    .catch(err => showAuthError(friendlyAuthError(err.code)));
+}
+
+// ── Sign Out ─────────────────────────────────────────────
 function doLogout() {
-  state.user = null;
-  DB.del('currentUser');
-  renderUserArea();
-  updateGuestBanner();
-  toast('Signed out successfully');
+  fbAuth.signOut()
+    .then(() => toast('Signed out successfully'))
+    .catch(() => toast('Sign out failed', 'error'));
 }
+
+// ── Auth State Observer ──────────────────────────────────
+// This is the single source of truth — fires on every auth change
+// (sign in, sign out, page load if previously signed in, Google redirect)
+fbAuth.onAuthStateChanged(user => {
+  if(user) {
+    // ✅ Signed in
+    state.firebaseUser = user;
+    state.user         = user.displayName || user.email.split('@')[0];
+    // Cache locally so UI can render before Firestore resolves
+    try { localStorage.setItem('tc_lastUser', state.user); } catch(e){}
+
+    renderUserArea();
+    updateGuestBanner();
+
+    // Load user stats from Firestore and merge into local state
+    loadUserStatsFromFirestore();
+
+  } else {
+    // ❌ Signed out or no account
+    state.firebaseUser = null;
+    state.user         = null;
+    try { localStorage.removeItem('tc_lastUser'); } catch(e){}
+    renderUserArea();
+    updateGuestBanner();
+  }
+});
+
+// ── Render user area ─────────────────────────────────────
 function renderUserArea() {
   const area = document.getElementById('nav-user-area');
+  if(!area) return;
   if(state.user) {
+    const initial = state.user[0].toUpperCase();
+    const photoURL = state.firebaseUser?.photoURL;
     area.innerHTML = `
       <div class="user-chip">
-        <div class="avatar">${state.user[0].toUpperCase()}</div>
+        ${photoURL
+          ? `<img src="${photoURL}" class="avatar" style="border-radius:50%;object-fit:cover" onerror="this.outerHTML='<div class=avatar>${initial}</div>'">`
+          : `<div class="avatar">${initial}</div>`}
         <div class="user-info">
           <div class="user-name">${state.user}</div>
-          <div class="user-role">Typist</div>
+          <div class="user-role">${state.firebaseUser?.email || 'Typist'}</div>
         </div>
       </div>
       <button class="btn-logout" onclick="doLogout()">↩ Sign Out</button>`;
@@ -852,24 +1202,137 @@ function renderUserArea() {
     area.innerHTML = `<button class="btn-login" onclick="openLogin()">🔑 Sign In</button>`;
   }
 }
+
 function updateGuestBanner() {
   const b = document.getElementById('guest-banner-dash');
   if(b) b.style.display = state.user ? 'none' : 'flex';
 }
-function defaultStats() {
-  return { testsCompleted:0, bestWpm:0, bestAccuracy:0, totalTime:0, streak:0, lastTypingDate:null, longestTest:0, advancedTests:0, bibleCompleted:0, hymnsCompleted:0, historyCompleted:0, audioCompleted:0, competitionsJoined:0, nightTyping:false, importUsed:0, beginnerLessonsComplete:false, wpmImproved:0, earnedAchievements:[], completedLessons:[] };
+
+// ── Firestore — load user stats ──────────────────────────
+function loadUserStatsFromFirestore() {
+  if(!state.firebaseUser) return;
+  const uid = state.firebaseUser.uid;
+
+  fbDB.collection('users').doc(uid).get()
+    .then(doc => {
+      if(doc.exists) {
+        const data = doc.data();
+        // Merge Firestore stats into local cache
+        if(data.stats) {
+          try { localStorage.setItem('tc_fb_stats_' + uid, JSON.stringify(data.stats)); } catch(e){}
+        }
+        if(data.pbs) {
+          try { localStorage.setItem('tc_pbs', JSON.stringify(data.pbs)); } catch(e){}
+        }
+        updatePBDisplay();
+        renderLeaderboard();
+      } else {
+        // New user — push default stats to Firestore
+        fbDB.collection('users').doc(uid).set({ stats: defaultStats() }, { merge: true });
+      }
+    })
+    .catch(() => {}); // Offline — use cached local data silently
 }
+
+// ── getUserStats / saveUserStats — Firebase-aware ────────
+function defaultStats() {
+  return {
+    testsCompleted:0, bestWpm:0, bestAccuracy:0, totalTime:0, streak:0,
+    lastTypingDate:null, longestTest:0, advancedTests:0, bibleCompleted:0,
+    hymnsCompleted:0, historyCompleted:0, audioCompleted:0,
+    competitionsJoined:0, nightTyping:false, importUsed:0,
+    beginnerLessonsComplete:false, wpmImproved:0,
+    earnedAchievements:[], completedLessons:[]
+  };
+}
+
 function getUserStats() {
   if(!state.user) return DB.get('guestStats', defaultStats());
+  if(state.firebaseUser) {
+    // Try Firestore-synced cache first
+    try {
+      const cached = localStorage.getItem('tc_fb_stats_' + state.firebaseUser.uid);
+      if(cached) return JSON.parse(cached);
+    } catch(e){}
+  }
+  // Fallback to old local user store
   const users = DB.get('users', {});
   return users[state.user]?.stats || defaultStats();
 }
+
 function saveUserStats(stats) {
   if(!state.user) { DB.set('guestStats', stats); return; }
-  const users = DB.get('users', {});
-  if(!users[state.user]) users[state.user] = {};
-  users[state.user].stats = stats;
-  DB.set('users', users);
+
+  // Always save to local cache immediately for instant UI
+  if(state.firebaseUser) {
+    try { localStorage.setItem('tc_fb_stats_' + state.firebaseUser.uid, JSON.stringify(stats)); } catch(e){}
+    // Async sync to Firestore (non-blocking)
+    const uid = state.firebaseUser.uid;
+    fbDB.collection('users').doc(uid).set({ stats }, { merge: true }).catch(() => {});
+  } else {
+    // Fallback for local-only users
+    const users = DB.get('users', {});
+    if(!users[state.user]) users[state.user] = {};
+    users[state.user].stats = stats;
+    DB.set('users', users);
+  }
+}
+
+// ── addToLeaderboard — also writes to Firestore ──────────
+const _origAddToLeaderboard = function(entry) {
+  let lb = DB.get('leaderboard', []);
+  lb.push({...entry, ts: Date.now()});
+  lb.sort((a,b) => b.wpm - a.wpm);
+  DB.set('leaderboard', lb.slice(0, 100));
+};
+function addToLeaderboard(entry) {
+  _origAddToLeaderboard(entry);
+  // Sync to Firestore global leaderboard
+  if(state.firebaseUser) {
+    fbDB.collection('leaderboard').add({
+      ...entry,
+      uid:  state.firebaseUser.uid,
+      name: state.user,
+      ts:   firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(() => {});
+  }
+}
+
+// ── Personal bests — sync to Firestore ───────────────────
+const _origSavePBs = DB.set.bind(DB);
+// Hook into PB saves
+function savePBsToFirestore(pbs) {
+  if(!state.firebaseUser) return;
+  fbDB.collection('users').doc(state.firebaseUser.uid)
+    .set({ pbs }, { merge: true }).catch(() => {});
+}
+
+// ── Helper: loading state on auth buttons ────────────────
+function setAuthLoading(loading, btnId) {
+  const btn = document.getElementById(btnId);
+  if(!btn) return;
+  btn.disabled   = loading;
+  btn.textContent = loading
+    ? (btnId === 'login-btn' ? 'Signing in…' : 'Creating account…')
+    : (btnId === 'login-btn' ? 'Sign In'     : 'Create Account');
+}
+
+// ── Friendly Firebase error messages ─────────────────────
+function friendlyAuthError(code) {
+  const map = {
+    'auth/email-already-in-use':    'An account with this email already exists. Try signing in.',
+    'auth/invalid-email':           'Please enter a valid email address.',
+    'auth/weak-password':           'Password is too weak. Use at least 6 characters.',
+    'auth/user-not-found':          'No account found with this email. Create one below.',
+    'auth/wrong-password':          'Incorrect password. Try again or reset your password.',
+    'auth/invalid-credential':      'Email or password is incorrect.',
+    'auth/too-many-requests':       'Too many attempts. Please wait a moment and try again.',
+    'auth/network-request-failed':  'No internet connection. Check your network and try again.',
+    'auth/popup-blocked':           'Popup was blocked. Please allow popups for this site.',
+    'auth/user-disabled':           'This account has been disabled. Contact support.',
+    'auth/requires-recent-login':   'Please sign in again to continue.',
+  };
+  return map[code] || 'Something went wrong. Please try again.';
 }
 
 // ====== TYPING TEST CORE ======
@@ -1321,12 +1784,6 @@ function updatePBDisplay(stats) {
 }
 
 // ====== LEADERBOARD ======
-function addToLeaderboard(entry) {
-  let lb = DB.get('leaderboard', []);
-  lb.push({...entry,ts:Date.now()});
-  lb.sort((a,b)=>b.wpm-a.wpm);
-  DB.set('leaderboard', lb.slice(0,100));
-}
 
 function renderLeaderboard() {
   showLeaderboardSkeleton();
@@ -1393,27 +1850,25 @@ function showQuoteAuthor(author, idx) {
 
   if (author) {
     nameEl.textContent = author;
-    // idx may be passed directly or looked up
     const quoteIdx = (idx !== undefined) ? idx : QUOTES.findIndex(q => q.text === state.testText);
     badge.textContent = `${quoteIdx + 1} / ${QUOTES.length}`;
     bar.style.display = 'block';
 
-    // Build progress dots (show 7 around current position)
     if (dotsEl) {
-      const total = QUOTES.length;
-      const ci = quoteIdx;
-      let dotHtml = '';
+      const total  = QUOTES.length;
+      const ci     = quoteIdx;
+      let dotHtml  = '';
       const radius = 3;
-      const start = Math.max(0, ci - radius);
-      const end   = Math.min(total - 1, ci + radius);
+      const start  = Math.max(0, ci - radius);
+      const end    = Math.min(total - 1, ci + radius);
       if (start > 0) dotHtml += `<span style="font-size:.55rem;color:var(--text3)">…</span>`;
       for (let i = start; i <= end; i++) {
         const active = i === ci;
         dotHtml += `<div onclick="jumpToQuote(${i})" style="
-          width:${active?'20px':'6px'};height:6px;border-radius:3px;
-          background:${active?'var(--accent)':'var(--text3)'};
+          width:${active ? '20px' : '6px'};height:6px;border-radius:3px;
+          background:${active ? 'var(--accent)' : 'var(--text3)'};
           transition:all .2s;cursor:pointer;flex-shrink:0"
-          title="Quote ${i+1}: ${QUOTES[i].author}"></div>`;
+          title="Quote ${i + 1}: ${QUOTES[i].author}"></div>`;
       }
       if (end < total - 1) dotHtml += `<span style="font-size:.55rem;color:var(--text3)">…</span>`;
       dotsEl.innerHTML = dotHtml;
@@ -1428,7 +1883,6 @@ function showQuoteAuthor(author, idx) {
 }
 
 function navigateQuote(direction) {
-  // Move to next or previous quote without full regeneration
   const newIdx = ((currentQuoteIdx + direction) + QUOTES.length) % QUOTES.length;
   loadQuoteByIndex(newIdx);
 }
@@ -1537,11 +1991,7 @@ function regenerateTest() {
   }, 220);
 }
 
-function startTest() { regenerateTest(); }
 
-function focusTyping() {
-  document.getElementById('typing-input').focus();
-}
 
 // ====== TOGGLE GROUPS (legacy — kept for non-dashboard uses) ======
 function initToggleGroups() {
@@ -1625,23 +2075,30 @@ function showTypingCountdown(onComplete, count = 3) {
 // ====== F5 HANDLING — all typing pages ======
 document.addEventListener('keydown', e => {
   if(e.key==='F5') {
-    const now = Date.now();
+    const now          = Date.now();
     const timeSinceLast = now - state.lastF5;
 
-    // Double-tap F5 within 1000ms → let browser reload naturally
-    if(timeSinceLast < 1000 && timeSinceLast > 0) {
-      state.lastF5 = 0; 
-      return;
+    // ── Double-tap F5 within 600ms → full browser page reload ──
+    if(timeSinceLast < 600 && timeSinceLast > 0) {
+      state.lastF5 = 0;       // reset so a third tap is treated as a new first tap
+      return;                 // do NOT call e.preventDefault() — let browser reload
     }
 
-    // Single tap — prevent reload and refresh text/exercise only
+    // ── Single tap → prevent reload, refresh text/exercise only ──
     e.preventDefault();
     state.lastF5 = now;
 
-    const page = state.currentPage;
+    const page       = state.currentPage;
+    const chOverlay  = document.getElementById('challenge-active-overlay');
+    const raceRoom   = document.getElementById('race-room');
 
-    // Race room overlay takes priority
-    const raceRoom = document.getElementById('race-room');
+    // Challenge overlay takes top priority
+    if(chOverlay && chOverlay.classList.contains('show')) {
+      if(chState.active) retryChallengeActive();
+      return;
+    }
+
+    // Race room overlay
     if(raceRoom && raceRoom.classList.contains('show')) {
       if(raceState.active || raceState.finished) {
         startRaceCountdown();
@@ -1653,7 +2110,7 @@ document.addEventListener('keydown', e => {
     if(page === 'dashboard') {
       regenerateTest();
       document.getElementById('typing-input').focus();
-      toast('New text ↺; Double-tap F5 to reload page', 'info');
+      toast('New text ↺  ·  Double-tap F5 to reload page');
       return;
     }
 
@@ -1661,7 +2118,7 @@ document.addEventListener('keydown', e => {
       if(state.importActive || state.importText) {
         restartImport();
       } else {
-        toast('Load a text first, then press F5 to restart','warn');
+        toast('Load a text first, then press F5 to restart', 'warn');
       }
       return;
     }
@@ -1708,6 +2165,7 @@ document.addEventListener('keydown', e => {
     playLessonAudio();
   }
 });
+
 // ====== FORMAT TIME ======
 function formatTime(seconds) {
   if(seconds < 60) return seconds + 's';
@@ -2029,6 +2487,8 @@ function loadModalExercise(idx) {
   });
 
   renderModalText(lmState.text, 0);
+  // Prime keyboard with first character of this exercise
+  updateKeyboardHighlight(lmState.text ? lmState.text[0] : '');
   const inp = document.getElementById('lesson-exercise-input');
   inp.value = '';
   inp.disabled = true;
@@ -2117,6 +2577,292 @@ function closeLessonModal() {
   renderLessons();
 }
 
+// ====== LESSON KEYBOARD ======
+
+// ── Finger assignments ──────────────────────────────────
+// finger classes: finger-l-pinky, finger-l-ring, finger-l-middle, finger-l-index
+//                 finger-r-index, finger-r-middle, finger-r-ring, finger-r-pinky
+//                 finger-l-thumb / finger-r-thumb (space)
+const KB_FINGER = {
+  // Number row
+  '`':  'finger-l-pinky',  '1': 'finger-l-pinky',  '2': 'finger-l-ring',
+  '3':  'finger-l-middle', '4': 'finger-l-index',   '5': 'finger-l-index',
+  '6':  'finger-r-index',  '7': 'finger-r-index',   '8': 'finger-r-middle',
+  '9':  'finger-r-ring',   '0': 'finger-r-pinky',   '-': 'finger-r-pinky', '=': 'finger-r-pinky',
+  // Top row
+  'q':  'finger-l-pinky',  'w': 'finger-l-ring',    'e': 'finger-l-middle',
+  'r':  'finger-l-index',  't': 'finger-l-index',   'y': 'finger-r-index',
+  'u':  'finger-r-index',  'i': 'finger-r-middle',  'o': 'finger-r-ring',
+  'p':  'finger-r-pinky',  '[': 'finger-r-pinky',   ']': 'finger-r-pinky',  '\\': 'finger-r-pinky',
+  // Home row
+  'a':  'finger-l-pinky',  's': 'finger-l-ring',    'd': 'finger-l-middle',
+  'f':  'finger-l-index',  'g': 'finger-l-index',   'h': 'finger-r-index',
+  'j':  'finger-r-index',  'k': 'finger-r-middle',  'l': 'finger-r-ring',
+  ';':  'finger-r-pinky',  "'": 'finger-r-pinky',
+  // Bottom row
+  'z':  'finger-l-pinky',  'x': 'finger-l-ring',    'c': 'finger-l-middle',
+  'v':  'finger-l-index',  'b': 'finger-l-index',   'n': 'finger-r-index',
+  'm':  'finger-r-index',  ',': 'finger-r-middle',  '.': 'finger-r-ring',
+  '/':  'finger-r-pinky',
+  ' ':  'finger-r-thumb',
+  // Shift key needs special handling — left shift for right-hand keys, right shift for left-hand
+};
+
+// Finger colours and labels
+const FINGER_META = {
+  'finger-l-pinky':  { color:'#ff5f7e', label:'Left Pinky',  hand:'left',  finger:0 },
+  'finger-l-ring':   { color:'#ff9f43', label:'Left Ring',   hand:'left',  finger:1 },
+  'finger-l-middle': { color:'#ffd166', label:'Left Middle',  hand:'left',  finger:2 },
+  'finger-l-index':  { color:'#00d68f', label:'Left Index',  hand:'left',  finger:3 },
+  'finger-l-thumb':  { color:'#00e5c8', label:'Left Thumb',  hand:'left',  finger:4 },
+  'finger-r-thumb':  { color:'#00e5c8', label:'Right Thumb', hand:'right', finger:4 },
+  'finger-r-index':  { color:'#6c63ff', label:'Right Index', hand:'right', finger:3 },
+  'finger-r-middle': { color:'#c77dff', label:'Right Middle',hand:'right', finger:2 },
+  'finger-r-ring':   { color:'#00cfff', label:'Right Ring',  hand:'right', finger:1 },
+  'finger-r-pinky':  { color:'#ff6b35', label:'Right Pinky', hand:'right', finger:0 },
+};
+
+// Shift map (what shift + key produces)
+const KB_SHIFT_MAP = {
+  '`':'~','1':'!','2':'@','3':'#','4':'$','5':'%','6':'^','7':'&','8':'*','9':'(','0':')','-':'_','=':'+',
+  '[':'{',']':'}','\\':'|',';':':','\'':'"',',':'<','.':'>','/':'?'
+};
+
+// ── Keyboard layout ─────────────────────────────────────
+const KB_ROWS = [
+  // [displayLabel, keyValue, extraClass, shiftLabel]
+  [
+    ['`','`','','~'],['1','1','','!'],['2','2','','@'],['3','3','','#'],['4','4','','$'],
+    ['5','5','','%'],['6','6','','^'],['7','7','','&'],['8','8','','*'],['9','9','','('],
+    ['0','0','',')'],['−','-','','_'],['=','=','','+'],['⌫','Backspace','w-bksp','']
+  ],
+  [
+    ['Tab','Tab','w-tab',''],['Q','q','',''],['W','w','',''],['E','e','',''],['R','r','',''],
+    ['T','t','',''],['Y','y','',''],['U','u','',''],['I','i','',''],['O','o','',''],
+    ['P','p','',''],['[','[','','{'],  [']',']','','}'],['\\','\\','','|']
+  ],
+  [
+    ['Caps','CapsLock','w-caps',''],['A','a','',''],['S','s','',''],['D','d','',''],
+    ['F','f','',''],['G','g','',''],['H','h','',''],['J','j','',''],['K','k','',''],
+    ['L','l','',''],  [';',';','',':'],["'","'",'','"'],['Enter','Enter','w-enter','']
+  ],
+  [
+    ['Shift','LShift','w-shift',''],['Z','z','',''],['X','x','',''],['C','c','',''],
+    ['V','v','',''],['B','b','',''],['N','n','',''],['M','m','',''],
+    [',',',','','<'],['.','.','',['>']],['/','/','','?'],['Shift','RShift','w-shft2','']
+  ],
+  [
+    ['Ctrl','Ctrl','w-tab',''],['Alt','Alt','w-tab',''],['Space','Space','w-space',''],
+    ['Alt','Alt','w-tab',''],['Ctrl','Ctrl','w-tab','']
+  ]
+];
+
+// Map key value → DOM id
+function kbKeyId(val) { return 'kb-k-' + val.replace(/[^a-zA-Z0-9]/g, c => c.charCodeAt(0)); }
+
+function buildKeyboard() {
+  const rowsEl = document.getElementById('kb-rows');
+  if(!rowsEl) return;
+
+  rowsEl.innerHTML = KB_ROWS.map(row => {
+    const keys = row.map(([label, val, extraCls, shiftLbl]) => {
+      // Get finger class from key value (use lowercase)
+      const lc = val.toLowerCase();
+      const fingerCls = val === 'Space' ? 'finger-r-thumb'
+        : val === 'LShift' || val === 'RShift' ? 'finger-l-pinky'
+        : KB_FINGER[lc] || '';
+      const id = kbKeyId(val);
+      const shifted = shiftLbl ? `<span class="kb-shifted">${shiftLbl}</span>` : '';
+      return `<div class="kb-key ${extraCls} ${fingerCls} kb-finger-glow" id="${id}" data-key="${val}">${label}${shifted}</div>`;
+    }).join('');
+    return `<div class="kb-row">${keys}</div>`;
+  }).join('');
+
+  buildHandsDiagram();
+}
+
+function buildHandsDiagram() {
+  const el = document.getElementById('kb-hands');
+  if(!el) return;
+
+  const fingers = [
+    {id:'lp', label:'P', cls:'finger-l-pinky',  height:28, hand:'left'},
+    {id:'lr', label:'R', cls:'finger-l-ring',    height:36, hand:'left'},
+    {id:'lm', label:'M', cls:'finger-l-middle',  height:40, hand:'left'},
+    {id:'li', label:'I', cls:'finger-l-index',   height:38, hand:'left'},
+    {id:'lt', label:'T', cls:'finger-l-thumb',   height:20, hand:'left'},
+    {id:'rt', label:'T', cls:'finger-r-thumb',   height:20, hand:'right'},
+    {id:'ri', label:'I', cls:'finger-r-index',   height:38, hand:'right'},
+    {id:'rm', label:'M', cls:'finger-r-middle',  height:40, hand:'right'},
+    {id:'rr', label:'R', cls:'finger-r-ring',    height:36, hand:'right'},
+    {id:'rp', label:'P', cls:'finger-r-pinky',   height:28, hand:'right'},
+  ];
+
+  const leftHand  = fingers.filter(f => f.hand === 'left');
+  const rightHand = fingers.filter(f => f.hand === 'right');
+
+  function renderHand(list, label) {
+    return `<div>
+      <div style="text-align:center;font-size:.6rem;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">${label}</div>
+      <div class="kb-hand">
+        ${list.map(f => {
+          const meta = FINGER_META[f.cls];
+          return `<div class="kb-finger-bar">
+            <div class="finger-pill" id="fp-${f.id}" style="height:${f.height}px;background:${meta.color}22;border-color:${meta.color}44"></div>
+            <div class="finger-name">${f.label}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+
+  el.innerHTML = renderHand(leftHand, '← Left Hand') + renderHand(rightHand, 'Right Hand →');
+}
+
+// ── Update keyboard highlight ────────────────────────────
+let _kbPrevKey = null;
+let _kbShiftNeeded = false;
+
+function updateKeyboardHighlight(ch) {
+  if(!document.getElementById('kb-rows')) return;
+
+  // Clear previous
+  if(_kbPrevKey) {
+    const prev = document.getElementById(kbKeyId(_kbPrevKey));
+    if(prev) { prev.classList.remove('kb-active'); }
+    // Clear shift keys too
+    const ls = document.getElementById(kbKeyId('LShift'));
+    const rs = document.getElementById(kbKeyId('RShift'));
+    if(ls) ls.classList.remove('kb-active');
+    if(rs) rs.classList.remove('kb-active');
+    // Clear finger pills
+    document.querySelectorAll('.finger-pill.active').forEach(p => p.classList.remove('active'));
+  }
+
+  if(!ch || ch === '\n') { _kbPrevKey = null; updateNextKeyDisplay('', null); return; }
+
+  // Determine actual key and whether shift is needed
+  const lower = ch.toLowerCase();
+  const isUpper = ch !== lower;
+  const isShiftChar = Object.values(KB_SHIFT_MAP).includes(ch);
+  _kbShiftNeeded = isUpper || isShiftChar;
+
+  // Find base key
+  let baseKey = lower;
+  if(isShiftChar) {
+    // Find which key produces this char via shift
+    baseKey = Object.keys(KB_SHIFT_MAP).find(k => KB_SHIFT_MAP[k] === ch) || lower;
+  }
+  if(ch === ' ') baseKey = 'Space';
+
+  _kbPrevKey = baseKey;
+
+  // Highlight base key
+  const keyEl = document.getElementById(kbKeyId(baseKey));
+  if(keyEl) {
+    keyEl.classList.add('kb-active');
+    // Determine which hand to use for shift if needed
+    const fingerCls = keyEl.className.split(' ').find(c => c.startsWith('finger-'));
+    const meta = fingerCls ? FINGER_META[fingerCls] : null;
+
+    // Activate corresponding shift key on opposite hand
+    if(_kbShiftNeeded) {
+      const shiftId = meta?.hand === 'right' ? 'LShift' : 'RShift';
+      const shiftEl = document.getElementById(kbKeyId(shiftId));
+      if(shiftEl) shiftEl.classList.add('kb-active');
+    }
+
+    // Activate finger pill in hands diagram
+    activateFingerPill(fingerCls, meta?.hand, _kbShiftNeeded ? (meta?.hand === 'right' ? 'left' : 'right') : null);
+
+    updateNextKeyDisplay(ch, meta, _kbShiftNeeded);
+  } else {
+    updateNextKeyDisplay(ch, null, false);
+  }
+}
+
+function activateFingerPill(fingerCls, hand, shiftHand) {
+  const pillMap = {
+    'finger-l-pinky': 'lp', 'finger-l-ring': 'lr', 'finger-l-middle': 'lm',
+    'finger-l-index': 'li', 'finger-l-thumb': 'lt',
+    'finger-r-thumb': 'rt', 'finger-r-index': 'ri', 'finger-r-middle': 'rm',
+    'finger-r-ring':  'rr', 'finger-r-pinky': 'rp',
+  };
+  const shiftPillId = shiftHand === 'left' ? 'lp' : shiftHand === 'right' ? 'rp' : null;
+
+  const id = pillMap[fingerCls];
+  if(id) {
+    const pill = document.getElementById('fp-' + id);
+    if(pill) {
+      const meta = FINGER_META[fingerCls];
+      pill.classList.add('active');
+      pill.style.background = meta.color;
+      pill.style.boxShadow  = `0 4px 12px ${meta.color}66`;
+    }
+  }
+  if(shiftPillId) {
+    const shiftPill = document.getElementById('fp-' + shiftPillId);
+    if(shiftPill) { shiftPill.classList.add('active'); shiftPill.style.background = '#9098b8'; }
+  }
+}
+
+function updateNextKeyDisplay(ch, meta, shiftNeeded) {
+  const box     = document.getElementById('kb-next-display');
+  const dot     = document.getElementById('kb-finger-dot');
+  const nameEl  = document.getElementById('kb-finger-name');
+  if(!box) return;
+
+  if(!ch) {
+    box.textContent = '—';
+    box.style.background = 'var(--text3)';
+    box.style.boxShadow  = 'none';
+    if(dot)    dot.style.background    = 'var(--text3)';
+    if(nameEl) nameEl.textContent      = '—';
+    return;
+  }
+
+  const displayChar = ch === ' ' ? '␣' : ch;
+  box.textContent = displayChar;
+
+  if(meta) {
+    box.style.background = meta.color;
+    box.style.boxShadow  = `0 2px 0 rgba(0,0,0,.4), 0 0 12px ${meta.color}66`;
+    if(dot)    { dot.style.background = meta.color; }
+    if(nameEl) {
+      nameEl.textContent = shiftNeeded
+        ? `${meta.label} + Shift`
+        : meta.label;
+    }
+  } else {
+    box.style.background = 'var(--accent)';
+    box.style.boxShadow  = '0 2px 0 rgba(0,0,0,.4), 0 0 12px rgba(0,229,200,.35)';
+    if(dot)    dot.style.background    = 'var(--accent)';
+    if(nameEl) nameEl.textContent      = ch === ' ' ? 'Either Thumb' : '—';
+  }
+}
+
+// Flash wrong key red briefly
+function flashWrongKey(ch) {
+  const lower = ch === ' ' ? 'Space' : ch.toLowerCase();
+  const el    = document.getElementById(kbKeyId(lower));
+  if(!el) return;
+  el.classList.add('kb-wrong');
+  setTimeout(() => el.classList.remove('kb-wrong'), 280);
+}
+
+// Toggle keyboard visibility
+let _kbVisible = true;
+function toggleKeyboard() {
+  _kbVisible = !_kbVisible;
+  const body = document.getElementById('kb-body');
+  const btn  = document.getElementById('kb-toggle-btn');
+  if(body) body.style.display = _kbVisible ? '' : 'none';
+  if(btn)  btn.textContent    = _kbVisible ? '▾ Hide' : '▸ Show';
+}
+
+// Build keyboard once on DOM ready
+document.addEventListener('DOMContentLoaded', buildKeyboard);
+
 // Lesson modal input handler
 document.addEventListener('DOMContentLoaded', () => {
   const inp = document.getElementById('lesson-exercise-input');
@@ -2148,6 +2894,16 @@ document.addEventListener('DOMContentLoaded', () => {
     lmState.errors = lmState.typedChars.filter((c,i)=>i<text.length&&c!==text[i]).length;
 
     renderModalText(text, lmState.pos);
+
+    // Update keyboard: next char to type
+    const nextCh = text[lmState.pos] ?? '';
+    updateKeyboardHighlight(nextCh);
+
+    // Flash wrong key if last char was a mistake
+    const lastIdx = lmState.pos - 1;
+    if(lastIdx >= 0 && lmState.typedChars[lastIdx] !== text[lastIdx]) {
+      flashWrongKey(text[lastIdx]);
+    }
 
     const elapsed = lmState.startTime ? (Date.now()-lmState.startTime)/1000/60 : 0;
     const wpm = elapsed > 0 ? Math.max(0, Math.round(((lmState.pos-lmState.errors)/5)/elapsed)) : 0;
@@ -2449,7 +3205,7 @@ function createCompetition() {
   let comps = DB.get('competitions', []);
   comps.push(comp);
   DB.set('competitions', comps);
-  state.currentShareLink = `https://typecraft.app/join/${id}`;
+  state.currentShareLink = `https://SoftFingers.app/join/${id}`;
   closeModal('create-comp-modal');
   renderCompetitions();
   openRaceRoom(comp);
@@ -3286,7 +4042,7 @@ function deleteComp(id) {
 }
 
 function shareComp(id) {
-  state.currentShareLink = `https://typecraft.app/join/${id}`;
+  state.currentShareLink = `https://SoftFingers.app/join/${id}`;
   document.getElementById('share-link').textContent = state.currentShareLink;
   openModal('share-comp-modal');
 }
@@ -3297,7 +4053,7 @@ function copyShareLink() {
 
 function shareToSocial(platform) {
   const link = encodeURIComponent(state.currentShareLink);
-  const text = encodeURIComponent('Join my TypeCraft typing competition! 🏆⌨️');
+  const text = encodeURIComponent('Join my SoftFingers typing competition! 🏆⌨️');
   const urls = {
     whatsapp: `https://wa.me/?text=${text}%20${link}`,
     twitter: `https://twitter.com/intent/tweet?text=${text}&url=${link}`,
@@ -3678,6 +4434,11 @@ function setTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   DB.set('theme', theme);
   document.querySelectorAll('.theme-swatch').forEach(s=>s.classList.toggle('active',s.dataset.theme===theme));
+  // Update topbar theme switcher icon and active state
+  const icons = { light:'☀️', dark:'🌙', ocean:'🌊', ember:'🔥', forest:'🌿' };
+  const topbarIcon = document.getElementById('topbar-theme-icon');
+  if(topbarIcon) topbarIcon.textContent = icons[theme] || '🎨';
+  document.querySelectorAll('.topbar-theme-opt').forEach(o => o.classList.toggle('active', o.dataset.theme === theme));
   toast('Theme changed!');
 }
 // Font size → charW / ROW_H map for accurate row wrapping
@@ -3886,7 +4647,7 @@ function loadSettings() {
   });
   // Apply liveWpm visibility right away so it doesn't flicker on first load
   applyWpmVisibility(s.liveWpm !== undefined ? s.liveWpm : true);
-  const theme = DB.get('theme', 'dark');
+  const theme = DB.get('theme', 'light');
   setTheme(theme);
 
   // Font size
@@ -3938,7 +4699,7 @@ function exportData() {
   const data={stats:getUserStats(),leaderboard:DB.get('leaderboard',[]),settings:DB.get('settings',{})};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download='typecraft_data.json';a.click();
+  const a=document.createElement('a');a.href=url;a.download='SoftFingers_data.json';a.click();
   toast('Data exported! ✅','success');
 }
 
@@ -3948,16 +4709,421 @@ function getAudioCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.web
 function playClickSound(){try{const ctx=getAudioCtx();const o=ctx.createOscillator();const g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=600;g.gain.setValueAtTime(.05,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.05);o.start();o.stop(ctx.currentTime+.05);}catch(e){}}
 function playErrorSound(){try{const ctx=getAudioCtx();const o=ctx.createOscillator();const g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sawtooth';o.frequency.value=200;g.gain.setValueAtTime(.08,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.08);o.start();o.stop(ctx.currentTime+.08);}catch(e){}}
 
+// ====== CHALLENGES ======
+
+const CHALLENGES = [
+  // ── ⭐ 1-Star: Novice ──
+  { id:'ch01', stars:1, badge:'🌱', title:'First Keystrokes',       category:'speed',    desc:'Complete a 30-second test with at least 20 WPM.',            goal:{wpm:20, duration:30, acc:0},   text:'random' },
+  { id:'ch02', stars:1, badge:'🔤', title:'ABC Warmup',             category:'accuracy', desc:'Type the alphabet row — no errors allowed.',                 goal:{wpm:0,  duration:0,  acc:100},  text:'abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz' },
+  { id:'ch03', stars:1, badge:'🏠', title:'Home Row Hero',          category:'lesson',   desc:'Type 30 words using only home-row keys (asdf jkl;).',        goal:{wpm:15, duration:0,  acc:90},   text:'alas all fall a sad jad ask flask hall lads salsa flak fall dads ask add fast flash flask sash all dad' },
+  { id:'ch04', stars:1, badge:'⏱',  title:'One Minute Starter',     category:'speed',    desc:'Finish a full 1-minute test with at least 25 WPM.',          goal:{wpm:25, duration:60, acc:0},   text:'random' },
+  { id:'ch05', stars:1, badge:'🎯', title:'Accuracy Baseline',      category:'accuracy', desc:'Achieve 90% or higher accuracy in a 30-second test.',         goal:{wpm:0,  duration:30, acc:90},  text:'random' },
+
+  // ── ⭐⭐ 2-Star: Easy ──
+  { id:'ch06', stars:2, badge:'🚀', title:'Speed Beginner',         category:'speed',    desc:'Hit 35 WPM on a 1-minute test.',                             goal:{wpm:35, duration:60, acc:0},   text:'random' },
+  { id:'ch07', stars:2, badge:'✅', title:'Perfect Short Burst',    category:'accuracy', desc:'100% accuracy on a 30-second test — no mistakes at all.',    goal:{wpm:0,  duration:30, acc:100}, text:'random' },
+  { id:'ch08', stars:2, badge:'💬', title:'Quote Typist',           category:'quotes',   desc:'Type a quote with at least 30 WPM and 90% accuracy.',        goal:{wpm:30, duration:0,  acc:90},  text:'quote' },
+  { id:'ch09', stars:2, badge:'📝', title:'Word Sprinter',          category:'speed',    desc:'Type 50 words in under 2 minutes with 85%+ accuracy.',       goal:{wpm:25, duration:120,acc:85},  text:'random' },
+  { id:'ch10', stars:2, badge:'⌨️', title:'Row by Row',             category:'lesson',   desc:'Type a full top-row exercise (QWERTY) with 85% accuracy.',   goal:{wpm:20, duration:0,  acc:85},  text:'quit were your type quiet write every tower power' },
+
+  // ── ⭐⭐⭐ 3-Star: Medium ──
+  { id:'ch11', stars:3, badge:'⚡', title:'Speed Intermediate',     category:'speed',    desc:'Reach 50 WPM on a 1-minute test.',                           goal:{wpm:50, duration:60, acc:0},   text:'random' },
+  { id:'ch12', stars:3, badge:'🔥', title:'Hot Streak',             category:'accuracy', desc:'Type a 2-minute test with 95%+ accuracy.',                   goal:{wpm:0,  duration:120,acc:95},  text:'random' },
+  { id:'ch13', stars:3, badge:'📖', title:'Story Teller',           category:'stories',  desc:'Complete a full story passage with 40+ WPM.',                goal:{wpm:40, duration:0,  acc:85},  text:'story' },
+  { id:'ch14', stars:3, badge:'🧠', title:'Mind Over Fingers',      category:'speed',    desc:'Type 100 words with no more than 5 errors.',                 goal:{wpm:0,  duration:0,  acc:95,  words:100}, text:'random' },
+  { id:'ch15', stars:3, badge:'🏁', title:'Race Pace',              category:'speed',    desc:'Sustain 45 WPM throughout a 2-minute test.',                 goal:{wpm:45, duration:120,acc:0},   text:'random' },
+  { id:'ch16', stars:3, badge:'🎭', title:'Mixed Bag',              category:'accuracy', desc:'Type a punctuation-heavy passage with 90%+ accuracy.',       goal:{wpm:30, duration:0,  acc:90},  text:'To be, or not to be — that is the question. Whether tis nobler in the mind to suffer the slings and arrows of outrageous fortune, or to take arms against a sea of troubles.' },
+
+  // ── ⭐⭐⭐⭐ 4-Star: Hard ──
+  { id:'ch17', stars:4, badge:'💥', title:'Speed Demon',            category:'speed',    desc:'Hit 65 WPM on a 1-minute test.',                             goal:{wpm:65, duration:60, acc:0},   text:'random' },
+  { id:'ch18', stars:4, badge:'🎯', title:'Sharpshooter',           category:'accuracy', desc:'Type a 2-minute test with 98%+ accuracy.',                   goal:{wpm:0,  duration:120,acc:98},  text:'random' },
+  { id:'ch19', stars:4, badge:'📜', title:'The Long Game',          category:'speed',    desc:'Complete a 5-minute test with 55+ WPM.',                     goal:{wpm:55, duration:300,acc:0},   text:'random' },
+  { id:'ch20', stars:4, badge:'🧊', title:'Ice Cold',               category:'accuracy', desc:'Zero errors on a full 1-minute test.',                       goal:{wpm:0,  duration:60, acc:100}, text:'random' },
+  { id:'ch21', stars:4, badge:'🏴', title:'Code Breaker',           category:'special',  desc:'Type code symbols accurately — 80% accuracy required.',      goal:{wpm:25, duration:0,  acc:80},  text:"const result = arr.filter(x => x > 0).map(x => x * 2); if (result.length > 0) { console.log('found:', result); }" },
+  { id:'ch22', stars:4, badge:'⚔️', title:'Dual Threat',            category:'speed',    desc:'Reach 60 WPM AND 95% accuracy in the same test.',            goal:{wpm:60, duration:60, acc:95},  text:'random' },
+
+  // ── ⭐⭐⭐⭐⭐ 5-Star: Legend ──
+  { id:'ch23', stars:5, badge:'👑', title:'Century Club',           category:'speed',    desc:'Hit 100 WPM on any 1-minute test.',                          goal:{wpm:100,duration:60, acc:0},   text:'random' },
+  { id:'ch24', stars:5, badge:'💎', title:'Diamond Accuracy',       category:'accuracy', desc:'100% accuracy on a 2-minute test.',                          goal:{wpm:0,  duration:120,acc:100}, text:'random' },
+  { id:'ch25', stars:5, badge:'🌟', title:'SoftFingers Legend',       category:'speed',    desc:'Type 80+ WPM with 98%+ accuracy in a 2-minute test.',        goal:{wpm:80, duration:120,acc:98},  text:'random' },
+  { id:'ch26', stars:5, badge:'🔱', title:'God Mode',               category:'special',  desc:'Reach 120 WPM — if you can get here, you are elite.',        goal:{wpm:120,duration:60, acc:0},   text:'random' },
+  { id:'ch27', stars:5, badge:'🏆', title:'The Marathon',           category:'speed',    desc:'Complete a 10-minute test with 60+ WPM. Endurance is key.', goal:{wpm:60, duration:600,acc:0},   text:'random' },
+  { id:'ch28', stars:5, badge:'🎓', title:'All-Rounder',            category:'special',  desc:'Pass challenges in all 5 star categories.',                  goal:{special:'all_stars'},          text:'random' },
+];
+
+let chState = {
+  active:     null,   // current challenge
+  text:       '',
+  pos:        0,
+  errors:     0,
+  committed:  [],
+  typedChars: [],
+  startTime:  null,
+  timer:      null,
+  finished:   false,
+  active_input: false,
+};
+
+let chFilter = 'all';
+
+// ── Render challenge cards ─────────────────────────────────
+function renderChallenges() {
+  const completed = getCompletedChallenges();
+  const total     = CHALLENGES.length;
+  const done      = Object.keys(completed).length;
+  const totalStars= Object.values(completed).reduce((s,c) => s + (c.stars||0), 0);
+  const maxStars  = CHALLENGES.reduce((s,c) => s + c.stars, 0);
+
+  document.getElementById('ch-earned-count').textContent = done;
+  document.getElementById('ch-total-count').textContent  = total;
+  document.getElementById('ch-stars-earned').textContent = `${totalStars}/${maxStars}`;
+  document.getElementById('ch-badges-count').textContent = done;
+
+  // Wire filter buttons
+  document.querySelectorAll('.challenges-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      chFilter = btn.dataset.filter;
+      document.querySelectorAll('.challenges-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderChallengingGrid(completed);
+    });
+  });
+
+  renderChallengingGrid(completed);
+}
+
+function renderChallengingGrid(completed) {
+  const grid  = document.getElementById('challenges-grid');
+  const label = document.getElementById('ch-showing-label');
+  if(!grid) return;
+
+  const filtered = chFilter === 'all'
+    ? CHALLENGES
+    : CHALLENGES.filter(c => String(c.stars) === chFilter);
+
+  label.textContent = `Showing ${filtered.length} challenge${filtered.length !== 1 ? 's' : ''}`;
+
+  grid.innerHTML = filtered.map(ch => {
+    const comp    = completed[ch.id];
+    const isDone  = !!comp;
+    const isLocked = ch.goal?.special === 'all_stars' && Object.keys(completed).length < 5;
+
+    // Star display
+    const starsHtml = Array.from({length:5}, (_,i) =>
+      `<span class="ch-star ${i < ch.stars ? 'filled' : 'empty'}">⭐</span>`
+    ).join('');
+
+    // Difficulty tag
+    const diffLabels = {1:'Novice',2:'Easy',3:'Medium',4:'Hard',5:'Legend'};
+    const catIcons   = {speed:'⚡',accuracy:'🎯',lesson:'📚',quotes:'💬',stories:'📖',special:'🌟'};
+
+    // Progress (how close they are if not done — based on best WPM/acc)
+    const stats  = getUserStats();
+    let progress = 0;
+    if(isDone) {
+      progress = 100;
+    } else if(ch.goal.wpm) {
+      progress = Math.min(100, Math.round(((stats.bestWpm || 0) / ch.goal.wpm) * 100));
+    } else if(ch.goal.acc) {
+      progress = Math.min(100, Math.round(((stats.bestAccuracy || 0) / ch.goal.acc) * 100));
+    }
+
+    const btnLabel = isDone ? '✓ Done' : isLocked ? '🔒 Locked' : '▶ Start';
+    const btnCls   = isDone ? 'done'  : isLocked ? 'locked'  : '';
+
+    return `<div class="challenge-card${isDone?' ch-completed':''}${isLocked?' ch-locked':''}">
+      <div class="ch-card-top">
+        <div class="ch-star-row">${starsHtml}</div>
+        <span class="ch-badge-icon">${ch.badge}</span>
+        <div class="ch-title">${ch.title}</div>
+        <div class="ch-desc">${ch.desc}</div>
+        ${isDone && comp.wpm ? `<div style="margin-top:8px;font-size:.72rem;color:var(--success);font-weight:700">✅ Completed · ${comp.wpm} WPM · ${comp.acc}% acc</div>` : ''}
+      </div>
+      <div class="ch-card-meta">
+        <span class="ch-tag diff-${ch.stars}">${'⭐'.repeat(ch.stars)} ${diffLabels[ch.stars]}</span>
+        <span class="ch-tag">${catIcons[ch.category]||'🎯'} ${ch.category}</span>
+        ${ch.goal.duration ? `<span class="ch-tag">⏱ ${formatTime(ch.goal.duration)}</span>` : ''}
+        ${ch.goal.wpm     ? `<span class="ch-tag">🚀 ${ch.goal.wpm}+ WPM</span>` : ''}
+        ${ch.goal.acc     ? `<span class="ch-tag">🎯 ${ch.goal.acc}% acc</span>` : ''}
+      </div>
+      <div class="ch-card-footer">
+        <div class="ch-progress-bar-bg">
+          <div class="ch-progress-bar-fill" style="width:${progress}%"></div>
+        </div>
+        <span class="ch-pct">${progress}%</span>
+        <button class="ch-start-btn ${btnCls}" onclick="startChallenge('${ch.id}')"
+          ${isLocked?'disabled':''} style="flex-shrink:0">${btnLabel}</button>
+      </div>
+    </div>`;
+  }).join('') || `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3)">No challenges in this category yet.</div>`;
+}
+
+// ── Start a challenge ──────────────────────────────────────
+function startChallenge(id) {
+  const ch = CHALLENGES.find(c => c.id === id);
+  if(!ch || ch.goal?.special === 'all_stars') {
+    if(ch?.goal?.special === 'all_stars') {
+      const done = Object.keys(getCompletedChallenges()).length;
+      if(done < CHALLENGES.length - 1) { toast('Complete all other challenges first!','warn'); return; }
+    }
+    return;
+  }
+
+  chState.active    = ch;
+  chState.finished  = false;
+  chState.pos       = 0;
+  chState.errors    = 0;
+  chState.committed = [];
+  chState.typedChars = [];
+  chState.startTime = null;
+  chState.active_input = false;
+  clearInterval(chState.timer);
+
+  // Build text for challenge
+  let text = ch.text;
+  if(text === 'random') {
+    const pool  = WORDS['intermediate'];
+    let words   = [];
+    const need  = Math.max(120, (ch.goal.duration || 60) * 5);
+    while(words.length < need) words.push(pool[Math.floor(Math.random()*pool.length)]);
+    text = words.join(' ');
+  } else if(text === 'quote') {
+    const q = QUOTES[Math.floor(Math.random()*QUOTES.length)];
+    text = q.text;
+  } else if(text === 'story') {
+    text = STORIES[Math.floor(Math.random()*STORIES.length)];
+  }
+  chState.text = text;
+
+  // Populate overlay
+  document.getElementById('ch-overlay-title').textContent = ch.title;
+  document.getElementById('ch-overlay-stars').innerHTML = Array.from({length:ch.stars},()=>'⭐').join('');
+  document.getElementById('ch-task-title').textContent = `${ch.badge} ${ch.title}`;
+
+  const goalParts = [];
+  if(ch.goal.wpm)      goalParts.push(`${ch.goal.wpm}+ WPM`);
+  if(ch.goal.acc)      goalParts.push(`${ch.goal.acc}%+ Accuracy`);
+  if(ch.goal.duration) goalParts.push(`within ${formatTime(ch.goal.duration)}`);
+  document.getElementById('ch-task-details').textContent = ch.desc + (goalParts.length ? ` Goal: ${goalParts.join(', ')}.` : '');
+
+  document.getElementById('ch-live-wpm').textContent   = '0';
+  document.getElementById('ch-live-acc').textContent   = '100%';
+  document.getElementById('ch-live-timer').textContent = ch.goal.duration ? formatTime(ch.goal.duration) : '—';
+  document.getElementById('ch-live-target').textContent = ch.goal.wpm ? ch.goal.wpm + ' WPM' : (ch.goal.acc ? ch.goal.acc + '%' : '—');
+
+  // Render text
+  renderChallengeText(text, 0);
+
+  document.getElementById('ch-result-banner').classList.remove('show');
+  document.getElementById('ch-text-zone').classList.remove('active');
+  document.getElementById('ch-input-wrap').classList.remove('active');
+  const inp = document.getElementById('ch-typing-input');
+  inp.value = '';
+  inp.disabled = false;
+
+  document.getElementById('challenge-active-overlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+
+  // Show 3-2-1 countdown then enable input
+  showTypingCountdown(() => {
+    chState.active_input = true;
+    document.getElementById('ch-text-zone').classList.add('active');
+    document.getElementById('ch-input-wrap').classList.add('active');
+    inp.focus();
+    // Start countdown timer if duration-based
+    if(ch.goal.duration) startChallengeTimer(ch.goal.duration);
+  });
+}
+
+function startChallengeTimer(duration) {
+  let remaining = duration;
+  chState.timer = setInterval(() => {
+    remaining--;
+    document.getElementById('ch-live-timer').textContent = formatTime(Math.max(0, remaining));
+    if(remaining <= 0) {
+      clearInterval(chState.timer);
+      endChallenge();
+    }
+  }, 1000);
+}
+
+function renderChallengeText(text, pos) {
+  const el     = document.getElementById('ch-text-display');
+  const typed  = chState.typedChars;
+  const maxLen = 600; // cap display
+  let html = '';
+  for(let i = 0; i < Math.min(text.length, maxLen); i++) {
+    let cls = 'word-char';
+    if(i < pos)      cls += typed[i] === text[i] ? ' correct' : ' wrong';
+    else if(i === pos) cls += ' current';
+    const ch = text[i] === ' ' ? ' ' : text[i].replace(/</g,'&lt;');
+    html += `<span class="${cls}">${ch}</span>`;
+  }
+  el.innerHTML = html;
+  const cur = el.querySelector('.current');
+  if(cur) cur.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+
+// ── Input handler for challenges ───────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = document.getElementById('ch-typing-input');
+  if(!inp) return;
+
+  inp.addEventListener('focus', () => {
+    document.getElementById('ch-text-zone')?.classList.add('active');
+    document.getElementById('ch-input-wrap')?.classList.add('active');
+  });
+
+  inp.addEventListener('input', e => {
+    if(!chState.active_input || chState.finished) return;
+    const val  = e.target.value;
+    const text = chState.text;
+
+    if(!chState.startTime && val.length > 0) {
+      chState.startTime = Date.now();
+    }
+
+    const full  = chState.committed.join('') + val;
+    chState.typedChars = full.split('');
+    chState.pos        = Math.min(full.length, text.length);
+    chState.errors     = chState.typedChars.filter((c,i) => i < text.length && c !== text[i]).length;
+
+    renderChallengeText(text, chState.pos);
+
+    const elapsed = chState.startTime ? (Date.now()-chState.startTime)/1000/60 : 0;
+    const correct = chState.pos - chState.errors;
+    const wpm     = elapsed > 0 ? Math.max(0, Math.round((correct/5)/elapsed)) : 0;
+    const acc     = chState.pos > 0 ? Math.round((correct/chState.pos)*100) : 100;
+
+    document.getElementById('ch-live-wpm').textContent = wpm;
+    document.getElementById('ch-live-acc').textContent = acc + '%';
+
+    if(val.endsWith(' ')) {
+      for(const ch of val) chState.committed.push(ch);
+      e.target.value = '';
+    }
+
+    // Completed all text
+    if(full.length >= text.length && !chState.active.goal.duration) {
+      e.target.value = '';
+      clearInterval(chState.timer);
+      endChallenge();
+    }
+  });
+});
+
+function endChallenge() {
+  if(chState.finished) return;
+  chState.finished  = true;
+  chState.active_input = false;
+  clearInterval(chState.timer);
+
+  const inp = document.getElementById('ch-typing-input');
+  if(inp) inp.disabled = true;
+
+  const ch      = chState.active;
+  const elapsed = chState.startTime ? (Date.now()-chState.startTime)/1000/60 : 0;
+  const correct = chState.pos - chState.errors;
+  const wpm     = elapsed > 0 ? Math.max(0, Math.round((correct/5)/elapsed)) : 0;
+  const acc     = chState.pos > 0 ? Math.round((correct/chState.pos)*100) : 100;
+
+  // Evaluate pass/fail
+  const passWpm = !ch.goal.wpm  || wpm >= ch.goal.wpm;
+  const passAcc = !ch.goal.acc  || acc >= ch.goal.acc;
+  const passed  = passWpm && passAcc;
+
+  const banner    = document.getElementById('ch-result-banner');
+  const starsEl   = document.getElementById('ch-result-stars');
+  const titleEl   = document.getElementById('ch-result-title');
+  const subEl     = document.getElementById('ch-result-sub');
+
+  if(passed) {
+    banner.className = 'ch-result-banner show pass';
+    starsEl.textContent = Array.from({length:ch.stars},()=>'⭐').join('') + ' ' + ch.badge;
+    titleEl.textContent = `Challenge Complete! You earned the "${ch.title}" badge!`;
+    subEl.textContent   = `${wpm} WPM · ${acc}% Accuracy`;
+    // Save completion
+    saveCompletedChallenge(ch.id, { wpm, acc, stars: ch.stars, ts: Date.now() });
+    toast(`🎉 ${ch.badge} "${ch.title}" badge earned!`, 'success', 4000);
+  } else {
+    banner.className = 'ch-result-banner show fail';
+    const failReasons = [];
+    if(!passWpm) failReasons.push(`Need ${ch.goal.wpm} WPM (got ${wpm})`);
+    if(!passAcc) failReasons.push(`Need ${ch.goal.acc}% accuracy (got ${acc}%)`);
+    starsEl.textContent = '💔';
+    titleEl.textContent = 'Not quite — give it another shot!';
+    subEl.textContent   = failReasons.join(' · ');
+    toast(`${wpm} WPM · ${acc}% — keep pushing! 💪`, 'warn');
+  }
+}
+
+function retryChallengeActive() {
+  if(chState.active) startChallenge(chState.active.id);
+}
+
+function closeChallenge() {
+  clearInterval(chState.timer);
+  chState.active = null;
+  chState.finished = false;
+  chState.active_input = false;
+  document.getElementById('challenge-active-overlay').classList.remove('show');
+  document.body.style.overflow = '';
+  renderChallenges();
+}
+
+// ── Persistence ────────────────────────────────────────────
+function getCompletedChallenges() {
+  try { return JSON.parse(localStorage.getItem('tc_challenges') || '{}'); } catch { return {}; }
+}
+function saveCompletedChallenge(id, data) {
+  const all = getCompletedChallenges();
+  // Only update if this is a better score
+  if(!all[id] || data.wpm > (all[id].wpm||0)) {
+    all[id] = data;
+    try { localStorage.setItem('tc_challenges', JSON.stringify(all)); } catch {}
+    // Sync to Firestore if signed in
+    if(state.firebaseUser) {
+      fbDB.collection('users').doc(state.firebaseUser.uid)
+        .set({ challenges: all }, { merge: true }).catch(()=>{});
+    }
+  }
+}
+
+// F5 restarts the active challenge
+// (already handled in F5 block — add challenge page support)
+
 // ====== INIT ======
 window.addEventListener('DOMContentLoaded', () => {
   try {
-    // Restore user
-    const savedUser = DB.get('currentUser');
-    if(savedUser) { const users=DB.get('users',{}); if(users[savedUser]){ state.user=savedUser; }}
+    // Topbar theme switcher
+    const topbarBtn = document.getElementById('topbar-theme-btn');
+    const topbarDd  = document.getElementById('topbar-theme-dd');
+    if(topbarBtn && topbarDd) {
+      topbarBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        topbarDd.classList.toggle('open');
+      });
+      topbarDd.querySelectorAll('.topbar-theme-opt').forEach(opt => {
+        opt.addEventListener('click', () => {
+          setTheme(opt.dataset.theme);
+          topbarDd.classList.remove('open');
+        });
+      });
+      document.addEventListener('click', e => {
+        const sw = document.getElementById('topbar-theme-sw');
+        if(sw && !sw.contains(e.target)) topbarDd.classList.remove('open');
+      });
+    } 
+    try {
+      const lastUser = localStorage.getItem('tc_lastUser');
+      if(lastUser) { state.user = lastUser; renderUserArea(); }
+    } catch(e){}
+    state.firebaseUser = null; // will be set properly by onAuthStateChanged
     renderUserArea();
     updateGuestBanner();
     loadSettings();
     initToggleGroups();
+    initTopbarTheme();
     renderLeaderboard();
     renderPracticeCards();
     updateTopBar('Practice', 'Typing');
@@ -3990,18 +5156,17 @@ window.addEventListener('DOMContentLoaded', () => {
     }, 500);
   }
 });
-
 function updateTopBar(title, sub) {
   const el = document.getElementById('top-bar-title');
   if(el) el.innerHTML = `${title} <span>${sub || ''}</span>`;
   // Update browser tab title
   const pageTitles = {
-    'Practice':          'Practice Typing',
-    'Typing':            sub === 'Lessons' ? 'Lessons' : sub === 'Competition' ? 'Competition' : 'TypeCraft',
-    'My':                'Achievements',
-    'Import':            'Import Text',
-    'Sacred & Historical': 'Practice Texts',
-    'App':               'Settings'
+    'Practice':           'Practice Typing',
+    'Typing':             sub === 'Lessons' ? 'Lessons' : sub === 'Competition' ? 'Competition' : sub === 'Challenges' ? 'Challenges' : 'SoftFingers',
+    'My':                 'Achievements',
+    'Import':             'Import Text',
+    'Sacred & Historical':'Practice Texts',
+    'App':                'Settings'
   };
   const friendly = pageTitles[title] || (sub ? `${title} ${sub}` : title);
   document.title = `${friendly} — SoftFingers`;
