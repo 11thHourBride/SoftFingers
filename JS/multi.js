@@ -1,13 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
    SOFTFINGERS — MULTIPLAYER ENGINE  (multi.js)
    Real-time global typing races via Firebase Firestore.
-
-   Changes vs v1:
-   - Word wrap: spaces render as real spaces so text wraps naturally
-   - Max players: 10 → 100
-   - Host leaves: race continues, host role transfers to next player
-   - Mandatory words: Space is blocked until the current word is
-     typed correctly — no skipping words
    ═══════════════════════════════════════════════════════════════ */
 
 'use strict';
