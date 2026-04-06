@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multiplayer Race — SoftFingers</title>
+<meta name="description" content="Race against typists from around the world in real-time. Same text, live progress, global leaderboard.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles/multi.css">
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  firebase.initializeApp({
+    apiKey:            "AIzaSyCoQO4vR_lIStx2lMPSy_YhHYPh75gHRSQ",
+    authDomain:        "softfingers-typing.firebaseapp.com",
+    projectId:         "softfingers-typing",
+    storageBucket:     "softfingers-typing.firebasestorage.app",
+    messagingSenderId: "896354348357",
+    appId:             "1:896354348357:web:72fda3e79dce5f5b8b622c"
+  });
+</script>
+</head>
+<body>
+
+<!-- ══════════ TOPBAR ══════════ -->
+<header id="multi-topbar">
+  <a href="index.html" class="multi-logo">⌨️ Soft<span>Fingers</span></a>
+  <div class="topbar-spacer"></div>
+  <div id="topbar-user-pill" class="topbar-user-pill" style="display:none">
+    <div class="topbar-avatar" id="topbar-avatar">G</div>
+    <span id="topbar-user-name">Guest</span>
+  </div>
+  <div class="multi-theme-sw">
+    <button class="multi-theme-btn" id="multi-theme-btn" title="Switch theme">
+      <span id="multi-theme-icon">☀️</span>
+    </button>
+    <div class="multi-theme-dd" id="multi-theme-dd">
+      <div class="multi-theme-opt active" data-theme="light">
+        <div class="mth-swatch" style="background:linear-gradient(135deg,#f4f5fb,#00b3a0)"></div>Light
+      </div>
+      <div class="multi-theme-opt" data-theme="dark">
+        <div class="mth-swatch" style="background:linear-gradient(135deg,#08090f,#00e5c8)"></div>Dark
+      </div>
+      <div class="multi-theme-opt" data-theme="ocean">
+        <div class="mth-swatch" style="background:linear-gradient(135deg,#020d1a,#00cfff)"></div>Ocean
+      </div>
+      <div class="multi-theme-opt" data-theme="ember">
+        <div class="mth-swatch" style="background:linear-gradient(135deg,#0f0806,#ff6b35)"></div>Ember
+      </div>
+      <div class="multi-theme-opt" data-theme="forest">
+        <div class="mth-swatch" style="background:linear-gradient(135deg,#050d08,#39d96a)"></div>Forest
+      </div>
+    </div>
+  </div>
+  <a href="softfingers-main.html" class="btn btn-secondary btn-sm" style="text-decoration:none">← Practice</a>
+</header>
+
+<!-- ══════════ MAIN ══════════ -->
+<main id="multi-main">
+
+  <!-- ── SCREEN 1: LOBBY ─────────────────────────────────────── -->
+  <div class="screen active" id="screen-lobby">
+    <div id="screen-lobby-inner">
+      <div class="lobby-hero">
+        <div class="lobby-hero-icon">⚡</div>
+        <h1>Global <span>Race</span></h1>
+        <p>Create a room or join a friend's race — type the same text live, side by side.</p>
+      </div>
+
+      <!-- Name -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="lobby-section-title">Your name</div>
+        <div class="lobby-name-row">
+          <div class="lobby-name-avatar" id="lobby-name-avatar">G</div>
+          <input class="form-input" id="lobby-name-input" type="text"
+            placeholder="Enter your display name…" maxlength="20" autocomplete="off"
+            style="flex:1">
+        </div>
+      </div>
+
+      <div class="lobby-card-wrap">
+        <!-- Create room -->
+        <div class="card">
+          <div class="lobby-section-title">Create a room</div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+            <label class="label" style="white-space:nowrap">Text mode</label>
+            <select id="room-mode-select" class="form-input" style="width:auto;flex:1">
+              <option value="words">Random Words</option>
+              <option value="quote">Famous Quote</option>
+            </select>
+          </div>
+          <button class="btn btn-primary btn-lg" id="create-room-btn" style="width:100%">
+            + Create Room
+          </button>
+          <p class="text-muted" style="margin-top:10px;text-align:center">Share your room code with friends — up to 100 players</p>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px;color:var(--text3);font-size:.8rem">
+          <div class="divider" style="flex:1;margin:0"></div>
+          or join with a code
+          <div class="divider" style="flex:1;margin:0"></div>
+        </div>
+
+        <!-- Join room -->
+        <div class="card">
+          <div class="lobby-section-title">Join a room</div>
+          <div class="join-input-row">
+            <input class="form-input join-code-input" id="join-code-input"
+              type="text" placeholder="XXXXXX" maxlength="6"
+              autocomplete="off" autocorrect="off" autocapitalize="characters">
+            <button class="btn btn-primary" id="join-room-btn">Join →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 2: WAITING ROOM ──────────────────────────────── -->
+  <div class="screen" id="screen-waiting">
+    <div class="waiting-header">
+      <div>
+        <div style="font-size:1.1rem;font-weight:800;color:var(--text)">Waiting for players…</div>
+        <div class="waiting-room-code">
+          Room code: <strong id="waiting-room-code-val">——</strong>
+          <button class="room-code-copy" id="waiting-copy-code-btn" title="Copy code">Copy</button>
+          <button class="room-code-copy" id="waiting-copy-link-btn" title="Copy share link">Share link</button>
+        </div>
+      </div>
+      <div style="font-size:.8rem;color:var(--text3)">
+        <span id="waiting-player-count">0 / 10</span> players
+      </div>
+    </div>
+
+    <div class="players-grid" id="waiting-players-grid"></div>
+
+    <div class="waiting-actions">
+      <button class="btn btn-primary btn-lg" id="host-start-btn" style="display:none">▶ Start Race</button>
+      <button class="btn btn-secondary" id="waiting-leave-btn">← Leave Room</button>
+    </div>
+    <p class="waiting-hint" id="waiting-hint-text">
+      Waiting for the host to start… <span>Share the code above to invite friends!</span>
+    </p>
+  </div>
+
+  <!-- ── SCREEN 3: RACE ──────────────────────────────────────── -->
+  <div class="screen" id="screen-race">
+    <!-- Stat pills -->
+    <div class="race-topbar">
+      <div class="race-stat-pill"><span>WPM</span><span class="val" id="race-wpm-val">0</span></div>
+      <div class="race-stat-pill"><span>Acc</span><span class="val" id="race-acc-val">100%</span></div>
+      <div class="race-stat-pill"><span>Errors</span><span class="val" id="race-errors-val">0</span></div>
+      <div style="flex:1"></div>
+      <button class="btn btn-secondary btn-sm" id="race-leave-btn">✕ Leave</button>
+    </div>
+
+    <!-- Live player progress -->
+    <div class="players-live-section">
+      <div class="players-live-title">⚡ Live Progress</div>
+      <div id="live-players-list"></div>
+    </div>
+
+    <!-- Text display -->
+    <div class="race-text-box" id="race-text-box"
+      onclick="document.getElementById('race-typing-input').focus()">
+      <div class="race-text" id="race-text-display"></div>
+    </div>
+
+    <!-- Typing input -->
+    <div class="race-input-wrap" id="race-input-wrap">
+      <span style="color:var(--text3);font-size:1rem">⌨️</span>
+      <input id="race-typing-input" type="text"
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+        placeholder="Type the text above to race…">
+      <span style="font-size:.7rem;color:var(--text3);font-family:'JetBrains Mono',monospace">Esc to leave</span>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 4: RESULTS ───────────────────────────────────── -->
+  <div class="screen" id="screen-results">
+    <div style="text-align:center;margin-bottom:4px">
+      <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--text3)">Race Complete</div>
+      <div style="font-size:1.6rem;font-weight:800;color:var(--text)">Results</div>
+    </div>
+
+    <!-- Podium -->
+    <div class="results-podium" id="results-podium"></div>
+
+    <!-- Full table -->
+    <div class="card" style="overflow-x:auto;margin-bottom:20px">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Player</th>
+            <th>WPM</th>
+            <th>Accuracy</th>
+            <th>Errors</th>
+          </tr>
+        </thead>
+        <tbody id="results-table-body"></tbody>
+      </table>
+    </div>
+
+    <div class="results-actions">
+      <button class="btn btn-primary btn-lg" id="results-play-again-btn">↺ Play Again</button>
+      <button class="btn btn-secondary" id="results-leave-btn">← Back to Lobby</button>
+    </div>
+    <p class="text-muted" id="results-host-note" style="text-align:center;margin-top:12px">Only the host can restart — wait for them to begin a new race.</p>
+  </div>
+
+</main>
+
+<!-- ── Countdown overlay (full-screen) ─────────────────────────── -->
+<div id="countdown-overlay">
+  <div class="countdown-num" id="countdown-num">3</div>
+  <div class="countdown-label" id="countdown-label">Get ready…</div>
+</div>
+
+<!-- ── Toast container ─────────────────────────────────────────── -->
+<div id="multi-toast-wrap"></div>
+
+<script src="JS/multi.js"></script>
+</body>
+</html>
