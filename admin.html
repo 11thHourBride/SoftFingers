@@ -635,7 +635,7 @@ input:checked + .sw-sl::before { background: var(--accent); transform: translate
   <div class="login-box">
     <div class="login-logo">
       <span class="login-logo-icon">⌨️</span>
-      <div class="login-logo-name">Type<span>Craft</span></div>
+      <div class="login-logo-name">Soft<span>Fingers</span></div>
       <span class="login-logo-badge">Admin Access Only</span>
     </div>
 
@@ -679,7 +679,7 @@ input:checked + .sw-sl::before { background: var(--accent); transform: translate
 <aside id="admin-sidebar">
   <div class="admin-logo">
     <span class="admin-logo-icon">⌨️</span>
-    <span class="admin-logo-text">Type<span>Craft</span></span>
+    <span class="admin-logo-text">Soft<span>Fingers</span></span>
     <span class="admin-logo-badge">ADMIN</span>
   </div>
   <nav class="admin-nav">
@@ -1770,7 +1770,7 @@ function exportJSON(type) {
   if(type==='all'||type==='leaderboard')  data.leaderboard  = DB.get('leaderboard',[]);
   if(type==='all'||type==='competitions') data.competitions = DB.get('competitions',[]);
   const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`typecraft_${type}_${Date.now()}.json`; a.click();
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`softfingers_${type}_${Date.now()}.json`; a.click();
   toast('Exported ✅','success');
 }
 function exportAll() { exportJSON('all'); }
