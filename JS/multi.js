@@ -1,19 +1,48 @@
 /* ═══════════════════════════════════════════════════════════════
-   SOFTFINGERS — MULTIPLAYER ENGINE  (multi.js)
-   Real-time global typing races via Firebase Firestore.
+   SOFTFINGERS — LIVE RACE  (multi.js)
+   Auto-matchmaking multiplayer — no invites, no room codes.
+
+   Flow (identical to 10fastfingers):
+   1. User enters name → clicks "Find a Race"
+   2. System finds the first open lobby (state='open') or creates one
+   3. Lobby countdown starts the moment 2+ players are present
+      (10-second timer, more players can join while it counts down)
+   4. When countdown hits 0 → room state → 'countdown' → 3-2-1 → 'racing'
+   5. All players type the same text, live progress synced via Firestore
+   6. Words are mandatory (Space blocked until current word is correct)
+   7. Results screen → "Race Again" puts the player back in matchmaking
+
+   Firestore structure:
+     mp_lobbies/{lobbyId}
+       state: 'open' | 'countdown' | 'racing' | 'finished'
+       text, mode, createdAt, countdownStartAt, startedAt, finishedAt
+       playerCount
+     mp_lobbies/{lobbyId}/players/{playerId}
+       name, color, uid, progress, wpm, acc, errors, finished,
+       finishedAt, joinedAt
    ═══════════════════════════════════════════════════════════════ */
 
 'use strict';
 
-// ── Firebase references ──────────────────────────────────────────
 const mpDB   = firebase.firestore();
 const mpAuth = firebase.auth();
 
-// ── Constants ────────────────────────────────────────────────────
-const MAX_PLAYERS = 100;
+// ── Config ────────────────────────────────────────────────────────
+const LOBBY_MAX_PLAYERS   = 100;
+const LOBBY_OPEN_MAX      = 10;    // max players per auto-matchmade lobby
+const COUNTDOWN_SECONDS   = 10;    // lobby wait before race
+const COLLECTION          = 'mp_lobbies';
 
-// ── Word pools ───────────────────────────────────────────────────
-const MP_WORDS = [
+// ── Colours (20 distinct) ────────────────────────────────────────
+const COLORS = [
+  '#00e5c8','#ff9f43','#6c63ff','#ff5f7e','#00d68f',
+  '#00cfff','#ffd166','#c77dff','#ff6b35','#39d96a',
+  '#e91e63','#2196f3','#4caf50','#ff5722','#9c27b0',
+  '#00bcd4','#cddc39','#f44336','#3f51b5','#009688',
+];
+
+// ── Word / Quote pools ────────────────────────────────────────────
+const WORDS = [
   'the','and','for','are','but','you','all','can','was','one','our','out',
   'day','get','new','now','old','see','two','who','did','its','let','say',
   'she','use','came','down','each','face','fact','find','form','free','from',
@@ -26,279 +55,212 @@ const MP_WORDS = [
   'then','they','this','time','tree','true','turn','type','very','wait','walk',
   'want','week','well','were','what','when','will','with','word','work','year',
   'about','after','again','along','apply','bring','build','catch','cause','check',
-  'class','clean','clear','climb','close','color','could','count','cover','craft',
-  'dance','enjoy','enter','every','exact','field','fight','final','first','focus',
-  'force','found','front','fully','given','going','grand','great','group','guard',
-  'happy','heart','heavy','honor','house','human','image','issue','large','later',
-  'learn','level','light','local','lucky','major','match','maybe','money','month',
-  'music','night','noble','north','offer','often','order','other','owner','paint',
-  'paper','place','plane','point','power','press','price','pride','prove','quiet',
-  'quite','raise','rapid','reach','ready','refer','reply','right','rough','round',
-  'route','scale','scene','score','sense','serve','sharp','shift','short','sight',
-  'skill','sleep','small','smart','smile','solid','solve','space','speak','speed',
-  'spend','stand','start','state','still','stone','store','story','study','style',
-  'sweet','swift','table','teach','think','throw','title','today','total','touch',
-  'tough','track','trade','train','trend','trial','truly','trust','truth','twist',
-  'under','upper','usual','value','visit','vital','voice','waste','watch','water',
-  'while','white','whole','world','worry','worth','would','write','young',
+  'class','clean','clear','close','color','could','count','cover','craft','dance',
+  'enjoy','enter','every','exact','field','fight','final','first','focus','force',
+  'found','front','fully','given','going','grand','great','group','guard','happy',
+  'heart','heavy','honor','house','human','image','issue','large','later','learn',
+  'level','light','local','lucky','major','match','maybe','money','month','music',
+  'night','north','offer','often','order','other','owner','paint','paper','place',
+  'point','power','press','price','pride','prove','quiet','raise','rapid','reach',
+  'ready','refer','reply','right','rough','round','route','scale','scene','score',
+  'sense','serve','sharp','shift','short','skill','sleep','small','smart','smile',
+  'solid','solve','space','speak','speed','spend','stand','start','state','still',
+  'stone','store','story','study','style','sweet','swift','table','teach','think',
+  'throw','title','today','total','touch','tough','track','trade','train','trend',
+  'truly','trust','truth','twist','under','upper','usual','value','visit','vital',
+  'voice','waste','watch','water','while','white','whole','world','worry','write',
 ];
 
-const MP_QUOTES = [
-  { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
-  { text: "In the middle of every difficulty lies opportunity.", author: "Albert Einstein" },
-  { text: "It is not the mountain we conquer but ourselves.", author: "Edmund Hillary" },
-  { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
-  { text: "The greatest glory in living lies not in never falling, but in rising every time we fall.", author: "Nelson Mandela" },
-  { text: "You miss one hundred percent of the shots you never take.", author: "Wayne Gretzky" },
-  { text: "Whether you think you can or you think you cannot, you are right.", author: "Henry Ford" },
-  { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
-  { text: "It always seems impossible until it is done.", author: "Nelson Mandela" },
-  { text: "Strive not to be a success, but rather to be of value.", author: "Albert Einstein" },
-  { text: "Life is what happens when you are busy making other plans.", author: "John Lennon" },
-  { text: "Spread love everywhere you go. Let no one ever come to you without leaving happier.", author: "Mother Teresa" },
-  { text: "When you reach the end of your rope, tie a knot in it and hang on.", author: "Franklin D. Roosevelt" },
-  { text: "Do not go where the path may lead; go instead where there is no path and leave a trail.", author: "Ralph Waldo Emerson" },
-  { text: "You will face many defeats in life, but never let yourself be defeated.", author: "Maya Angelou" },
+const QUOTES = [
+  "The only way to do great work is to love what you do.",
+  "In the middle of every difficulty lies opportunity.",
+  "It is not the mountain we conquer but ourselves.",
+  "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+  "The greatest glory in living lies not in never falling, but in rising every time we fall.",
+  "You miss one hundred percent of the shots you never take.",
+  "Whether you think you can or you think you cannot, you are right.",
+  "The future belongs to those who believe in the beauty of their dreams.",
+  "It always seems impossible until it is done.",
+  "Strive not to be a success, but rather to be of value.",
+  "Life is what happens when you are busy making other plans.",
+  "When you reach the end of your rope, tie a knot in it and hang on.",
+  "Do not go where the path may lead; go instead where there is no path and leave a trail.",
+  "You will face many defeats in life, but never let yourself be defeated.",
+  "The best time to plant a tree was twenty years ago. The second best time is now.",
 ];
 
-const PLAYER_COLORS = [
-  '#00e5c8','#ff9f43','#6c63ff','#ff5f7e',
-  '#00d68f','#00cfff','#ffd166','#c77dff',
-  '#ff6b35','#39d96a','#e91e63','#2196f3',
-  '#4caf50','#ff5722','#9c27b0','#00bcd4',
-  '#cddc39','#f44336','#3f51b5','#009688',
-];
+function buildText(mode) {
+  if(mode === 'quote') {
+    return QUOTES[Math.floor(Math.random() * QUOTES.length)];
+  }
+  const shuffled = [...WORDS].sort(() => Math.random() - .5);
+  return shuffled.slice(0, 80).join(' ');
+}
 
 // ── State ────────────────────────────────────────────────────────
 const mp = {
-  roomId:        null,
-  playerId:      null,
-  playerName:    '',
-  playerColor:   PLAYER_COLORS[0],
-  isHost:        false,
+  lobbyId:     null,
+  playerId:    null,
+  playerName:  '',
+  playerColor: COLORS[0],
+  mode:        'words',
 
-  roomData:      null,
-  players:       {},
-  playerOrder:   [],
+  lobbyData:   null,
+  players:     {},
+  playerOrder: [],
 
-  // Race text split into words for enforcement
-  raceText:      '',
-  raceWords:     [],         // text.split(' ')
-  raceWordIdx:   0,          // which word we're currently on
-  raceCommitted: 0,          // number of chars committed (correct words + spaces)
-  racePos:       0,          // total chars typed (committed + current input)
-  raceErrors:    0,
+  raceText:    '',
+  raceWords:   [],
+  raceWordIdx: 0,
+  raceCommitted: 0,
+  racePos:     0,
+  raceErrors:  0,
   raceStartTime: null,
-  raceTimer:     null,
+  raceTimer:   null,
+  finished:    false,
 
-  finished:      false,
-  myFinishPlace: 0,
+  unsubLobby:   null,
+  unsubPlayers: null,
 
-  unsubRoom:     null,
-  unsubPlayers:  null,
-
-  currentScreen: 'lobby',
+  lobbyTimerInterval: null,   // client-side countdown tick
+  screen: 'entry',
 };
 
-// ── DOM helpers ──────────────────────────────────────────────────
+// ── DOM ──────────────────────────────────────────────────────────
 const $  = id => document.getElementById(id);
 const $$ = sel => document.querySelectorAll(sel);
-
-function showScreen(name) {
+function show(name) {
   $$('.screen').forEach(s => s.classList.remove('active'));
   const el = $('screen-' + name);
   if(el) el.classList.add('active');
-  mp.currentScreen = name;
+  mp.screen = name;
 }
 
-// ── Toast ────────────────────────────────────────────────────────
-function mpToast(msg, type = '', dur = 3000) {
+// ── Toast ─────────────────────────────────────────────────────────
+function toast(msg, type='', dur=3200) {
   const wrap = $('multi-toast-wrap');
   if(!wrap) return;
   const t = document.createElement('div');
-  t.className = 'multi-toast' + (type ? ' ' + type : '');
+  t.className = 'multi-toast' + (type ? ' '+type : '');
   t.textContent = msg;
   wrap.appendChild(t);
-  setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 350); }, dur);
+  setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 360); }, dur);
 }
-
-// ── Room code ────────────────────────────────────────────────────
-function genRoomCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let code = '';
-  for(let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
-  return code;
-}
-
-// ── Race text builder ────────────────────────────────────────────
-function buildRaceText(mode) {
-  if(mode === 'quote') {
-    return MP_QUOTES[Math.floor(Math.random() * MP_QUOTES.length)].text;
-  }
-  const shuffled = [...MP_WORDS].sort(() => Math.random() - .5);
-  return shuffled.slice(0, 80).join(' ');  // 80 words for a good race
-}
-
-// ── Name / color helpers ─────────────────────────────────────────
-function getMyName() {
-  const val = $('lobby-name-input')?.value.trim();
-  if(val) return val;
-  const u = mpAuth.currentUser;
-  if(u?.displayName) return u.displayName;
-  return 'Guest' + Math.floor(Math.random() * 9000 + 1000);
-}
-function colorForIndex(idx) { return PLAYER_COLORS[idx % PLAYER_COLORS.length]; }
 
 // ═══════════════════════════════════════════════════════════════
-// CREATE ROOM
+//  FIND RACE  — auto-matchmaking
 // ═══════════════════════════════════════════════════════════════
-async function createRoom() {
-  const name   = getMyName();
-  const mode   = $('room-mode-select')?.value || 'words';
-  const code   = genRoomCode();
-  const text   = buildRaceText(mode);
-  const fbUser = mpAuth.currentUser;
-  const uid    = fbUser ? fbUser.uid : 'guest-' + Date.now();
+async function findRace() {
+  const name = $('entry-name-input')?.value.trim() || getGuestName();
+  if(!name) { toast('Enter your display name first', 'warn'); return; }
 
-  mp.playerName  = name;
-  mp.playerColor = colorForIndex(0);
-  mp.isHost      = true;
-  setCreateBtnLoading(true);
+  mp.playerName = name;
+  mp.mode       = document.querySelector('.mode-pill.active')?.dataset.mode || 'words';
+
+  setFindBtnLoading(true);
+  show('lobby');
+  $('lobby-status-text').textContent = 'Finding a race…';
+  $('lobby-countdown-wrap').style.display = 'none';
 
   try {
-    const roomRef = mpDB.collection('rooms').doc(code);
-    await roomRef.set({
-      code, text, mode,
-      state:       'waiting',
-      hostId:      uid,
-      hostName:    name,
-      createdAt:   firebase.firestore.FieldValue.serverTimestamp(),
-      playerCount: 0,
-      countdownAt: null,
-      startedAt:   null,
-      finishedAt:  null,
-    });
+    // Look for an open lobby with the same mode that isn't full
+    const openSnap = await mpDB.collection(COLLECTION)
+      .where('state', '==', 'open')
+      .where('mode',  '==', mp.mode)
+      .orderBy('createdAt', 'asc')
+      .limit(1)
+      .get();
 
-    const playerRef = await roomRef.collection('players').add({
-      name, uid,
-      color:      mp.playerColor,
-      progress:   0,
-      wpm:        0,
-      acc:        100,
-      errors:     0,
-      finished:   false,
-      finishedAt: null,
-      joinedAt:   firebase.firestore.FieldValue.serverTimestamp(),
-    });
+    let lobbyId, isNew;
 
-    mp.roomId   = code;
-    mp.playerId = playerRef.id;
-    mp.raceText = text;
-    enterWaitingRoom();
-  } catch(err) {
-    mpToast('Could not create room: ' + err.message, 'error');
-  } finally {
-    setCreateBtnLoading(false);
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════
-// JOIN ROOM
-// ═══════════════════════════════════════════════════════════════
-async function joinRoom() {
-  const codeRaw = $('join-code-input')?.value.trim().toUpperCase();
-  if(!codeRaw || codeRaw.length < 4) { mpToast('Enter a valid room code', 'warn'); return; }
-
-  const name   = getMyName();
-  const fbUser = mpAuth.currentUser;
-  const uid    = fbUser ? fbUser.uid : 'guest-' + Date.now();
-
-  setJoinBtnLoading(true);
-
-  try {
-    const roomRef  = mpDB.collection('rooms').doc(codeRaw);
-    const roomSnap = await roomRef.get();
-
-    if(!roomSnap.exists) {
-      mpToast('Room not found. Check the code and try again.', 'error');
-      return;
-    }
-
-    const roomData = roomSnap.data();
-
-    if(roomData.state === 'finished') { mpToast('This race has already ended.', 'warn'); return; }
-    if(roomData.state === 'racing')   { mpToast('Race in progress — wait for next round.', 'warn'); return; }
-
-    const playersSnap = await roomRef.collection('players').get();
-    const joinIndex   = playersSnap.size;
-
-    if(joinIndex >= MAX_PLAYERS) {
-      mpToast(`Room is full (max ${MAX_PLAYERS} players).`, 'warn');
-      return;
-    }
-
-    mp.playerName  = name;
-    mp.playerColor = colorForIndex(joinIndex);
-    mp.isHost      = false;
-    mp.roomId      = codeRaw;
-    mp.raceText    = roomData.text;
-
-    const playerRef = await roomRef.collection('players').add({
-      name, uid,
-      color:      mp.playerColor,
-      progress:   0,
-      wpm:        0,
-      acc:        100,
-      errors:     0,
-      finished:   false,
-      finishedAt: null,
-      joinedAt:   firebase.firestore.FieldValue.serverTimestamp(),
-    });
-
-    mp.playerId = playerRef.id;
-    enterWaitingRoom();
-  } catch(err) {
-    mpToast('Could not join: ' + err.message, 'error');
-  } finally {
-    setJoinBtnLoading(false);
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════
-// WAITING ROOM
-// ═══════════════════════════════════════════════════════════════
-function enterWaitingRoom() {
-  showScreen('waiting');
-  const roomRef = mpDB.collection('rooms').doc(mp.roomId);
-  const codeEl  = $('waiting-room-code-val');
-  if(codeEl) codeEl.textContent = mp.roomId;
-  updateWaitingActions();
-
-  mp.unsubRoom = roomRef.onSnapshot(snap => {
-    if(!snap.exists) {
-      // Room document was deleted — only dismiss if not racing
-      if(mp.currentScreen !== 'race') {
-        mpToast('Room was closed.', 'warn');
-        teardown();
-        showScreen('lobby');
+    if(!openSnap.empty) {
+      const doc = openSnap.docs[0];
+      const data = doc.data();
+      // Double-check it's not over capacity (Firestore query may lag)
+      if((data.playerCount || 0) < LOBBY_OPEN_MAX) {
+        lobbyId = doc.id;
+        isNew   = false;
+        mp.raceText = data.text;
       }
+    }
+
+    if(!lobbyId) {
+      // No open lobby found — create one
+      const text    = buildText(mp.mode);
+      const ref     = await mpDB.collection(COLLECTION).add({
+        state:       'open',
+        mode:        mp.mode,
+        text,
+        createdAt:   firebase.firestore.FieldValue.serverTimestamp(),
+        playerCount: 0,
+        countdownStartAt: null,
+        startedAt:   null,
+        finishedAt:  null,
+      });
+      lobbyId     = ref.id;
+      isNew       = true;
+      mp.raceText = text;
+    }
+
+    // Add ourselves to the lobby's players subcollection
+    const fbUser = mpAuth.currentUser;
+    const uid    = fbUser ? fbUser.uid : 'guest-' + Date.now();
+
+    // Determine color from current player count
+    const playersSnap = await mpDB.collection(COLLECTION).doc(lobbyId).collection('players').get();
+    const idx         = playersSnap.size;
+    mp.playerColor    = COLORS[idx % COLORS.length];
+
+    const playerRef = await mpDB.collection(COLLECTION).doc(lobbyId).collection('players').add({
+      name:       mp.playerName,
+      uid,
+      color:      mp.playerColor,
+      progress:   0,
+      wpm:        0,
+      acc:        100,
+      errors:     0,
+      finished:   false,
+      finishedAt: null,
+      joinedAt:   firebase.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Increment playerCount on the lobby
+    await mpDB.collection(COLLECTION).doc(lobbyId).update({
+      playerCount: firebase.firestore.FieldValue.increment(1),
+    });
+
+    mp.lobbyId  = lobbyId;
+    mp.playerId = playerRef.id;
+
+    subscribeToLobby();
+    renderLobbyPlayers();
+    showTextPreview();
+
+  } catch(err) {
+    toast('Could not find a race: ' + err.message, 'error');
+    show('entry');
+  } finally {
+    setFindBtnLoading(false);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SUBSCRIBE  — real-time lobby + player listeners
+// ═══════════════════════════════════════════════════════════════
+function subscribeToLobby() {
+  const lobbyRef = mpDB.collection(COLLECTION).doc(mp.lobbyId);
+
+  mp.unsubLobby = lobbyRef.onSnapshot(snap => {
+    if(!snap.exists) {
+      // Lobby was deleted — only bail if not racing
+      if(mp.screen !== 'race') { toast('Lobby closed.', 'warn'); leaveRace(); }
       return;
     }
-    mp.roomData = snap.data();
-
-    // If we are now the host (role was transferred to us), update isHost
-    const fbUser = mpAuth.currentUser;
-    const myUid  = fbUser ? fbUser.uid : null;
-    if(myUid && mp.roomData.hostId === myUid && !mp.isHost) {
-      mp.isHost = true;
-      mpToast('You are now the host 👑', 'success');
-      updateWaitingActions();
-    }
-
-    handleRoomStateChange(mp.roomData.state);
+    mp.lobbyData = snap.data();
+    handleLobbyState(mp.lobbyData);
   });
 
-  mp.unsubPlayers = roomRef.collection('players')
+  mp.unsubPlayers = lobbyRef.collection('players')
     .orderBy('joinedAt', 'asc')
     .onSnapshot(snap => {
       mp.players     = {};
@@ -307,63 +269,120 @@ function enterWaitingRoom() {
         mp.players[doc.id] = { id: doc.id, ...doc.data() };
         mp.playerOrder.push(doc.id);
       });
-      if(mp.currentScreen === 'waiting') renderWaitingPlayers();
-      if(mp.currentScreen === 'race')    renderLivePlayers();
+      if(mp.screen === 'lobby') {
+        renderLobbyPlayers();
+        checkStartCountdown();
+      }
+      if(mp.screen === 'race') renderRacePlayers();
     });
 }
 
-function handleRoomStateChange(state) {
-  if(state === 'countdown' && mp.currentScreen === 'waiting') startCountdown();
-  if(state === 'racing'    && mp.currentScreen !== 'race')    beginRace();
-  if(state === 'finished'  && mp.currentScreen === 'race' && !mp.finished) {
-    setTimeout(showResults, 1200);
+// ── Handle lobby state transitions ──────────────────────────────
+function handleLobbyState(data) {
+  const state = data.state;
+
+  if(state === 'open' && mp.screen === 'lobby') {
+    $('lobby-status-text').textContent = `${mp.playerOrder.length} player${mp.playerOrder.length !== 1 ? 's' : ''} found…`;
+  }
+
+  if(state === 'countdown' && mp.screen === 'lobby') {
+    startLobbyCountdown(data.countdownStartAt);
+  }
+
+  if(state === 'racing' && mp.screen !== 'race') {
+    clearLobbyTimer();
+    beginRace();
+  }
+
+  if(state === 'finished' && mp.screen === 'race' && !mp.finished) {
+    setTimeout(showResults, 1500);
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// START RACE (host)
-// ═══════════════════════════════════════════════════════════════
-async function hostStartRace() {
-  if(!mp.isHost) return;
-  if(mp.playerOrder.length < 1) { mpToast('Need at least 1 player', 'warn'); return; }
-  const btn = $('host-start-btn');
-  if(btn) { btn.disabled = true; btn.textContent = 'Starting…'; }
-  try {
-    await mpDB.collection('rooms').doc(mp.roomId).update({
-      state:       'countdown',
-      countdownAt: firebase.firestore.FieldValue.serverTimestamp(),
-    });
-  } catch(err) {
-    mpToast('Could not start: ' + err.message, 'error');
-    if(btn) { btn.disabled = false; btn.textContent = '▶ Start Race'; }
+// ── Client-side countdown tick (lobby waiting room) ──────────────
+function startLobbyCountdown(countdownStartAt) {
+  const wrap   = $('lobby-countdown-wrap');
+  const secsEl = $('lobby-secs');
+  const fill   = $('lobby-countdown-fill');
+  if(wrap) wrap.style.display = '';
+
+  clearLobbyTimer();
+
+  const startMs = countdownStartAt?.toMillis?.() || Date.now();
+
+  function tick() {
+    const elapsed  = (Date.now() - startMs) / 1000;
+    const remaining = Math.max(0, COUNTDOWN_SECONDS - elapsed);
+    const pct       = ((COUNTDOWN_SECONDS - remaining) / COUNTDOWN_SECONDS) * 100;
+
+    if(secsEl) secsEl.textContent = Math.ceil(remaining);
+    if(fill)   fill.style.width = pct + '%';
+    $('lobby-status-text').textContent = 'Race is about to start!';
+
+    if(remaining <= 0) {
+      clearLobbyTimer();
+      // First player to notice triggers the racing transition
+      triggerRaceStart();
+    }
+  }
+  tick();
+  mp.lobbyTimerInterval = setInterval(tick, 250);
+}
+
+function clearLobbyTimer() {
+  if(mp.lobbyTimerInterval) { clearInterval(mp.lobbyTimerInterval); mp.lobbyTimerInterval = null; }
+}
+
+// ── Check if lobby should start countdown ───────────────────────
+function checkStartCountdown() {
+  if(!mp.lobbyData || mp.lobbyData.state !== 'open') return;
+  if(mp.playerOrder.length >= 2 && !mp.lobbyData.countdownStartAt) {
+    // Start the countdown — any client can trigger this; Firestore is idempotent
+    mpDB.collection(COLLECTION).doc(mp.lobbyId).update({
+      state:            'countdown',
+      countdownStartAt: firebase.firestore.FieldValue.serverTimestamp(),
+    }).catch(() => {});
   }
 }
 
+// ── Trigger race start (any client when countdown hits 0) ───────
+async function triggerRaceStart() {
+  if(!mp.lobbyId) return;
+  const snap = await mpDB.collection(COLLECTION).doc(mp.lobbyId).get().catch(() => null);
+  if(!snap || snap.data()?.state === 'racing') return; // already started
+
+  // Begin 3-2-1 overlay, then update Firestore once at 0
+  showCountdownOverlay(() => {
+    mpDB.collection(COLLECTION).doc(mp.lobbyId).update({
+      state:     'racing',
+      startedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    }).catch(() => {});
+  });
+}
+
 // ═══════════════════════════════════════════════════════════════
-// COUNTDOWN
+//  COUNTDOWN OVERLAY  3-2-1-GO
 // ═══════════════════════════════════════════════════════════════
-function startCountdown() {
+function showCountdownOverlay(onDone) {
   const overlay = $('countdown-overlay');
   const numEl   = $('countdown-num');
   const lblEl   = $('countdown-label');
-  if(!overlay || !numEl) return;
+  if(!overlay || !numEl) { onDone?.(); return; }
+
   overlay.classList.add('show');
   let count = 3;
 
   function tick() {
     numEl.textContent = count;
+    numEl.style.color = '';
     numEl.style.animation = 'none';
     requestAnimationFrame(() => { numEl.style.animation = 'cdPop .5s cubic-bezier(.34,1.56,.64,1)'; });
+
     if(count <= 0) {
-      if(lblEl) lblEl.textContent = 'Type!';
       numEl.textContent = 'GO!';
       numEl.style.color = 'var(--success)';
-      setTimeout(() => overlay.classList.remove('show'), 700);
-      if(mp.isHost) {
-        mpDB.collection('rooms').doc(mp.roomId).update({
-          state: 'racing', startedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        }).catch(() => {});
-      }
+      if(lblEl) lblEl.textContent = 'Type!';
+      setTimeout(() => { overlay.classList.remove('show'); onDone?.(); }, 700);
       return;
     }
     count--;
@@ -373,50 +392,41 @@ function startCountdown() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// BEGIN RACE
+//  BEGIN RACE
 // ═══════════════════════════════════════════════════════════════
 function beginRace() {
-  showScreen('race');
+  show('race');
 
-  // Initialise word-based state
+  // Re-read text from lobby data (may have changed if this player joined mid-countdown)
+  if(mp.lobbyData?.text) mp.raceText = mp.lobbyData.text;
+
   mp.raceWords     = mp.raceText.split(' ');
   mp.raceWordIdx   = 0;
-  mp.raceCommitted = 0;   // chars committed (correct words + their trailing spaces)
+  mp.raceCommitted = 0;
   mp.racePos       = 0;
   mp.raceErrors    = 0;
   mp.raceStartTime = null;
   mp.finished      = false;
-  mp.myFinishPlace = 0;
 
   renderRaceText(0, '');
-  renderLivePlayers();
+  renderRacePlayers();
 
-  setRacePill('race-wpm-val',    '0');
-  setRacePill('race-acc-val',    '100%');
-  setRacePill('race-errors-val', '0');
+  setRaceStat('race-wpm-val',    '0');
+  setRaceStat('race-acc-val',    '100%');
+  setRaceStat('race-errors-val', '0');
+  $('word-error-hint').textContent = '';
 
-  const inp = $('race-typing-input');
-  if(inp) {
-    inp.value       = '';
-    inp.disabled    = false;
-    inp.placeholder = 'Type the first word…';
-    inp.focus();
-  }
+  const inp = $('race-input');
+  if(inp) { inp.value = ''; inp.disabled = false; inp.focus(); }
   $('race-text-box')?.classList.add('active');
   $('race-input-wrap')?.classList.add('active');
 
   clearInterval(mp.raceTimer);
-  mp.raceTimer = setInterval(updateRaceStats, 800);
+  mp.raceTimer = setInterval(pushStats, 700);
 }
 
 // ═══════════════════════════════════════════════════════════════
-// RENDER RACE TEXT  —  Word-wrapped, char-by-char highlighting
-//
-// We render word by word. Each word is a <span class="word">
-// whose characters get .correct / .wrong / .cursor classes.
-// Spaces between words are plain " " (real space) so CSS wraps
-// them naturally. The current input is compared letter-by-letter
-// against the expected word.
+//  RENDER RACE TEXT  — word-wrapped, caret-aware
 // ═══════════════════════════════════════════════════════════════
 function renderRaceText(wordIdx, currentInput) {
   const el = $('race-text-display');
@@ -426,157 +436,141 @@ function renderRaceText(wordIdx, currentInput) {
   let html = '';
 
   words.forEach((word, wi) => {
-    let wordHtml = '';
+    let wHtml = '';
 
     if(wi < wordIdx) {
-      // Fully committed word — all correct
-      wordHtml = word.split('').map(ch =>
-        `<span class="rc correct">${esc(ch)}</span>`
-      ).join('');
-
+      wHtml = word.split('').map(ch => `<span class="rc correct">${esc(ch)}</span>`).join('');
     } else if(wi === wordIdx) {
-      // Current word — compare char-by-char with currentInput
       for(let ci = 0; ci < word.length; ci++) {
         if(ci < currentInput.length) {
-          const match = currentInput[ci] === word[ci];
-          wordHtml += `<span class="rc ${match ? 'correct' : 'wrong'}">${esc(word[ci])}</span>`;
+          wHtml += `<span class="rc ${currentInput[ci]===word[ci]?'correct':'wrong'}">${esc(word[ci])}</span>`;
         } else if(ci === currentInput.length) {
-          wordHtml += `<span class="rc cursor">${esc(word[ci])}</span>`;
+          wHtml += `<span class="rc cursor">${esc(word[ci])}</span>`;
         } else {
-          wordHtml += `<span class="rc">${esc(word[ci])}</span>`;
+          const isLast = ci === word.length - 1;
+          wHtml += `<span class="rc word-ahead${isLast?' word-last':''}">${esc(word[ci])}</span>`;
         }
       }
-      // If input is longer than word, show extras as wrong (no-op for now)
-
     } else {
-      // Upcoming word
-      wordHtml = word.split('').map(ch => `<span class="rc">${esc(ch)}</span>`).join('');
+      wHtml = word.split('').map(ch => `<span class="rc">${esc(ch)}</span>`).join('');
     }
 
-    // Words are wrapped in a <span class="word"> — space between words is a
-    // plain " " so the browser can wrap the line naturally
-    html += `<span class="word">${wordHtml}</span>`;
+    html += `<span class="word">${wHtml}</span>`;
     if(wi < words.length - 1) html += '<span class="rc word-space"> </span>';
   });
 
   el.innerHTML = html;
-
-  // Scroll cursor into view
   const cur = el.querySelector('.rc.cursor');
   if(cur) cur.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
 function esc(ch) {
-  return ch === '<' ? '&lt;' : ch === '&' ? '&amp;' : ch === '>' ? '&gt;' : ch;
+  return ch==='<'?'&lt;':ch==='>'?'&gt;':ch==='&'?'&amp;':ch;
 }
 
 // ═══════════════════════════════════════════════════════════════
-// LIVE PLAYERS
+//  LIVE PLAYERS PROGRESS
 // ═══════════════════════════════════════════════════════════════
-function renderLivePlayers() {
-  const container = $('live-players-list');
-  if(!container) return;
+function renderRacePlayers() {
+  const el = $('race-players-list');
+  if(!el) return;
 
   const sorted = mp.playerOrder
     .map(id => mp.players[id])
     .filter(Boolean)
-    .sort((a, b) => b.progress - a.progress || b.wpm - a.wpm);
+    .sort((a,b) => b.progress - a.progress || b.wpm - a.wpm);
 
-  // For 100 players we keep rows compact
-  container.innerHTML = sorted.map((p, i) => {
+  el.innerHTML = sorted.map((p, i) => {
     const isMe  = p.id === mp.playerId;
     const place = i + 1;
     const pct   = Math.round(p.progress * 100);
-    const medal = place <= 3 ? ['🥇','🥈','🥉'][place-1] : '';
+    const medal = ['🥇','🥈','🥉'][place-1] || '';
+    const fnCls = place<=3 ? `fn-${place}` : 'fn-n';
     const finTag = p.finished
-      ? `<span class="live-finish-badge ${place<=3?'finish-'+['1st','2nd','3rd'][place-1]:'finish-nth'}">${medal || '#'+place}</span>`
-      : '';
+      ? `<span class="rpr-finish ${fnCls}">${medal||'#'+place}</span>` : '';
     return `
-      <div class="live-player-row${isMe ? ' me' : ''}">
-        <div class="live-player-pos">${place}</div>
-        <div class="live-player-avatar" style="background:${p.color};color:var(--bg)">${p.name[0].toUpperCase()}</div>
-        <div class="live-player-name">${p.name}${isMe ? '<span class="you-tag">you</span>' : ''}</div>
-        <div class="live-progress-wrap">
-          <div class="live-progress-fill" style="width:${pct}%;background:${p.color}"></div>
+      <div class="rpr-row${isMe?' me':''}">
+        <div class="rpr-pos">${place}</div>
+        <div class="rpr-avatar" style="background:${p.color};color:var(--bg)">${p.name[0].toUpperCase()}</div>
+        <div class="rpr-name">${p.name}${isMe?'<span class="you-tag">you</span>':''}</div>
+        <div class="rpr-bar-wrap">
+          <div class="rpr-bar-fill" style="width:${pct}%;background:${p.color}"></div>
         </div>
-        <div class="live-player-wpm${p.finished?' finished':''}">${p.finished ? p.wpm+' ✓' : p.wpm}</div>
+        <div class="rpr-wpm${p.finished?' done':''}">${p.finished?p.wpm+' ✓':p.wpm}</div>
         ${finTag}
       </div>`;
   }).join('');
 }
 
 // ═══════════════════════════════════════════════════════════════
-// TYPING INPUT  —  Word-by-word with mandatory completion
+//  TYPING INPUT — mandatory word completion
 // ═══════════════════════════════════════════════════════════════
 function initRaceInput() {
-  const inp = $('race-typing-input');
+  const inp  = $('race-input');
+  const wrap = $('race-input-wrap');
   if(!inp) return;
 
-  // ── keydown: intercept Space to enforce correct word ──────────
+  // Space key: block unless current word is typed correctly
   inp.addEventListener('keydown', e => {
     if(e.key !== ' ' && e.key !== 'Spacebar') return;
-    if(mp.finished || mp.currentScreen !== 'race') return;
+    if(mp.finished || mp.screen !== 'race') return;
 
-    const currentTyped    = inp.value;
-    const expectedWord    = mp.raceWords[mp.raceWordIdx] || '';
-    const isLastWord      = mp.raceWordIdx === mp.raceWords.length - 1;
+    const typed    = inp.value;
+    const expected = mp.raceWords[mp.raceWordIdx] || '';
+    const isLast   = mp.raceWordIdx === mp.raceWords.length - 1;
 
-    // Don't allow space on the last word (it finishes without one)
-    if(isLastWord) {
+    if(isLast) { e.preventDefault(); return; } // last word: no space needed
+    if(typed !== expected) {
       e.preventDefault();
-      return;
+      // Shake feedback
+      if(wrap) { wrap.classList.remove('shake'); void wrap.offsetWidth; wrap.classList.add('shake'); }
+      const hint = $('word-error-hint');
+      if(hint) {
+        const missing = expected.slice(typed.length);
+        hint.textContent = missing.length
+          ? `Still need: "${missing}"`
+          : `Fix the typo first`;
+        setTimeout(() => { hint.textContent = ''; }, 1800);
+      }
     }
-
-    if(currentTyped !== expectedWord) {
-      // Word not complete or wrong — block the space
-      e.preventDefault();
-      shakeInput(inp);
-      return;
-    }
-
-    // Word is correct — allow the space naturally, we'll commit in the input event
+    // If typed === expected, allow the space naturally
   });
 
-  // ── input: update display and commit completed words ──────────
+  // Input handler
   inp.addEventListener('input', e => {
-    if(mp.finished || mp.currentScreen !== 'race') return;
-    const val = e.target.value;
+    if(mp.finished || mp.screen !== 'race') return;
+    const val      = e.target.value;
+    const expected = mp.raceWords[mp.raceWordIdx] || '';
+    const isLast   = mp.raceWordIdx === mp.raceWords.length - 1;
 
     if(!mp.raceStartTime && val.length > 0) mp.raceStartTime = Date.now();
 
-    const expectedWord = mp.raceWords[mp.raceWordIdx] || '';
-    const isLastWord   = mp.raceWordIdx === mp.raceWords.length - 1;
+    const typed = isLast ? val.replace(/ /g,'') : val;
 
-    // Strip any trailing space the user might have typed on the last word
-    const typedClean = isLastWord ? val.replace(/ /g, '') : val;
-
-    // If the input ends with a space and the word is correct → commit it
-    if(!isLastWord && val.endsWith(' ') && val.trimEnd() === expectedWord) {
-      // Commit: advance word index, record committed char count
+    // Commit word when space typed after correct word
+    if(!isLast && val.endsWith(' ') && val.trimEnd() === expected) {
       mp.raceWordIdx++;
-      // committed chars = all confirmed words + their spaces
       mp.raceCommitted = mp.raceWords.slice(0, mp.raceWordIdx).join(' ').length + 1;
-      // (+ 1 for the space after last confirmed word)
       inp.value = '';
+      $('word-error-hint').textContent = '';
+      if(wrap) wrap.classList.remove('shake');
       renderRaceText(mp.raceWordIdx, '');
-      updateProgress();
+      pushStats();
       return;
     }
 
-    // Count errors in the current word being typed
-    let errorsInWord = 0;
-    for(let i = 0; i < typedClean.length; i++) {
-      if(typedClean[i] !== (expectedWord[i] || '')) errorsInWord++;
+    // Count errors in current word
+    let errs = 0;
+    for(let i = 0; i < typed.length; i++) {
+      if(typed[i] !== (expected[i] || '')) errs++;
     }
-    mp.raceErrors = countCommittedErrors() + errorsInWord;
-    mp.racePos    = mp.raceCommitted + typedClean.length;
+    mp.raceErrors = errs; // only current word errors (committed words were all correct)
+    mp.racePos    = mp.raceCommitted + typed.length;
 
-    // Render with current partial word
-    renderRaceText(mp.raceWordIdx, typedClean);
-    updateProgress();
+    renderRaceText(mp.raceWordIdx, typed);
 
-    // Last word: auto-finish when fully and correctly typed
-    if(isLastWord && typedClean === expectedWord) {
+    // Last word: finish when fully and correctly typed
+    if(isLast && typed === expected) {
       inp.value = '';
       mp.raceCommitted = mp.raceText.length;
       mp.racePos       = mp.raceText.length;
@@ -586,444 +580,372 @@ function initRaceInput() {
 
   inp.addEventListener('focus', () => {
     $('race-text-box')?.classList.add('active');
-    $('race-input-wrap')?.classList.add('active');
+    if(wrap) wrap.classList.add('active');
   });
   inp.addEventListener('blur', () => {
     $('race-text-box')?.classList.remove('active');
-    $('race-input-wrap')?.classList.remove('active');
+    if(wrap) { wrap.classList.remove('active'); wrap.classList.remove('shake'); }
   });
 }
 
-// Count errors in fully committed words by comparing committed text with expected
-function countCommittedErrors() {
-  // All committed words were correct (we only allow commit when word matches)
-  return 0;
-}
-
-// Shake the input to signal a blocked space
-function shakeInput(inp) {
-  inp.classList.remove('input-shake');
-  // Force reflow so re-adding the class triggers the animation
-  void inp.offsetWidth;
-  inp.classList.add('input-shake');
-  setTimeout(() => inp.classList.remove('input-shake'), 400);
-}
-
-// Update progress stat (called after each keystroke)
-function updateProgress() {
-  const prog = mp.raceText.length > 0 ? mp.racePos / mp.raceText.length : 0;
-
-  // Throttle Firestore push to every 600ms
+// ── Push stats to Firestore (throttled by interval) ─────────────
+let _lastPush = 0;
+function pushStats() {
+  if(!mp.raceStartTime || mp.finished || !mp.playerId) return;
   const now = Date.now();
-  if(now - _lastFirestorePush > 600 && mp.playerId && mp.roomId) {
-    _lastFirestorePush = now;
-    const elapsed = mp.raceStartTime ? (Date.now() - mp.raceStartTime) / 1000 / 60 : 0.01;
-    const correct = Math.max(0, mp.racePos - mp.raceErrors);
-    const wpm     = elapsed > 0.001 ? Math.max(0, Math.round((correct / 5) / elapsed)) : 0;
-    const acc     = mp.racePos > 0  ? Math.round((correct / mp.racePos) * 100) : 100;
+  if(now - _lastPush < 500) return;
+  _lastPush = now;
 
-    setRacePill('race-wpm-val',    wpm);
-    setRacePill('race-acc-val',    acc + '%');
-    setRacePill('race-errors-val', mp.raceErrors);
-
-    mpDB.collection('rooms').doc(mp.roomId)
-      .collection('players').doc(mp.playerId)
-      .update({ progress: prog, wpm, acc, errors: mp.raceErrors })
-      .catch(() => {});
-  }
-}
-
-let _lastFirestorePush = 0;
-
-// ── Update stats tick ─────────────────────────────────────────────
-function updateRaceStats() {
-  if(!mp.raceStartTime || mp.finished) return;
-  const elapsed = (Date.now() - mp.raceStartTime) / 1000 / 60;
+  const elapsed = (now - mp.raceStartTime) / 1000 / 60;
   const correct = Math.max(0, mp.racePos - mp.raceErrors);
-  const wpm     = elapsed > 0.001 ? Math.max(0, Math.round((correct / 5) / elapsed)) : 0;
-  const acc     = mp.racePos > 0  ? Math.round((correct / mp.racePos) * 100) : 100;
-  const prog    = mp.raceText.length > 0 ? mp.racePos / mp.raceText.length : 0;
+  const wpm     = elapsed > 0.001 ? Math.max(0, Math.round((correct/5)/elapsed)) : 0;
+  const acc     = mp.racePos > 0  ? Math.round((correct/mp.racePos)*100) : 100;
+  const prog    = mp.raceText.length > 0 ? mp.racePos/mp.raceText.length : 0;
 
-  setRacePill('race-wpm-val',    wpm);
-  setRacePill('race-acc-val',    acc + '%');
-  setRacePill('race-errors-val', mp.raceErrors);
+  setRaceStat('race-wpm-val',    wpm);
+  setRaceStat('race-acc-val',    acc+'%');
+  setRaceStat('race-errors-val', mp.raceErrors);
 
-  const now = Date.now();
-  if(now - _lastFirestorePush > 600 && mp.playerId && mp.roomId) {
-    _lastFirestorePush = now;
-    mpDB.collection('rooms').doc(mp.roomId)
-      .collection('players').doc(mp.playerId)
-      .update({ progress: prog, wpm, acc, errors: mp.raceErrors })
-      .catch(() => {});
-  }
+  mpDB.collection(COLLECTION).doc(mp.lobbyId)
+    .collection('players').doc(mp.playerId)
+    .update({ progress:prog, wpm, acc, errors:mp.raceErrors })
+    .catch(() => {});
 }
 
-function setRacePill(id, val) {
-  const el = $(id);
-  if(el) el.textContent = val;
-}
+function setRaceStat(id, val) { const e=$(id); if(e) e.textContent=val; }
 
 // ═══════════════════════════════════════════════════════════════
-// FINISH RACE
+//  FINISH RACE
 // ═══════════════════════════════════════════════════════════════
 async function finishRace() {
   if(mp.finished) return;
   mp.finished = true;
   clearInterval(mp.raceTimer);
 
-  const elapsed = mp.raceStartTime ? (Date.now() - mp.raceStartTime) / 1000 / 60 : 0.01;
+  const elapsed = mp.raceStartTime ? (Date.now()-mp.raceStartTime)/1000/60 : 0.01;
   const correct = Math.max(0, mp.racePos - mp.raceErrors);
-  const wpm     = elapsed > 0.001 ? Math.max(0, Math.round((correct / 5) / elapsed)) : 0;
-  const acc     = mp.racePos > 0  ? Math.round((correct / mp.racePos) * 100) : 100;
+  const wpm     = elapsed>0.001 ? Math.max(0,Math.round((correct/5)/elapsed)) : 0;
+  const acc     = mp.racePos>0  ? Math.round((correct/mp.racePos)*100) : 100;
 
   $('race-text-box')?.classList.add('finished');
   $('race-text-box')?.classList.remove('active');
-  const inp = $('race-typing-input');
-  if(inp) { inp.disabled = true; inp.placeholder = '✓ Finished!'; }
+  const inp = $('race-input');
+  if(inp) { inp.disabled=true; inp.placeholder='✓ Finished!'; }
 
-  const finishedBefore = Object.values(mp.players).filter(p => p.finished && p.id !== mp.playerId).length;
-  mp.myFinishPlace     = finishedBefore + 1;
-  const emoji          = ['🥇','🥈','🥉'][mp.myFinishPlace - 1] || `#${mp.myFinishPlace}`;
-  mpToast(`${emoji} Finished! ${wpm} WPM · ${acc}% accuracy`, 'success', 5000);
+  const finishedBefore = Object.values(mp.players).filter(p=>p.finished&&p.id!==mp.playerId).length;
+  const place = finishedBefore + 1;
+  const emoji = ['🥇','🥈','🥉'][place-1] || `#${place}`;
+  toast(`${emoji} Finished! ${wpm} WPM · ${acc}% accuracy`, 'success', 5000);
 
-  if(mp.playerId && mp.roomId) {
-    await mpDB.collection('rooms').doc(mp.roomId)
+  if(mp.playerId && mp.lobbyId) {
+    await mpDB.collection(COLLECTION).doc(mp.lobbyId)
       .collection('players').doc(mp.playerId)
-      .update({
-        progress: 1, wpm, acc, finished: true,
-        finishedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      }).catch(() => {});
+      .update({ progress:1, wpm, acc, finished:true, finishedAt:firebase.firestore.FieldValue.serverTimestamp() })
+      .catch(()=>{});
   }
 
-  // Any player (not just host) checks if all done and marks room finished
-  checkAllFinished();
+  // Any player can mark the lobby finished when all are done
+  const allDone = Object.values(mp.players).every(p=>p.finished||(p.id===mp.playerId));
+  if(allDone && mp.lobbyId) {
+    mpDB.collection(COLLECTION).doc(mp.lobbyId).update({
+      state:'finished', finishedAt:firebase.firestore.FieldValue.serverTimestamp(),
+    }).catch(()=>{});
+  }
 
   setTimeout(showResults, 2500);
 }
 
-async function checkAllFinished() {
-  const allDone = Object.values(mp.players).every(p =>
-    p.finished || (p.id === mp.playerId && mp.finished)
-  );
-  if(allDone && mp.roomId) {
-    mpDB.collection('rooms').doc(mp.roomId).update({
-      state: 'finished',
-      finishedAt: firebase.firestore.FieldValue.serverTimestamp(),
-    }).catch(() => {});
-  }
-}
-
 // ═══════════════════════════════════════════════════════════════
-// RESULTS
+//  RESULTS
 // ═══════════════════════════════════════════════════════════════
 function showResults() {
-  showScreen('results');
+  show('results');
 
   const players = mp.playerOrder
     .map(id => mp.players[id])
     .filter(Boolean)
-    .sort((a, b) => {
-      if(a.finished && b.finished) {
+    .sort((a,b) => {
+      if(a.finished&&b.finished) {
         const ta = a.finishedAt?.toMillis?.() || 0;
         const tb = b.finishedAt?.toMillis?.() || 0;
-        return ta - tb || b.wpm - a.wpm;
+        return ta-tb || b.wpm-a.wpm;
       }
-      if(a.finished) return -1;
-      if(b.finished) return 1;
-      return b.progress - a.progress || b.wpm - a.wpm;
+      if(a.finished) return -1; if(b.finished) return 1;
+      return b.progress-a.progress||b.wpm-a.wpm;
     });
 
-  // Podium
+  // My result
+  const myIdx = players.findIndex(p=>p.id===mp.playerId);
+  const myPlace = myIdx+1;
+  const me = players[myIdx];
+  const myEmoji = ['🥇','🥈','🥉'][myPlace-1] || `#${myPlace}`;
+  const resEl = $('results-my-result');
+  if(resEl && me) resEl.textContent = `${myEmoji} You finished ${myPlace}${['st','nd','rd'][myPlace-1]||'th'} — ${me.wpm} WPM · ${me.acc}% accuracy`;
+
+  // Podium (top 3)
   const podiumEl = $('results-podium');
   if(podiumEl) {
-    const top3        = players.slice(0, 3);
-    const visualOrder = [1, 0, 2]; // 2nd left, 1st centre, 3rd right
-    podiumEl.innerHTML = visualOrder
-      .filter(i => top3[i])
-      .map(i => {
-        const p       = top3[i];
-        const place   = i + 1;
-        const medals  = ['🥇','🥈','🥉'];
-        const heights = [90, 65, 48];
-        return `
-          <div class="podium-place podium-${place}">
-            <div class="podium-avatar" style="background:${p.color};color:var(--bg)">${p.name[0].toUpperCase()}</div>
-            <div class="podium-name" title="${p.name}">${p.name}</div>
-            <div class="podium-wpm">${p.wpm} WPM</div>
-            <div class="podium-block" style="height:${heights[place-1]}px">${medals[place-1]}</div>
-          </div>`;
-      }).join('');
-  }
-
-  // Full table
-  const tbody = $('results-table-body');
-  if(tbody) {
-    tbody.innerHTML = players.map((p, i) => {
-      const place  = i + 1;
-      const isMe   = p.id === mp.playerId;
-      const medal  = ['🥇','🥈','🥉'][place-1] || place;
-      return `
-        <tr${isMe ? ' class="me-row"' : ''}>
-          <td class="rank-cell">${medal}</td>
-          <td>
-            <div style="display:flex;align-items:center;gap:8px">
-              <div style="width:22px;height:22px;border-radius:50%;background:${p.color};color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800">${p.name[0].toUpperCase()}</div>
-              ${p.name}${isMe ? ' <span style="font-size:.65rem;color:var(--accent);font-weight:700">(you)</span>' : ''}
-            </div>
-          </td>
-          <td class="wpm-cell">${p.finished ? p.wpm : '<span style="color:var(--text3)">—</span>'}</td>
-          <td class="acc-cell">${p.finished ? p.acc + '%' : 'DNF'}</td>
-          <td style="font-family:var(--font-mono);font-size:.78rem;color:var(--text3)">${p.errors || 0}</td>
-        </tr>`;
+    const top3    = players.slice(0,3);
+    const vOrder  = [1,0,2]; // 2nd left, 1st centre, 3rd right
+    podiumEl.innerHTML = vOrder.filter(i=>top3[i]).map(i => {
+      const p=top3[i], pl=i+1;
+      const medals=['🥇','🥈','🥉'], h=[88,62,46];
+      return `<div class="podium-place podium-${pl}">
+        <div class="podium-avatar" style="background:${p.color};color:var(--bg)">${p.name[0].toUpperCase()}</div>
+        <div class="podium-name" title="${p.name}">${p.name}</div>
+        <div class="podium-wpm">${p.wpm} WPM</div>
+        <div class="podium-block" style="height:${h[pl-1]}px">${medals[pl-1]}</div>
+      </div>`;
     }).join('');
   }
 
-  // Show play-again button only if host (or if they became host)
-  const againBtn = $('results-play-again-btn');
-  if(againBtn) againBtn.style.display = mp.isHost ? '' : 'none';
-  const againNote = $('results-host-note');
-  if(againNote) againNote.style.display = mp.isHost ? 'none' : '';
+  // Table
+  const tbody = $('results-tbody');
+  if(tbody) {
+    tbody.innerHTML = players.map((p,i) => {
+      const pl   = i+1;
+      const isMe = p.id===mp.playerId;
+      const med  = ['🥇','🥈','🥉'][pl-1]||pl;
+      return `<tr${isMe?' class="me-row"':''}>
+        <td class="rt-rank">${med}</td>
+        <td><div style="display:flex;align-items:center;gap:8px">
+          <div style="width:20px;height:20px;border-radius:50%;background:${p.color};color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:800">${p.name[0].toUpperCase()}</div>
+          ${p.name}${isMe?' <span style="font-size:.62rem;color:var(--accent);font-weight:700">(you)</span>':''}
+        </div></td>
+        <td class="rt-wpm">${p.finished?p.wpm:'—'}</td>
+        <td class="rt-acc">${p.finished?p.acc+'%':'DNF'}</td>
+        <td style="font-family:var(--font-mono);font-size:.75rem;color:var(--text3)">${p.errors||0}</td>
+      </tr>`;
+    }).join('');
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
-// PLAY AGAIN  —  any current host can restart
+//  RACE AGAIN — puts player back into matchmaking
 // ═══════════════════════════════════════════════════════════════
-async function playAgain() {
-  if(!mp.isHost) { mpToast('Only the host can start a new race', 'warn'); return; }
-  const mode = mp.roomData?.mode || 'words';
-  const text = buildRaceText(mode);
-
-  const batch = mpDB.batch();
-  mp.playerOrder.forEach(pid => {
-    const ref = mpDB.collection('rooms').doc(mp.roomId).collection('players').doc(pid);
-    batch.update(ref, { progress:0, wpm:0, acc:100, errors:0, finished:false, finishedAt:null });
-  });
-  batch.update(mpDB.collection('rooms').doc(mp.roomId), {
-    state:'waiting', text, startedAt:null, finishedAt:null, countdownAt:null,
-  });
-
-  await batch.commit().catch(err => mpToast(err.message, 'error'));
-
-  mp.raceText      = text;
-  mp.raceWords     = text.split(' ');
-  mp.raceWordIdx   = 0;
-  mp.raceCommitted = 0;
-  mp.racePos       = 0;
-  mp.raceErrors    = 0;
-  mp.raceStartTime = null;
-  mp.finished      = false;
-
-  const inp = $('race-typing-input');
-  if(inp) { inp.disabled = false; inp.placeholder = 'Type the first word…'; inp.value = ''; }
-
-  showScreen('waiting');
-  renderWaitingPlayers();
-  updateWaitingActions();
+async function raceAgain() {
+  await cleanupLobby();
+  // Re-populate name from last session
+  const nameInp = $('entry-name-input');
+  if(nameInp && !nameInp.value) nameInp.value = mp.playerName;
+  show('entry');
+  // Automatically kick off matchmaking without making user click again
+  setTimeout(findRace, 100);
 }
 
 // ═══════════════════════════════════════════════════════════════
-// LEAVE ROOM  —  host leaving transfers role, race continues
+//  LEAVE / CLEANUP
 // ═══════════════════════════════════════════════════════════════
-async function leaveRoom() {
-  if(!mp.roomId || !mp.playerId) { teardown(); showScreen('lobby'); return; }
-
-  try {
-    const roomRef = mpDB.collection('rooms').doc(mp.roomId);
-
-    // If host is leaving, transfer role to the next player before removing self
-    if(mp.isHost) {
-      const remaining = mp.playerOrder.filter(id => id !== mp.playerId);
-      if(remaining.length > 0) {
-        const nextPlayer = mp.players[remaining[0]];
-        if(nextPlayer) {
-          // Transfer host: update room document with new hostId
-          await roomRef.update({
-            hostId:   nextPlayer.uid || remaining[0],
-            hostName: nextPlayer.name,
-          }).catch(() => {});
-          mpToast(`Host transferred to ${nextPlayer.name}`, '');
-        }
-      } else {
-        // No one left — delete the room
-        await roomRef.delete().catch(() => {});
-      }
-    }
-
-    // Remove own player doc
-    await roomRef.collection('players').doc(mp.playerId).delete().catch(() => {});
-
-  } catch(e) { /* best-effort */ }
-
-  teardown();
-  showScreen('lobby');
-  mpToast('Left the room');
+async function leaveRace() {
+  await cleanupLobby();
+  show('entry');
 }
 
-function teardown() {
-  if(mp.unsubRoom)    { mp.unsubRoom();    mp.unsubRoom    = null; }
-  if(mp.unsubPlayers) { mp.unsubPlayers(); mp.unsubPlayers = null; }
+async function cleanupLobby() {
+  clearLobbyTimer();
   clearInterval(mp.raceTimer);
-  mp.roomId        = null;
-  mp.playerId      = null;
-  mp.isHost        = false;
-  mp.players       = {};
-  mp.playerOrder   = [];
-  mp.raceWordIdx   = 0;
+
+  if(mp.unsubLobby)   { mp.unsubLobby();   mp.unsubLobby   = null; }
+  if(mp.unsubPlayers) { mp.unsubPlayers(); mp.unsubPlayers = null; }
+
+  if(mp.lobbyId && mp.playerId) {
+    try {
+      await mpDB.collection(COLLECTION).doc(mp.lobbyId)
+        .collection('players').doc(mp.playerId).delete();
+      // Decrement playerCount
+      await mpDB.collection(COLLECTION).doc(mp.lobbyId).update({
+        playerCount: firebase.firestore.FieldValue.increment(-1),
+      });
+    } catch(e) { /* best-effort */ }
+  }
+
+  mp.lobbyId   = null;
+  mp.playerId  = null;
+  mp.players   = {};
+  mp.playerOrder = [];
+  mp.raceWordIdx = 0;
   mp.raceCommitted = 0;
+  mp.racePos     = 0;
+  mp.raceErrors  = 0;
+  mp.raceStartTime = null;
+  mp.finished    = false;
+  _lastPush      = 0;
 }
 
 // ═══════════════════════════════════════════════════════════════
-// WAITING ROOM RENDER  — compact slots for up to 100 players
+//  LOBBY RENDER
 // ═══════════════════════════════════════════════════════════════
-function renderWaitingPlayers() {
-  const grid = $('waiting-players-grid');
+function renderLobbyPlayers() {
+  const grid = $('lobby-players');
   if(!grid) return;
 
   const slots = mp.playerOrder.map(id => {
-    const p      = mp.players[id];
-    const isMe   = id === mp.playerId;
-    const isHost = mp.roomData && p.uid && mp.roomData.hostId === p.uid;
-    return `
-      <div class="player-slot${isHost ? ' host' : ' ready'}">
-        <div class="player-slot-avatar" style="background:${p.color};color:var(--bg)">${p.name[0].toUpperCase()}</div>
-        <div class="player-slot-name">${p.name}${isMe ? ' (you)' : ''}</div>
-        <span class="player-slot-badge ${isHost ? 'badge-host' : 'badge-ready'}">${isHost ? '👑 Host' : '✓ Ready'}</span>
-      </div>`;
+    const p    = mp.players[id];
+    const isMe = id === mp.playerId;
+    return `<div class="lobby-slot filled${isMe?' is-me':''}">
+      <div class="lobby-slot-avatar" style="background:${p.color};color:var(--bg)">${p.name[0].toUpperCase()}</div>
+      <div class="lobby-slot-name">${p.name}</div>
+      <span class="lobby-slot-badge ${isMe?'badge-you':'badge-ready'}">${isMe?'You':'Ready'}</span>
+    </div>`;
   });
 
-  // Show 4 empty slots as placeholders only if fewer than 4 players
-  const emptyCount = Math.max(0, 4 - slots.length);
-  for(let i = 0; i < emptyCount; i++) {
-    slots.push(`<div class="player-slot empty">
-      <div class="player-slot-avatar" style="background:var(--bg4)">?</div>
-      <div class="player-slot-name text-muted">Waiting…</div>
+  // Show a few empty placeholder slots
+  const empties = Math.max(0, 4 - slots.length);
+  for(let i=0; i<empties; i++) {
+    slots.push(`<div class="lobby-slot empty">
+      <div class="lobby-slot-avatar" style="background:var(--bg4)">?</div>
+      <div class="lobby-slot-name" style="color:var(--text3)">Waiting…</div>
     </div>`);
   }
 
   grid.innerHTML = slots.join('');
-  const countEl = $('waiting-player-count');
-  if(countEl) countEl.textContent = `${mp.playerOrder.length} / ${MAX_PLAYERS}`;
+  $('lobby-status-text').textContent = `${mp.playerOrder.length} player${mp.playerOrder.length!==1?'s':''} in lobby`;
 }
 
-function updateWaitingActions() {
-  const startBtn = $('host-start-btn');
-  const hintEl   = $('waiting-hint-text');
-  if(startBtn) startBtn.style.display = mp.isHost ? '' : 'none';
-  if(hintEl)   hintEl.textContent = mp.isHost
-    ? 'You are the host. Click Start Race when everyone is ready.'
-    : 'Waiting for the host to start…';
+function showTextPreview() {
+  const wrap = $('lobby-text-preview');
+  const txt  = $('ltp-text');
+  if(wrap && txt && mp.raceText) {
+    txt.textContent = mp.raceText;
+    wrap.style.display = '';
+  }
 }
 
-// ── Lobby helpers ─────────────────────────────────────────────────
-function updateLobbyNameDisplay() {
-  const inp  = $('lobby-name-input');
-  const av   = $('lobby-name-avatar');
-  const name = inp?.value.trim() || 'G';
-  if(av) av.textContent = name[0].toUpperCase();
-}
-function setCreateBtnLoading(loading) {
-  const btn = $('create-room-btn');
-  if(btn) { btn.disabled = loading; btn.textContent = loading ? 'Creating…' : '+ Create Room'; }
-}
-function setJoinBtnLoading(loading) {
-  const btn = $('join-room-btn');
-  if(btn) { btn.disabled = loading; btn.textContent = loading ? 'Joining…' : 'Join →'; }
-}
-function copyRoomCode() {
-  if(!mp.roomId) return;
-  navigator.clipboard.writeText(mp.roomId).then(() => mpToast('Room code copied!', 'success'));
-}
-function copyShareLink() {
-  const url = window.location.href.split('?')[0] + '?room=' + mp.roomId;
-  navigator.clipboard.writeText(url).then(() => mpToast('Share link copied!', 'success'));
+// ═══════════════════════════════════════════════════════════════
+//  LIVE STATS BANNER (entry screen)
+// ═══════════════════════════════════════════════════════════════
+function loadLiveStats() {
+  // Count open lobbies as "online"
+  mpDB.collection(COLLECTION)
+    .where('state', 'in', ['open','countdown','racing'])
+    .get()
+    .then(snap => {
+      let online = 0;
+      snap.forEach(doc => online += (doc.data().playerCount || 0));
+      const el = $('els-online');
+      if(el) el.textContent = online > 0 ? online : '—';
+    }).catch(()=>{});
+
+  // Count finished races today
+  const todayStart = new Date();
+  todayStart.setHours(0,0,0,0);
+  mpDB.collection(COLLECTION)
+    .where('state','==','finished')
+    .where('finishedAt','>=', firebase.firestore.Timestamp.fromDate(todayStart))
+    .get()
+    .then(snap => {
+      const el = $('els-races');
+      if(el) el.textContent = snap.size || '—';
+    }).catch(()=>{});
 }
 
-// ── Theme ─────────────────────────────────────────────────────────
-const THEME_ICONS = { light:'☀️', dark:'🌙', ocean:'🌊', ember:'🔥', forest:'🌿' };
+// ═══════════════════════════════════════════════════════════════
+//  THEME & CARET
+// ═══════════════════════════════════════════════════════════════
+const THEME_ICONS = {light:'☀️',dark:'🌙',ocean:'🌊',ember:'🔥',forest:'🌿'};
 
 function initTheme() {
-  let saved = 'light';
-  try { saved = localStorage.getItem('tc_theme') || 'light'; } catch(e) {}
-  applyTheme(saved);
+  let theme = 'light';
+  try { theme = localStorage.getItem('tc_theme') || 'light'; } catch(e){}
+  applyTheme(theme);
+
+  // Caret style from main app
+  let caret = 'block';
+  try { const raw=localStorage.getItem('tc_caretStyle'); if(raw) caret=JSON.parse(raw); } catch(e){}
+  document.body.setAttribute('data-caret', caret);
+
   $$('.multi-theme-opt').forEach(opt => opt.addEventListener('click', () => applyTheme(opt.dataset.theme)));
-  const btn = $('multi-theme-btn');
-  const dd  = $('multi-theme-dd');
-  if(btn && dd) {
+  const btn=$('multi-theme-btn'), dd=$('multi-theme-dd');
+  if(btn&&dd) {
     btn.addEventListener('click', e => { e.stopPropagation(); dd.classList.toggle('open'); });
     document.addEventListener('click', e => {
-      const sw = document.querySelector('.multi-theme-sw');
-      if(sw && !sw.contains(e.target)) dd.classList.remove('open');
+      const sw=document.querySelector('.multi-theme-sw');
+      if(sw&&!sw.contains(e.target)) dd.classList.remove('open');
     });
   }
 }
 function applyTheme(t) {
   document.documentElement.setAttribute('data-theme', t);
-  try { localStorage.setItem('tc_theme', t); } catch(e) {}
-  const iconEl = $('multi-theme-icon');
-  if(iconEl) iconEl.textContent = THEME_ICONS[t] || '☀️';
-  $$('.multi-theme-opt').forEach(o => o.classList.toggle('active', o.dataset.theme === t));
+  try { localStorage.setItem('tc_theme', t); } catch(e){}
+  const ico=$('multi-theme-icon'); if(ico) ico.textContent=THEME_ICONS[t]||'☀️';
+  $$('.multi-theme-opt').forEach(o=>o.classList.toggle('active',o.dataset.theme===t));
   $('multi-theme-dd')?.classList.remove('open');
 }
 
 // ── Auth pre-fill ─────────────────────────────────────────────────
-function initAuthState() {
+function initAuth() {
   mpAuth.onAuthStateChanged(user => {
-    const inp  = $('lobby-name-input');
-    const av   = $('lobby-name-avatar');
+    const inp  = $('entry-name-input');
     const pill = $('topbar-user-pill');
     if(user) {
       const name = user.displayName || user.email?.split('@')[0] || 'Typist';
       if(inp && !inp.value) inp.value = name;
-      if(av)   av.textContent = name[0].toUpperCase();
-      if(pill) { pill.innerHTML = `<div class="topbar-avatar">${name[0].toUpperCase()}</div>${name}`; pill.style.display = ''; }
+      updateAvatar(name);
+      if(pill) {
+        pill.innerHTML = `<div class="topbar-avatar">${name[0].toUpperCase()}</div>${name}`;
+        pill.style.display = '';
+      }
     } else {
       if(pill) pill.style.display = 'none';
     }
   });
 }
 
-// ── URL room param ────────────────────────────────────────────────
-function handleURLRoom() {
-  const code = new URLSearchParams(window.location.search).get('room');
-  if(code) {
-    const inp = $('join-code-input');
-    if(inp) inp.value = code.toUpperCase();
-    mpToast(`Room code ${code} loaded — enter your name and join!`);
-  }
+function getGuestName() {
+  return 'Guest' + Math.floor(Math.random()*9000+1000);
 }
 
-// ── Event listeners ───────────────────────────────────────────────
-function initEventListeners() {
-  $('create-room-btn')?.addEventListener('click', createRoom);
-  $('join-room-btn')?.addEventListener('click', joinRoom);
-  $('lobby-name-input')?.addEventListener('input', updateLobbyNameDisplay);
-  $('join-code-input')?.addEventListener('keydown', e => {
-    if(e.key === 'Enter') joinRoom();
-    setTimeout(() => { if(e.target.value) e.target.value = e.target.value.toUpperCase(); }, 0);
+function updateAvatar(name) {
+  const av = $('entry-avatar');
+  if(av) av.textContent = (name||'G')[0].toUpperCase();
+}
+
+function setFindBtnLoading(loading) {
+  const btn=$('find-race-btn');
+  if(btn) { btn.disabled=loading; btn.textContent=loading?'Searching…':'Find a Race'; }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  EVENT WIRING
+// ═══════════════════════════════════════════════════════════════
+function initEvents() {
+  // Entry
+  $('find-race-btn')?.addEventListener('click', findRace);
+  $('entry-name-input')?.addEventListener('input', e => updateAvatar(e.target.value.trim()));
+  $('entry-name-input')?.addEventListener('keydown', e => { if(e.key==='Enter') findRace(); });
+
+  // Mode pills
+  $$('.mode-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $$('.mode-pill').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+    });
   });
 
-  $('host-start-btn')?.addEventListener('click', hostStartRace);
-  $('waiting-leave-btn')?.addEventListener('click', leaveRoom);
-  $('waiting-copy-code-btn')?.addEventListener('click', copyRoomCode);
-  $('waiting-copy-link-btn')?.addEventListener('click', copyShareLink);
+  // Lobby
+  $('lobby-cancel-btn')?.addEventListener('click', () => { cleanupLobby(); show('entry'); });
 
+  // Race
   initRaceInput();
-  $('race-leave-btn')?.addEventListener('click', leaveRoom);
+  $('race-leave-btn')?.addEventListener('click', leaveRace);
 
-  $('results-play-again-btn')?.addEventListener('click', playAgain);
-  $('results-leave-btn')?.addEventListener('click', leaveRoom);
+  // Results
+  $('race-again-btn')?.addEventListener('click', raceAgain);
+  $('results-home-btn')?.addEventListener('click', () => { cleanupLobby(); window.location='softfingers-main.html'; });
 
+  // Keyboard
   document.addEventListener('keydown', e => {
-    if(e.key === 'Escape' && mp.currentScreen !== 'lobby') leaveRoom();
+    if(e.key==='Escape' && mp.screen!=='entry') leaveRace();
   });
 }
 
-// ── Init ──────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
-  initAuthState();
-  initEventListeners();
-  handleURLRoom();
-  showScreen('lobby');
-  updateLobbyNameDisplay();
+  initAuth();
+  initEvents();
+  loadLiveStats();
+  show('entry');
 });
